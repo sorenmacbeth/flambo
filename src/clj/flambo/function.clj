@@ -1,155 +1,59 @@
 (ns flambo.function
-  (:require [flambo.utils :as u])
-  (:import (flambo.function ClojureFlatMapFunction ClojureFunction
-                            ClojureFunction2 ClojurePairFlatMapFunction
-                            ClojurePairFunction)))
+  (:require [serializable.fn :as sfn])
+  (:import [scala Tuple2]))
 
-;; Function
+(defn- serfn? [f]
+  (= (type f) :serializable.fn/serializable-fn))
 
-(defn clojure-sparkfn* [fn-var args]
-  (ClojureFunction. (u/to-spec fn-var) args))
+(def serialize-fn sfn/serialize)
+(def deserialize-fn (memoize sfn/deserialize))
+(def array-of-bytes-type (Class/forName "[B"))
 
-(defmacro clojure-sparkfn [fn-sym args]
-  `(clojure-sparkfn* (var ~fn-sym) ~args))
+;;; Generic
 
-(defmacro sparkfn [& body]
-  `(proxy [org.apache.spark.api.java.function.Function] []
-     ~@body))
+(defn -init
+  "Save the function f in state"
+  [f]
+  [[] f])
 
-(defmacro defsparkfn [name & [opts & impl :as all]]
-  (if-not (map? opts)
-    `(defsparkfn ~name {} ~@all)
-    (let [params (:params opts)
-          fn-name (symbol (str name "__"))
-          fn-body (let [[args & impl-body] impl
-                        args (vec args)]
-                    `(sparkfn (~'call ~args ~@impl-body)))
-          definer (if params
-                    `(defn ~name [& args#]
-                       (clojure-sparkfn ~fn-name args#))
-                    `(def ~name
-                       (clojure-sparkfn ~fn-name [])))]
-       `(do
-         (defn ~fn-name ~(if params params [])
-           ~fn-body)
-         ~definer))))
+(defn -call [this & xs]
+  (let [fn-or-serfn (.state this)
+        f (if (instance? array-of-bytes-type fn-or-serfn)
+            (deserialize-fn fn-or-serfn)
+            fn-or-serfn)]
+    (apply f xs)))
 
-;; Function2
+;;; Functions
 
-(defn clojure-sparkfn2* [fn-var args]
-  (ClojureFunction2. (u/to-spec fn-var) args))
+(defn mk-sym
+  [fmt sym-name]
+  (symbol (format fmt sym-name)))
 
-(defmacro clojure-sparkfn2 [fn-sym args]
-  `(clojure-sparkfn2* (var ~fn-sym) ~args))
+(defmacro gen-function
+  [clazz wrapper-name]
+  (let [new-class-sym (mk-sym "flambo.function.%s" clazz)
+        prefix-sym (mk-sym "%s-" clazz)]
+    `(do
+       (def ~(mk-sym "%s-init" clazz) -init)
+       (def ~(mk-sym "%s-call" clazz) -call)
+       (gen-class
+        :name ~new-class-sym
+        :extends ~(mk-sym "org.apache.spark.api.java.function.%s" clazz)
+        :prefix ~prefix-sym
+        :init ~'init
+        :state ~'state
+        :constructors {[Object] []})
+       (defn ~wrapper-name [f#]
+         (new ~new-class-sym
+              (if (serfn? f#) (serialize-fn f#) f#))))))
 
-(defmacro sparkfn2 [& body]
-  `(proxy [org.apache.spark.api.java.function.Function2] []
-     ~@body))
+(gen-function Function function)
+(gen-function Function2 function2)
+(gen-function VoidFunction void-function)
+(gen-function FlatMapFunction flat-map-function)
+(gen-function PairFunction pair-function)
 
-(defmacro defsparkfn2 [name & [opts & impl :as all]]
-  (if-not (map? opts)
-    `(defsparkfn2 ~name {} ~@all)
-    (let [params (:params opts)
-          fn-name (symbol (str name "__"))
-          fn-body (let [[args & impl-body] impl
-                        args (vec args)]
-                    `(sparkfn2 (~'call ~args ~@impl-body)))
-          definer (if params
-                    `(defn ~name [& args#]
-                       (clojure-sparkfn2 ~fn-name args#))
-                    `(def ~name
-                       (clojure-sparkfn2 ~fn-name [])))]
-       `(do
-         (defn ~fn-name ~(if params params [])
-           ~fn-body)
-         ~definer))))
-
-;; PairFunction
-
-(defn clojure-pairfn* [fn-var args]
-  (ClojurePairFunction. (u/to-spec fn-var) args))
-
-(defmacro clojure-pairfn [fn-sym args]
-  `(clojure-pairfn* (var ~fn-sym) ~args))
-
-(defmacro pairfn [& body]
-  `(proxy [org.apache.spark.api.java.function.PairFunction] []
-     ~@body))
-
-(defmacro defpairfn [name & [opts & impl :as all]]
-  (if-not (map? opts)
-    `(defpairfn ~name {} ~@all)
-    (let [params (:params opts)
-          fn-name (symbol (str name "__"))
-          fn-body (let [[args & impl-body] impl
-                        args (vec args)]
-                    `(pairfn (~'call ~args (u/tuple ~@impl-body))))
-          definer (if params
-                    `(defn ~name [& args#]
-                       (clojure-pairfn ~fn-name args#))
-                    `(def ~name
-                       (clojure-pairfn ~fn-name [])))]
-       `(do
-         (defn ~fn-name ~(if params params [])
-           ~fn-body)
-         ~definer))))
-
-;; FlatMapFunction
-
-(defn clojure-flatmapfn* [fn-var args]
-  (ClojureFlatMapFunction. (u/to-spec fn-var) args))
-
-(defmacro clojure-flatmapfn [fn-sym args]
-  `(clojure-flatmapfn* (var ~fn-sym) ~args))
-
-(defmacro flatmapfn [& body]
-  `(proxy [org.apache.spark.api.java.function.FlatMapFunction] []
-     ~@body))
-
-(defmacro defflatmapfn [name & [opts & impl :as all]]
-  (if-not (map? opts)
-    `(defflatmapfn ~name {} ~@all)
-    (let [params (:params opts)
-          fn-name (symbol (str name "__"))
-          fn-body (let [[args & impl-body] impl
-                        args (vec args)]
-                    `(flatmapfn (~'call ~args ~@impl-body)))
-          definer (if params
-                    `(defn ~name [& args#]
-                       (clojure-flatmapfn ~fn-name args#))
-                    `(def ~name
-                       (clojure-flatmapfn ~fn-name [])))]
-       `(do
-         (defn ~fn-name ~(if params params [])
-           ~fn-body)
-         ~definer))))
-
-;; PairFlatMapFunction
-
-(defn clojure-pflatmapfn* [fn-var args]
-  (ClojurePairFlatMapFunction. (u/to-spec fn-var) args))
-
-(defmacro clojure-pflatmapfn [fn-sym args]
-  `(clojure-pflatmapfn* (var ~fn-sym) ~args))
-
-(defmacro pflatmapfn [& body]
-  `(proxy [org.apache.spark.api.java.function.PairFlatMapFunction] []
-     ~@body))
-
-(defmacro defpflatmapfn [name & [opts & impl :as all]]
-  (if-not (map? opts)
-    `(defpflatmapfn ~name {} ~@all)
-    (let [params (:params opts)
-          fn-name (symbol (str name "__"))
-          fn-body (let [[args & impl-body] impl
-                        args (vec args)]
-                    `(pflatmapfn (~'call ~args ~@impl-body)))
-          definer (if params
-                    `(defn ~name [& args#]
-                       (clojure-pflatmapfn ~fn-name args#))
-                    `(def ~name
-                       (clojure-pflatmapfn ~fn-name [])))]
-       `(do
-         (defn ~fn-name ~(if params params [])
-           ~fn-body)
-         ~definer))))
+;; Replaces the PairFunction-call defined by the gen-function macro.
+(defn PairFunction-call [this x]
+  (let [[a b] (-call this x)]
+    (Tuple2. a b)))
