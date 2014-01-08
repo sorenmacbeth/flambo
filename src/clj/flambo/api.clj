@@ -11,6 +11,9 @@
   (:import (java.util Comparator)
            (org.apache.spark.api.java JavaSparkContext)))
 
+(System/setProperty "spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+(System/setProperty "spark.kryo.registrator", "flambo.kryo.CarboniteRegistrator")
+
 (defn spark-context
   [& {:keys [master job-name spark-home jars environment]}]
   (log/warn "JavaSparkContext" master job-name spark-home jars environment)
@@ -29,28 +32,15 @@
     (let [[x t2] (untuple t)]
       (vector x (untuple t2)))))
 
-(defn ftruthy?
-  [f]
+(defn ftruthy? [f]
   (sfn/fn [x] (u/truthy? (f x))))
-
-(defn feach
-  "Mostly useful for parsing a seq of Strings to their respective types.  Example
-  (f/map (f/feach as-integer as-long identity identity as-integer as-double))
-  Implies that each entry in the RDD is a sequence of 6 things.  The first element should be
-  parsed as an Integer, the second as a Long, etc.  The actual functions supplied here can be
-  any arbitray transformation (e.g. identity)."
-  [& fs]
-  (fn [coll]
-    (clojure.core/map (fn [f x] (f x)) fs coll)))
 
 ;;; RDD construction
 
-(defn text-file
-  [spark-context filename]
+(defn text-file [spark-context filename]
   (.textFile spark-context filename))
 
-(defn parallelize
-  [spark-context lst]
+(defn parallelize [spark-context lst]
   (.parallelize spark-context lst))
 
 ;;; Transformations
