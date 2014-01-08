@@ -16,6 +16,13 @@
 (System/setProperty "spark.serializer", "org.apache.spark.serializer.KryoSerializer")
 (System/setProperty "spark.kryo.registrator", "flambo.kryo.CarboniteRegistrator")
 
+(defmacro sparkop [& body]
+  `(sfn/fn ~@body))
+
+(defmacro defsparkfn [name & body]
+  `(def ~name
+     (sparkop ~@body)))
+
 (defn spark-context
   [& {:keys [master job-name spark-home jars environment]}]
   (log/warn "JavaSparkContext" master job-name spark-home jars environment)
@@ -26,16 +33,16 @@
   (JavaSparkContext. master job-name))
 
 (def untuple
-  (sfn/fn [t]
+  (sparkop [t]
     [(._1 t) (._2 t)]))
 
 (def double-untuple
-  (sfn/fn [t]
+  (sparkop [t]
     (let [[x t2] (untuple t)]
       (vector x (untuple t2)))))
 
 (defn ftruthy? [f]
-  (sfn/fn [x] (u/truthy? (f x))))
+  (sparkop [x] (u/truthy? (f x))))
 
 ;;; RDD construction
 
