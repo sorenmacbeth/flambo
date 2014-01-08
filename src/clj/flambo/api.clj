@@ -32,14 +32,12 @@
   (log/warn "JavaSparkContext" master job-name)
   (JavaSparkContext. master job-name))
 
-(def untuple
-  (sparkop [t]
-    [(._1 t) (._2 t)]))
+(defsparkfn untuple [t]
+  [(._1 t) (._2 t)])
 
-(def double-untuple
-  (sparkop [t]
-    (let [[x t2] (untuple t)]
-      (vector x (untuple t2)))))
+(defsparkfn double-untuple [t]
+  (let [[x t2] (untuple t)]
+    (vector x (untuple t2))))
 
 (defn ftruthy? [f]
   (sparkop [x] (u/truthy? (f x))))
