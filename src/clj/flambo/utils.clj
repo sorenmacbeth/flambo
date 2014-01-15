@@ -1,6 +1,17 @@
 (ns flambo.utils
   (:import (scala Tuple2)))
 
+(defn echo-types [c]
+  (if (coll? c)
+    (println "TYPES" (clojure.core/map type c))
+    (println "TYPES" (type c)))
+  c)
+
+(defn trace [msg]
+  (fn [x]
+    (prn "TRACE" msg x)
+    x))
+
 (defn truthy? [x]
   (if x (Boolean. true) (Boolean. false)))
 
