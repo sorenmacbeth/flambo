@@ -108,6 +108,12 @@
       (.join (.map other (pair-function identity)))
       (.map (function double-untuple))))
 
+(defn sample [rdd with-replacement? fraction seed]
+    (-> rdd
+        (.map (pair-function identity))
+        (.sample with-replacement? fraction seed)
+        (.map (function untuple))))
+
 ;;; Actions
 
 (def first (memfn first))
