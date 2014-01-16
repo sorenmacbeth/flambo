@@ -47,9 +47,9 @@
 (defn text-file [spark-context filename]
   (.textFile spark-context filename))
 
-(defn parallelize  [spark-context lst] (.parallelize spark-context lst)
-  
-  )
+(defn parallelize
+  ([spark-context lst] (.parallelize spark-context lst))
+  ([spark-context lst num-slices] (.parallelize spark-context lst num-slices)))
 
 ;;; Transformations
 
