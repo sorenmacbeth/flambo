@@ -25,7 +25,7 @@
             fn-or-serfn)]
     (log/trace "CLASS" (type this))
     (log/trace "XS" xs)
-    (u/echo-types (apply f xs))))
+    (apply f xs)))
 
 ;;; Functions
 
