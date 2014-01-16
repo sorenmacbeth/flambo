@@ -49,7 +49,7 @@
 
 (defn parallelize
   ([spark-context lst] (.parallelize spark-context lst))
-  ([spark-contect lst num-slices] (.parallelize spark-context lst num-slices)))
+  ([spark-context lst num-slices] (.parallelize spark-context lst num-slices)))
 
 ;;; Transformations
 
