@@ -8,11 +8,6 @@ import com.twitter.chill.Tuple2Serializer;
 
 public class CarboniteRegistrator implements KryoRegistrator {
 
-  public static synchronized void boostRegistry(Kryo kryo) throws Exception {
-    JavaBridge.registerPrimitives(kryo);
-    JavaBridge.registerCollections(kryo);
-  }
-
   @Override
   public void registerClasses(Kryo kryo) {
     try {
