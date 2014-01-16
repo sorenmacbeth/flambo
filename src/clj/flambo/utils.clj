@@ -1,15 +1,19 @@
 (ns flambo.utils
-  (:import (scala Tuple2)))
+  (:require [clojure.tools.logging :as log])
+  (:import [scala Tuple2]
+           [java.io PrintStream]
+           [flambo WriterOutputStream]
+           [org.apache.log4j Logger WriterAppender SimpleLayout]))
 
 (defn echo-types [c]
   (if (coll? c)
-    (println "TYPES" (clojure.core/map type c))
-    (println "TYPES" (type c)))
+    (log/debug "TYPES" (map type c))
+    (log/debug "TYPES" (type c)))
   c)
 
 (defn trace [msg]
   (fn [x]
-    (prn "TRACE" msg x)
+    (log/trace msg x)
     x))
 
 (defn truthy? [x]
@@ -23,6 +27,11 @@
 
 (defn as-double [s]
   (Double. s))
+
+(defn bootstrap-emacs []
+  (-> (Logger/getRootLogger)
+      (.addAppender (WriterAppender. (SimpleLayout.) *out*)))
+  (System/setOut (PrintStream. (WriterOutputStream. *out*))))
 
 (def ^:private flambo
   ["101111111011101                        11111      1  1                         1"
@@ -68,4 +77,4 @@
 
 (defn hail-flambo []
   (doseq [hs flambo]
-    (prn hs)))
+    (println hs)))

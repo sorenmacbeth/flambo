@@ -1,5 +1,7 @@
 (ns flambo.function
-  (:require [serializable.fn :as sfn])
+  (:require [serializable.fn :as sfn]
+            [flambo.utils :as u]
+            [clojure.tools.logging :as log])
   (:import [scala Tuple2]))
 
 (defn- serfn? [f]
@@ -21,7 +23,9 @@
         f (if (instance? array-of-bytes-type fn-or-serfn)
             (deserialize-fn fn-or-serfn)
             fn-or-serfn)]
-    (apply f xs)))
+    (log/trace "CLASS" (type this))
+    (log/trace "XS" xs)
+    (u/echo-types (apply f xs))))
 
 ;;; Functions
 
