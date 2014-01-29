@@ -116,6 +116,11 @@
         (.map (function untuple))))
 
 ;;; Actions
+(defn save-as-text-file [rdd path]
+  (.saveAsTextFile rdd path))
+
+(defn save-as-sequence-file [rdd path]
+  (.saveAsSequenceFile rdd path))
 
 (def first (memfn first))
 (def count (memfn count))
