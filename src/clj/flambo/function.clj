@@ -24,6 +24,7 @@
             (deserialize-fn fn-or-serfn)
             fn-or-serfn)]
     (log/trace "CLASS" (type this))
+    (log/trace "META" (meta f))
     (log/trace "XS" xs)
     (apply f xs)))
 
