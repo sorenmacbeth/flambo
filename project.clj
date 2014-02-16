@@ -9,8 +9,8 @@
                               :username :env :passphrase :env}}
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [org.clojure/tools.logging "0.2.6"]
-                 [yieldbot/serializable-fn "0.0.3-SNAPSHOT"]
-                 [com.twitter/carbonite "1.3.3-SNAPSHOT"]
+                 [yieldbot/serializable-fn "0.0.3"]
+                 [com.twitter/carbonite "1.3.3"]
                  [com.twitter/chill_2.9.3 "0.3.5"]]
   :plugins [[s3-wagon-private "1.1.2"]]
   :profiles {:provided
