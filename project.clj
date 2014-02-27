@@ -19,6 +19,7 @@
   :source-paths ["src/clj"]
   :java-source-paths ["src/jvm"]
   :javac-options ["-source" "1.6" "-target" "1.6"]
+  :jvm-opts ["-server" "-Xss128M"]
   :aot [flambo.function])
 (cemerick.pomegranate.aether/register-wagon-factory!
  "s3p" #(eval '(org.springframework.aws.maven.PrivateS3Wagon.)))
