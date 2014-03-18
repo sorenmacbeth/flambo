@@ -11,7 +11,8 @@
                  [org.clojure/tools.logging "0.2.6"]
                  [yieldbot/serializable-fn "0.0.4"]
                  [com.twitter/carbonite "1.3.3"]
-                 [com.twitter/chill_2.10 "0.3.5"]]
+                 [com.twitter/chill_2.10 "0.3.5"]
+                 [prismatic/schema "0.2.1"]]
   :plugins [[s3-wagon-private "1.1.2"]]
   :profiles {:provided
              {:dependencies
