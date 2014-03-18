@@ -13,8 +13,7 @@
 
 (u/hail-flambo)
 
-(System/setProperty "spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-(System/setProperty "spark.kryo.registrator", "flambo.kryo.CarboniteRegistrator")
+(System/setProperty "spark.serializer", "flambo.kryo.FlamboKryoSerializer")
 
 (defmacro sparkop [& body]
   `(sfn/fn ~@body))
