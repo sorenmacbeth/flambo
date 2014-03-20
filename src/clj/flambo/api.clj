@@ -109,10 +109,10 @@
       (.map (function double-untuple))))
 
 (defn sample [rdd with-replacement? fraction seed]
-    (-> rdd
-        (.map (pair-function identity))
-        (.sample with-replacement? fraction seed)
-        (.map (function untuple))))
+  (-> rdd
+      (.map (pair-function identity))
+      (.sample with-replacement? fraction seed)
+      (.map (function untuple))))
 
 ;;; Actions
 (defn save-as-text-file [rdd path]
