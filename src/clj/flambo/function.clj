@@ -1,6 +1,7 @@
 (ns flambo.function
   (:require [serializable.fn :as sfn]
             [flambo.utils :as u]
+            [flambo.kryo :as kryo]
             [clojure.tools.logging :as log])
   (:import [scala Tuple2]))
 
@@ -21,7 +22,8 @@
 (defn -call [this & xs]
   (let [fn-or-serfn (.state this)
         f (if (instance? array-of-bytes-type fn-or-serfn)
-            (deserialize-fn fn-or-serfn)
+            (binding [sfn/*deserialize* kryo/deserialize]
+              (deserialize-fn fn-or-serfn))
             fn-or-serfn)]
     (log/trace "CLASS" (type this))
     (log/trace "META" (meta f))
@@ -50,7 +52,8 @@
         :constructors {[Object] []})
        (defn ~wrapper-name [f#]
          (new ~new-class-sym
-              (if (serfn? f#) (serialize-fn f#) f#))))))
+              (if (serfn? f#) (binding [sfn/*serialize* kryo/serialize]
+                                (serialize-fn f#)) f#))))))
 
 (gen-function Function function)
 (gen-function Function2 function2)

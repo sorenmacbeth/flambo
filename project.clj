@@ -9,7 +9,7 @@
                               :username :env :passphrase :env}}
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [org.clojure/tools.logging "0.2.6"]
-                 [yieldbot/serializable-fn "0.0.4"]
+                 [yieldbot/serializable-fn "0.0.5-SNAPSHOT"]
                  [com.twitter/carbonite "1.3.3"]
                  [com.twitter/chill_2.10 "0.3.5"]
                  [prismatic/schema "0.2.1"]]
