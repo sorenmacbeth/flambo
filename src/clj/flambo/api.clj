@@ -7,13 +7,14 @@
                                      function2
                                      pair-function
                                      void-function]]
+            [flambo.conf :as conf]
             [flambo.utils :as u])
   (:import (java.util Comparator)
            (org.apache.spark.api.java JavaSparkContext)))
 
 (u/hail-flambo)
 
-(System/setProperty "spark.serializer", "flambo.kryo.FlamboKryoSerializer")
+(System/setProperty "spark.serializer" "flambo.kryo.FlamboKryoSerializer")
 
 (defmacro sparkop [& body]
   `(sfn/fn ~@body))
@@ -23,13 +24,18 @@
      (sparkop ~@body)))
 
 (defn spark-context
-  [& {:keys [master job-name spark-home jars environment]}]
-  (log/warn "JavaSparkContext" master job-name spark-home jars environment)
-  (JavaSparkContext. master job-name spark-home (into-array String jars) environment))
+  ([conf]
+     (log/warn "JavaSparkContext" (conf/to-string conf))
+     (JavaSparkContext. conf))
+  ([master app-name]
+     (log/warn "JavaSparkContext" master app-name)
+     (JavaSparkContext. master app-name)))
 
-(defn local-spark-context [& {:keys [master job-name]}]
-  (log/warn "JavaSparkContext" master job-name)
-  (JavaSparkContext. master job-name))
+(defn local-spark-context [app-name]
+  (let [conf (-> (conf/spark-conf)
+                 (conf/master "local")
+                 (conf/app-name app-name))]
+    (spark-context conf)))
 
 (defsparkfn untuple [t]
   [(._1 t) (._2 t)])
