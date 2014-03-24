@@ -1,4 +1,5 @@
 (ns flambo.streaming
+  (:refer-clojure :exclude [print])
   (:require [serializable.fn :as sfn]
             [flambo.api :as api]
             [flambo.utils :as u]
@@ -28,9 +29,6 @@
 (defn kafka-stream [& {:keys [ssc zk-connect group-id topic-map]}]
   (KafkaUtils/createStream ssc zk-connect group-id (into {} (for [[k, v] topic-map] [k (Integer. v)]))))
 
-(defn start [ssc]
-  (.start ssc))
-
-(defn run-to-termination [ssc]
-  (start ssc)
-  (.awaitTermination ssc))
+(def start (memfn start))
+(def await-termination (memfn .awaitTermination))
+(def print (memfn print))
