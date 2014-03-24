@@ -27,3 +27,10 @@
 
 (defn kafka-stream [& {:keys [ssc zk-connect group-id topic-map]}]
   (KafkaUtils/createStream ssc zk-connect group-id (into {} (for [[k, v] topic-map] [k (Integer. v)]))))
+
+(defn start [ssc]
+  (.start ssc))
+
+(defn run-to-termination [ssc]
+  (start ssc)
+  (.awaitTermination ssc))
