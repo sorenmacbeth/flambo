@@ -23,11 +23,11 @@
   (log/warn "JavaStreamingContext" master app-name batch-duration)
   (JavaStreamingContext. master app-name (duration batch-duration)))
 
-(defn file-stream [d-stream data-directory]
-  (.fileStream d-stream data-directory))
+(defn file-stream [streaming-context data-directory]
+  (.fileStream streaming-context data-directory))
 
-(defn kafka-stream [& {:keys [ssc zk-connect group-id topic-map]}]
-  (KafkaUtils/createStream ssc zk-connect group-id (into {} (for [[k, v] topic-map] [k (Integer. v)]))))
+(defn kafka-stream [& {:keys [streaming-context zk-connect group-id topic-map]}]
+  (KafkaUtils/createStream streaming-context zk-connect group-id (into {} (for [[k, v] topic-map] [k (Integer. v)]))))
 
 (def start (memfn start))
 (def await-termination (memfn .awaitTermination))
