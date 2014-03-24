@@ -16,7 +16,8 @@
   :plugins [[s3-wagon-private "1.1.2"]]
   :profiles {:provided
              {:dependencies
-              [[org.apache.spark/spark-core_2.10 "0.9.0-incubating"]]}
+              [[org.apache.spark/spark-core_2.10 "0.9.0-incubating"]
+               [org.apache.spark/spark-streaming_2.10 "0.9.0-incubating"]]}
              :1.6
              {:dependencies [[org.clojure/clojure "1.6.0-beta1"]]}}
   :source-paths ["src/clj"]
