@@ -28,7 +28,7 @@
 
 (defmulti checkpoint (fn [context arg] (class arg)))
 (defmethod checkpoint java.lang.String [streaming-context path] (.checkpoint streaming-context path))
-(defmethod checkpoint java.lang.Long [dstream interval] (.checkpoint dstream (duration (Integer. interval))))
+(defmethod checkpoint java.lang.Long [dstream interval] (.checkpoint dstream (duration interval)))
 
 (defn socket-text-stream [context ip port]
   (.socketTextStream context ip port))
