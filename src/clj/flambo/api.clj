@@ -141,3 +141,4 @@
 (def cache (memfn cache))
 (def collect (memfn collect))
 (def distinct (memfn distinct))
+(def coalesce (memfn coalesce))

@@ -17,9 +17,10 @@
   :profiles {:provided
              {:dependencies
               [[org.apache.spark/spark-core_2.10 "0.9.0-incubating"]
-               [org.apache.spark/spark-streaming_2.10 "0.9.0-incubating"]]}
+               [org.apache.spark/spark-streaming_2.10 "0.9.0-incubating"],
+               [org.apache.spark/spark-streaming-kafka_2.10 "0.9.0-incubating"]]}
              :1.6
-             {:dependencies [[org.clojure/clojure "1.6.0-beta1"]]}}
+             {:dependencies [[org.clojure/clojure "1.6.0-RC3"]]}}
   :source-paths ["src/clj"]
   :java-source-paths ["src/jvm"]
   :javac-options ["-source" "1.6" "-target" "1.6"]
