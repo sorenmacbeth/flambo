@@ -74,11 +74,11 @@
 (defn reduce-by-window [dstream f window-length slide-interval]
   (.reduceByWindow dstream (function2 f) (duration window-length) (duration slide-interval)))
 
-;(defn reduce-by-key-and-window [dstream f window-length slide-interval]
-;  (-> dstream
-;      (.map (pair-function identity))
-;      (.reduceByKeyAndWindow (function2 f) (duration window-length) (duration slide-interval))
-;      (.map (function f/untuple))))
+(defn reduce-by-key-and-window [dstream f window-length slide-interval]
+  (-> dstream
+      (.map (pair-function identity))
+      (.reduceByKeyAndWindow (function2 f) (duration window-length) (duration slide-interval))
+      (.map (function f/untuple))))
 
 
 ;; output operations
