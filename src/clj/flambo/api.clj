@@ -14,7 +14,7 @@
 
 (u/hail-flambo)
 
-(System/setProperty "spark.serializer" "flambo.kryo.FlamboKryoSerializer")
+(System/setProperty "spark.serializer" "org.apache.spark.serializer.KryoSerializer")
 
 (defmacro sparkop [& body]
   `(sfn/fn ~@body))
@@ -66,6 +66,9 @@
 
 (defn flat-map [rdd f]
   (.map rdd (flat-map-function f)))
+
+(defn filter [rdd f]
+  (.filter rdd (function (ftruthy? f))))
 
 (defn foreach [rdd f]
   (.foreach rdd (void-function f)))
