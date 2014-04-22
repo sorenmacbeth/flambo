@@ -1,5 +1,5 @@
 (ns flambo.api
-  (:refer-clojure :exclude [map reduce first count take distinct])
+  (:refer-clojure :exclude [map reduce first count take distinct filter])
   (:require [serializable.fn :as sfn]
             [clojure.tools.logging :as log]
             [flambo.function :refer [flat-map-function
