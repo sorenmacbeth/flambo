@@ -1,5 +1,6 @@
 (ns flambo.kryo
-  (:import [org.apache.spark SparkEnv]
+  (:import [org.apache.spark.serializer KryoRegistrator]
+           [org.apache.spark SparkEnv]
            [org.apache.spark.serializer SerializerInstance]
            [java.nio ByteBuffer]))
 
@@ -12,3 +13,15 @@
   (let [^ByteBuffer buf (ByteBuffer/wrap b)
         ^SerializerInstance ser (.. (SparkEnv/get) serializer newInstance)]
     (.deserialize ser buf)))
+
+(defmacro defregistrator
+  [name register-impl]
+  (let [prefix (gensym)
+        classname (str *ns* ".registrator." name)]
+    `(do
+       (gen-class :name ~classname
+                  :implements [org.apache.spark.serializer.KryoRegistrator]
+                  :prefix ~prefix)
+       (defn ~(symbol (str prefix "registerClasses"))
+         ~@register-impl)
+       (def ~name ~classname))))
