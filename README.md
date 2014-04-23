@@ -38,6 +38,7 @@ There is a convenience macro for creating registrators, `flambo.kryo.defregistra
 
 ```clojure
 (require '[flambo.kryo :as kryo])
+(import '[flameprincess FlamePrincessHeat FlamePrincessHeatSerializer])
 
 (kryo/defregistrator flameprincess [kryo]
 (.register kryo FlamePrincessHeat (FlamePrincessHeatSerializer.)))
