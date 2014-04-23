@@ -6,7 +6,7 @@ import carbonite.JavaBridge;
 import scala.Tuple2;
 import com.twitter.chill.Tuple2Serializer;
 
-public class FlamboRegistrator extends Registrator {
+public class BaseFlamboRegistrator implements KryoRegistrator {
 
   protected void register(Kryo kryo) {
   }
