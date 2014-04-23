@@ -5,6 +5,7 @@
 A Clojure DSL for Apache Spark
 
 ## Usage
+
 In a REPL:
 
 ```clojure
@@ -26,6 +27,12 @@ In a REPL:
 ;; do stuff to the RDD, define and use an inline op
 (-> xs (f/map square) (f/filter (f/sparkop [x] (< x 10))) f/collect)
 ```
+
+## Kryo
+
+Flambo requires spark is configured to use kryo for serialization. This is configured by default using system properties.
+
+If you need to register custom serializers, extend `flambo.kryo.BaseFlamboRegistrator` and override it's `register` method. Finally, configure your SparkContext to use your custom registrator by setting `spark.kryo.registrator` to your custom class.
 
 ## License
 
