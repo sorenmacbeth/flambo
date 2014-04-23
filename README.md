@@ -34,6 +34,17 @@ Flambo requires spark is configured to use kryo for serialization. This is confi
 
 If you need to register custom serializers, extend `flambo.kryo.BaseFlamboRegistrator` and override it's `register` method. Finally, configure your SparkContext to use your custom registrator by setting `spark.kryo.registrator` to your custom class.
 
+There is a convenience macro for creating registrators, `flambo.kryo.defregistrator`.
+
+```clojure
+(require '[flambo.kryo :as kryo])
+
+(kryo/defregistrator flameprincess [kryo]
+(.register kryo FlamePrincessHeat (FlamePrincessHeatSerializer.)))
+
+(def c (-> (conf/spark-conf) (conf/set "spark.kryo.registrator" "my.namespace.registrator.flameprincess")
+```
+
 ## License
 
 Copyright © 2014 Soren Macbeth
