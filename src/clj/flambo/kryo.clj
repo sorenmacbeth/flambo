@@ -15,7 +15,7 @@
     (.deserialize ser buf)))
 
 (defmacro defregistrator
-  [name register-impl]
+  [name & register-impl]
   (let [prefix (gensym)
         classname (str *ns* ".registrator." name)]
     `(do
