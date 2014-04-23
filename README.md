@@ -13,7 +13,7 @@ In a REPL:
 (require '[flambo.api :as f])
 
 ;; make a SparkConf
-(def c (-> (conf/spark-conf) (conf/master "local[2]") (conf/app-name "flambo") (conf/set "spark.serializer" "flambo.kryo.FlamboKryoSerializer")))
+(def c (-> (conf/spark-conf) (conf/master "local[2]") (conf/app-name "flambo")))
 
 ;; start a SparkContext
 (def ctx (f/spark-context c))
