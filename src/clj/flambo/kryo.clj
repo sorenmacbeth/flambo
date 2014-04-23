@@ -20,8 +20,8 @@
         classname (str *ns* ".registrator." name)]
     `(do
        (gen-class :name ~classname
-                  :implements [org.apache.spark.serializer.KryoRegistrator]
+                  :extends flambo.kryo.BaseFlamboRegistrator
                   :prefix ~prefix)
-       (defn ~(symbol (str prefix "registerClasses"))
+       (defn ~(symbol (str prefix "register"))
          ~@register-impl)
        (def ~name ~classname))))

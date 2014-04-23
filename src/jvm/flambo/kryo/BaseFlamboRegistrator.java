@@ -6,10 +6,14 @@ import carbonite.JavaBridge;
 import scala.Tuple2;
 import com.twitter.chill.Tuple2Serializer;
 
-public class FlamboRegistrator implements KryoRegistrator {
+public class BaseFlamboRegistrator implements KryoRegistrator {
 
   @Override
-  public void registerClasses(Kryo kryo) {
+  public final void registerClasses(Kryo kryo) {
     CarboniteRegistrator.registerCarbonite(kryo);
+  }
+
+  protected void register(Kryo kryo) {
+    // subclasses should override this
   }
 }
