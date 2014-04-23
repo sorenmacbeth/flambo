@@ -18,7 +18,7 @@ In a REPL:
 (def ctx (f/spark-context c))
 
 ;; make an RDD
-(def xs (f/parallelize sc (range 1000)))
+(def xs (f/parallelize ctx (range 1000)))
 
 ;; define a serializable spark operation
 (f/defsparkfn square [x] (* x x))
