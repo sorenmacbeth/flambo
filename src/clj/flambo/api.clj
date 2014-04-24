@@ -26,10 +26,10 @@
 
 (defn spark-context
   ([conf]
-     (log/warn "JavaSparkContext" (conf/to-string conf))
+     (log/debug "JavaSparkContext" (conf/to-string conf))
      (JavaSparkContext. conf))
   ([master app-name]
-     (log/warn "JavaSparkContext" master app-name)
+     (log/debug "JavaSparkContext" master app-name)
      (JavaSparkContext. master app-name)))
 
 (defn local-spark-context [app-name]
