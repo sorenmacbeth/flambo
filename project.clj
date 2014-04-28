@@ -19,13 +19,11 @@
               [[org.apache.spark/spark-core_2.10 "0.9.1"]
                [org.apache.spark/spark-streaming_2.10 "0.9.1"]
                [org.apache.spark/spark-streaming-kafka_2.10 "0.9.1"]]}
-             :1.5
-             {:dependencies [[org.clojure/clojure "1.5.1"]]}}
+             :1.6
+             {:dependencies [[org.clojure/clojure "1.6.0"]]}}
   :source-paths ["src/clj"]
   :java-source-paths ["src/jvm"]
   :javac-options ["-source" "1.6" "-target" "1.6"]
-  :global-vars {*warn-on-reflection* true}
-  :aot [flambo.function]
-  )
+  :global-vars {*warn-on-reflection* true})
 (cemerick.pomegranate.aether/register-wagon-factory!
  "s3p" #(eval '(org.springframework.aws.maven.PrivateS3Wagon.)))
