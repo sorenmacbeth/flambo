@@ -21,6 +21,7 @@
                [org.apache.spark/spark-streaming-kafka_2.10 "0.9.1"]]}
              :1.6
              {:dependencies [[org.clojure/clojure "1.6.0"]]}}
+  :aot [flambo.function]
   :source-paths ["src/clj"]
   :java-source-paths ["src/jvm"]
   :javac-options ["-source" "1.6" "-target" "1.6"]
