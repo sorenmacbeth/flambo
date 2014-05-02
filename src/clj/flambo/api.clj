@@ -38,6 +38,10 @@
                  (conf/app-name app-name))]
     (spark-context conf)))
 
+(defn jar-of-ns [ns]
+  (let [clazz (Class/forName (clojure.string/replace (str ns) #"-" "_"))]
+    (JavaSparkContext/jarOfClass clazz)))
+
 (defsparkfn untuple [t]
   [(._1 t) (._2 t)])
 
