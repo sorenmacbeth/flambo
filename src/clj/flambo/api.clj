@@ -12,8 +12,6 @@
   (:import (java.util Comparator)
            (org.apache.spark.api.java JavaSparkContext)))
 
-(u/hail-flambo)
-
 (System/setProperty "spark.serializer" "org.apache.spark.serializer.KryoSerializer")
 (System/setProperty "spark.kryo.registrator" "flambo.kryo.BaseFlamboRegistrator")
 
