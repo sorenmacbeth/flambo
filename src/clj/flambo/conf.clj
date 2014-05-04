@@ -1,6 +1,6 @@
 (ns flambo.conf
   (:import [org.apache.spark SparkConf])
-  (:refer-clojure :exclude (set get contains)))
+  (:refer-clojure :exclude (set get contains remove)))
 
 ;; SparkConf functions
 
