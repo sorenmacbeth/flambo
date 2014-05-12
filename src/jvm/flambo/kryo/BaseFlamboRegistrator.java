@@ -17,6 +17,20 @@ public class BaseFlamboRegistrator implements KryoRegistrator {
       JavaBridge.enhanceRegistry(kryo);
       kryo.register(Tuple2.class, new Tuple2Serializer());
       register(kryo);
+
+      /*
+        We do this because under mesos these serializers don't get registered
+        in the executors like they should and do in the driver which leads to
+        kryo class ID mismatches. Forcing the registration here works around the
+        problem.
+      */
+
+      kryo.register(scala.collection.convert.Wrappers.IteratorWrapper.class);
+      kryo.register(scala.collection.convert.Wrappers.SeqWrapper.class);
+      kryo.register(scala.collection.convert.Wrappers.MapWrapper.class);
+      kryo.register(scala.collection.convert.Wrappers.JListWrapper.class);
+      kryo.register(scala.collection.convert.Wrappers.JMapWrapper.class);
+
     } catch (Exception e) {
       throw new RuntimeException("Failed to register kryo!");
     }
