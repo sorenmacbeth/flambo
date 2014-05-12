@@ -10,10 +10,23 @@
             [flambo.conf :as conf]
             [flambo.utils :as u])
   (:import (java.util Comparator)
-           (org.apache.spark.api.java JavaSparkContext)))
+           (org.apache.spark.api.java JavaSparkContext StorageLevels)
+           (flambo.function Function Function2 VoidFunction FlatMapFunction
+                            PairFunction)))
 
 (System/setProperty "spark.serializer" "org.apache.spark.serializer.KryoSerializer")
 (System/setProperty "spark.kryo.registrator" "flambo.kryo.BaseFlamboRegistrator")
+
+(def STORAGE-LEVELS {:memory-only StorageLevels/MEMORY_ONLY
+                     :memory-only-ser StorageLevels/MEMORY_ONLY_SER
+                     :memory-and-disk StorageLevels/MEMORY_AND_DISK
+                     :memory-and-disk-ser StorageLevels/MEMORY_AND_DISK_SER
+                     :disk-only StorageLevels/DISK_ONLY
+                     :memory-only-2 StorageLevels/MEMORY_ONLY_2
+                     :memory-only-ser-2 StorageLevels/MEMORY_ONLY_SER_2
+                     :memory-and-disk-2 StorageLevels/MEMORY_AND_DISK_2
+                     :memory-and-disk-ser-2 StorageLevels/MEMORY_AND_DISK_SER_2
+                     :disk-only-2 StorageLevels/DISK_ONLY_2})
 
 (defmacro sparkop [& body]
   `(sfn/fn ~@body))
@@ -132,6 +145,9 @@
 
 (defn save-as-sequence-file [rdd path]
   (.saveAsSequenceFile rdd path))
+
+(defn persist [rdd storage-level]
+  (.persist rdd storage-level))
 
 (def first (memfn first))
 (def count (memfn count))
