@@ -1,5 +1,5 @@
 (ns flambo.api
-  (:refer-clojure :exclude [map reduce first count take distinct filter])
+  (:refer-clojure :exclude [map reduce first count take distinct filter group-by])
   (:require [serializable.fn :as sfn]
             [clojure.tools.logging :as log]
             [flambo.function :refer [flat-map-function
@@ -101,6 +101,11 @@
       (.reduceByKey (function2 f))
       (.map (function untuple))
       ))
+
+(defn group-by [rdd f]
+  (-> rdd
+      (.groupBy (function f))
+      (.map (function untuple))))
 
 (defn group-by-key [rdd]
   (-> rdd
