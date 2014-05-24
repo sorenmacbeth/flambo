@@ -138,6 +138,16 @@
       (.join (.map other (pair-function identity)))
       (.map (function double-untuple))))
 
+(defn left-outer-join [rdd other]
+  (-> rdd
+      (.map (pair-function identity))
+      (.leftOuterJoin (.map other (pair-function identity)))
+      (.map (function
+             (sparkop [t]
+                      (let [[x t2] (untuple t)
+                            [a b] (untuple t2)]
+                        (vector x a (.orNull b))))))))
+
 (defn sample [rdd with-replacement? fraction seed]
   (-> rdd
       (.map (pair-function identity))
