@@ -14,7 +14,10 @@
                  [com.twitter/chill_2.10 "0.3.5"]
                  [prismatic/schema "0.2.1"]]
   :plugins [[s3-wagon-private "1.1.2"]]
-  :profiles {:provided
+  :profiles {:dev
+             {;; so gen-class stuff works in the repl
+              :aot [flambo.function]}
+             :provided
              {:dependencies
               [[org.apache.spark/spark-core_2.10 "0.9.1"]
                [org.apache.spark/spark-streaming_2.10 "0.9.1"]

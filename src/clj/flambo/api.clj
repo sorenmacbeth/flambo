@@ -77,6 +77,9 @@
 (defn map [rdd f]
   (.map rdd (function f)))
 
+(defn map-to-pair [rdd f]
+  (.map rdd (pair-function f)))
+
 (defn reduce [rdd f]
   (.reduce rdd (function2 f)))
 
