@@ -45,7 +45,7 @@
        (def ~(mk-sym "%s-call" clazz) -call)
        (gen-class
         :name ~new-class-sym
-        :extends ~(mk-sym "org.apache.spark.api.java.function.%s" clazz)
+        :implements [~(mk-sym "org.apache.spark.api.java.function.%s" clazz)]
         :prefix ~prefix-sym
         :init ~'init
         :state ~'state
@@ -57,11 +57,18 @@
 
 (gen-function Function function)
 (gen-function Function2 function2)
+(gen-function Function3 function3)
 (gen-function VoidFunction void-function)
 (gen-function FlatMapFunction flat-map-function)
+(gen-function FlatMapFunction2 flat-map-function2)
+(gen-function PairFlatMapFunction pair-flat-map-function)
 (gen-function PairFunction pair-function)
 
 ;; Replaces the PairFunction-call defined by the gen-function macro.
 (defn PairFunction-call [this x]
+  (let [[a b] (-call this x)]
+    (Tuple2. a b)))
+
+(defn PairFlatMapFunction-call [this x]
   (let [[a b] (-call this x)]
     (Tuple2. a b)))
