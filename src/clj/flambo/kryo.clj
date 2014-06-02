@@ -8,12 +8,9 @@
 ;; lol scala
 (def OBJECT-CLASS-TAG (.apply ClassTag$/MODULE$ java.lang.Object))
 
-(defn class-tag [o]
-  (.apply ClassTag$/MODULE$ (class o)))
-
 (defn ^bytes serialize [^Object obj]
   (let [^SerializerInstance ser (.. (SparkEnv/get) serializer newInstance)
-        ^ByteBuffer buf (.serialize ser obj (class-tag obj))]
+        ^ByteBuffer buf (.serialize ser obj OBJECT-CLASS-TAG)]
     (.array buf)))
 
 (defn deserialize [^bytes b]
