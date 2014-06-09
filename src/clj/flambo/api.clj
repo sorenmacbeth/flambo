@@ -116,6 +116,14 @@
       .groupByKey
       (.map (function untuple))))
 
+(defn combine-by-key [rdd create-combiner merge-value merge-combiners]
+  (-> rdd
+      (.map (pair-function identity))
+      (.combineByKey (function create-combiner)
+                     (function2 merge-value)
+                     (function2 merge-combiners))
+      (.map (function untuple))))
+
 (defn sort-by-key
   ([rdd]
      (sort-by-key rdd compare true))
