@@ -157,7 +157,7 @@
              (sparkop [t]
                       (let [[x t2] (untuple t)
                             [a b] (untuple t2)]
-                        (vector x a (.orNull b))))))))
+                        (vector x [a (.orNull b)])))))))
 
 (defn sample [rdd with-replacement? fraction seed]
   (-> rdd
