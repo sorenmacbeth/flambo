@@ -27,5 +27,4 @@
   :source-paths ["src/clj"]
   :java-source-paths ["src/jvm"]
   :global-vars {*warn-on-reflection* true})
-(cemerick.pomegranate.aether/register-wagon-factory!
- "s3p" #(eval '(org.springframework.aws.maven.PrivateS3Wagon.)))
+
