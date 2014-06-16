@@ -4,6 +4,9 @@
 
 A Clojure DSL for Apache Spark
 
+For Spark 1.0.0 add `[yieldbot/flambo "0.3.0-SNAPSHOT"]` to your project.clj.
+For Spark 0.9.1 use `[yieldbot/flambo "0.2.0"]`.
+
 ## Usage
 
 In a REPL:
