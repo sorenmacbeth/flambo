@@ -9,7 +9,7 @@
                               :username :env :passphrase :env}}
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [org.clojure/tools.logging "0.2.6"]
-                 [yieldbot/serializable-fn "0.0.5-SNAPSHOT"]
+                 [yieldbot/serializable-fn "0.0.5"]
                  [com.twitter/carbonite "1.3.3"]
                  [com.twitter/chill_2.10 "0.3.5"]
                  [prismatic/schema "0.2.1"]]
@@ -27,4 +27,3 @@
   :source-paths ["src/clj"]
   :java-source-paths ["src/jvm"]
   :global-vars {*warn-on-reflection* true})
-
