@@ -3,16 +3,20 @@
   (:require [serializable.fn :as sfn]
             [clojure.tools.logging :as log]
             [flambo.function :refer [flat-map-function
+                                     flat-map-function2
                                      function
                                      function2
+                                     function3
                                      pair-function
+                                     pair-flat-map-function
                                      void-function]]
             [flambo.conf :as conf]
             [flambo.utils :as u])
-  (:import (java.util Comparator)
+  (:import (scala Tuple2)
+           (java.util Comparator)
            (org.apache.spark.api.java JavaSparkContext StorageLevels)
-           (flambo.function Function Function2 VoidFunction FlatMapFunction
-                            PairFunction)))
+           (flambo.function Function Function2 Function3 VoidFunction FlatMapFunction
+                            PairFunction PairFlatMapFunction)))
 
 (System/setProperty "spark.serializer" "org.apache.spark.serializer.KryoSerializer")
 (System/setProperty "spark.kryo.registrator" "flambo.kryo.BaseFlamboRegistrator")
@@ -45,7 +49,7 @@
 
 (defn local-spark-context [app-name]
   (let [conf (-> (conf/spark-conf)
-                 (conf/master "local")
+                 (conf/master "local[*]")
                  (conf/app-name app-name))]
     (spark-context conf)))
 
@@ -53,12 +57,18 @@
   (let [clazz (Class/forName (clojure.string/replace (str ns) #"-" "_"))]
     (JavaSparkContext/jarOfClass clazz)))
 
-(defsparkfn untuple [t]
-  [(._1 t) (._2 t)])
+(defsparkfn untuple [^Tuple2 t]
+  (let [v (transient [])]
+    (conj! v (._1 t))
+    (conj! v (._2 t))
+    (persistent! v)))
 
 (defsparkfn double-untuple [t]
-  (let [[x t2] (untuple t)]
-    (vector x (untuple t2))))
+  (let [[x t2] (untuple t)
+        v (transient [])]
+    (conj! v x)
+    (conj! v (untuple t2))
+    (persistent! v)))
 
 (defn ftruthy? [f]
   (sparkop [x] (u/truthy? (f x))))
@@ -78,13 +88,16 @@
   (.map rdd (function f)))
 
 (defn map-to-pair [rdd f]
-  (.map rdd (pair-function f)))
+  (.mapToPair rdd (pair-function f)))
 
 (defn reduce [rdd f]
   (.reduce rdd (function2 f)))
 
 (defn flat-map [rdd f]
   (.map rdd (flat-map-function f)))
+
+(defn flat-map-to-pair [rdd f]
+  (.flatMapToPair rdd (pair-flat-map-function f)))
 
 (defn filter [rdd f]
   (.filter rdd (function (ftruthy? f))))
@@ -167,10 +180,7 @@
                         (vector x [a (.orNull b)])))))))
 
 (defn sample [rdd with-replacement? fraction seed]
-  (-> rdd
-      (.map (pair-function identity))
-      (.sample with-replacement? fraction seed)
-      (.map (function untuple))))
+  (.sample rdd with-replacement? fraction seed))
 
 ;;; Actions
 (defn save-as-text-file [rdd path]

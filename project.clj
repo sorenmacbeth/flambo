@@ -1,4 +1,4 @@
-(defproject yieldbot/flambo "0.2.0"
+(defproject yieldbot/flambo "0.3.0-SNAPSHOT"
   :description "A Clojure DSL for Apache Spark"
   :url "https://github.com/yieldbot/flambo"
   :license {:name "Eclipse Public License"
@@ -11,19 +11,23 @@
                  [org.clojure/tools.logging "0.2.6"]
                  [yieldbot/serializable-fn "0.0.5"]
                  [com.twitter/carbonite "1.3.3"]
-                 [com.twitter/chill_2.10 "0.3.5"]
-                 [prismatic/schema "0.2.1"]]
+                 [com.twitter/chill_2.10 "0.3.5"]]
   :plugins [[s3-wagon-private "1.1.2"]]
   :profiles {:dev
-             {;; so gen-class stuff works in the repl
+             {:dependencies [[midje "1.6.3"]
+                             [criterium "0.4.3"]]
+              :plugins [[lein-midje "3.1.3"]]
+              ;; so gen-class stuff works in the repl
               :aot [flambo.function]}
              :provided
              {:dependencies
-              [[org.apache.spark/spark-core_2.10 "0.9.1"]
-               [org.apache.spark/spark-streaming_2.10 "0.9.1"]
-               [org.apache.spark/spark-streaming-kafka_2.10 "0.9.1"]]}
+              [[org.apache.spark/spark-core_2.10 "1.0.0"]
+               [org.apache.spark/spark-streaming_2.10 "1.0.0"]
+               [org.apache.spark/spark-streaming-kafka_2.10 "1.0.0"]
+               [org.apache.spark/spark-sql_2.10 "1.0.0"]]}
              :1.5.1
              {:dependencies [[org.clojure/clojure "1.5.1"]]}}
   :source-paths ["src/clj"]
   :java-source-paths ["src/jvm"]
-  :global-vars {*warn-on-reflection* true})
+  :jvm-opts ^:replace []
+  :global-vars {*warn-on-reflection* false})

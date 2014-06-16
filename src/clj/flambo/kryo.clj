@@ -2,17 +2,21 @@
   (:import [org.apache.spark.serializer KryoRegistrator]
            [org.apache.spark SparkEnv]
            [org.apache.spark.serializer SerializerInstance]
-           [java.nio ByteBuffer]))
+           [java.nio ByteBuffer]
+           [scala.reflect ClassTag$]))
+
+;; lol scala
+(def OBJECT-CLASS-TAG (.apply ClassTag$/MODULE$ java.lang.Object))
 
 (defn ^bytes serialize [^Object obj]
   (let [^SerializerInstance ser (.. (SparkEnv/get) serializer newInstance)
-        ^ByteBuffer buf (.serialize ser obj)]
+        ^ByteBuffer buf (.serialize ser obj OBJECT-CLASS-TAG)]
     (.array buf)))
 
 (defn deserialize [^bytes b]
   (let [^ByteBuffer buf (ByteBuffer/wrap b)
         ^SerializerInstance ser (.. (SparkEnv/get) serializer newInstance)]
-    (.deserialize ser buf)))
+    (.deserialize ser buf OBJECT-CLASS-TAG)))
 
 (defmacro defregistrator
   [name & register-impl]
