@@ -116,6 +116,13 @@
       .groupByKey
       (.map (function untuple))))
 
+(defn count-by-key [rdd]
+  "Only available on RDDs of type (K, V).
+  Returns a `Map` of (K, Int) pairs with the count of each key."
+  (-> rdd
+      (.map (pair-function identity))
+      .countByKey))
+
 (defn combine-by-key [rdd create-combiner merge-value merge-combiners]
   (-> rdd
       (.map (pair-function identity))
