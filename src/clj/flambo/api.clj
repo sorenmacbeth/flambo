@@ -1,5 +1,5 @@
 (ns flambo.api
-  (:refer-clojure :exclude [map reduce first count take distinct])
+  (:refer-clojure :exclude [map reduce first count take distinct filter group-by])
   (:require [serializable.fn :as sfn]
             [clojure.tools.logging :as log]
             [flambo.function :refer [flat-map-function
@@ -7,14 +7,26 @@
                                      function2
                                      pair-function
                                      void-function]]
+            [flambo.conf :as conf]
             [flambo.utils :as u])
   (:import (java.util Comparator)
-           (org.apache.spark.api.java JavaSparkContext)))
+           (org.apache.spark.api.java JavaSparkContext StorageLevels)
+           (flambo.function Function Function2 VoidFunction FlatMapFunction
+                            PairFunction)))
 
-(u/hail-flambo)
+(System/setProperty "spark.serializer" "org.apache.spark.serializer.KryoSerializer")
+(System/setProperty "spark.kryo.registrator" "flambo.kryo.BaseFlamboRegistrator")
 
-(System/setProperty "spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-(System/setProperty "spark.kryo.registrator", "flambo.kryo.CarboniteRegistrator")
+(def STORAGE-LEVELS {:memory-only StorageLevels/MEMORY_ONLY
+                     :memory-only-ser StorageLevels/MEMORY_ONLY_SER
+                     :memory-and-disk StorageLevels/MEMORY_AND_DISK
+                     :memory-and-disk-ser StorageLevels/MEMORY_AND_DISK_SER
+                     :disk-only StorageLevels/DISK_ONLY
+                     :memory-only-2 StorageLevels/MEMORY_ONLY_2
+                     :memory-only-ser-2 StorageLevels/MEMORY_ONLY_SER_2
+                     :memory-and-disk-2 StorageLevels/MEMORY_AND_DISK_2
+                     :memory-and-disk-ser-2 StorageLevels/MEMORY_AND_DISK_SER_2
+                     :disk-only-2 StorageLevels/DISK_ONLY_2})
 
 (defmacro sparkop [& body]
   `(sfn/fn ~@body))
@@ -24,13 +36,22 @@
      (sparkop ~@body)))
 
 (defn spark-context
-  [& {:keys [master job-name spark-home jars environment]}]
-  (log/warn "JavaSparkContext" master job-name spark-home jars environment)
-  (JavaSparkContext. master job-name spark-home (into-array String jars) environment))
+  ([conf]
+     (log/debug "JavaSparkContext" (conf/to-string conf))
+     (JavaSparkContext. conf))
+  ([master app-name]
+     (log/debug "JavaSparkContext" master app-name)
+     (JavaSparkContext. master app-name)))
 
-(defn local-spark-context [& {:keys [master job-name]}]
-  (log/warn "JavaSparkContext" master job-name)
-  (JavaSparkContext. master job-name))
+(defn local-spark-context [app-name]
+  (let [conf (-> (conf/spark-conf)
+                 (conf/master "local")
+                 (conf/app-name app-name))]
+    (spark-context conf)))
+
+(defn jar-of-ns [ns]
+  (let [clazz (Class/forName (clojure.string/replace (str ns) #"-" "_"))]
+    (JavaSparkContext/jarOfClass clazz)))
 
 (defsparkfn untuple [t]
   [(._1 t) (._2 t)])
@@ -56,11 +77,17 @@
 (defn map [rdd f]
   (.map rdd (function f)))
 
+(defn map-to-pair [rdd f]
+  (.map rdd (pair-function f)))
+
 (defn reduce [rdd f]
   (.reduce rdd (function2 f)))
 
 (defn flat-map [rdd f]
   (.map rdd (flat-map-function f)))
+
+(defn filter [rdd f]
+  (.filter rdd (function (ftruthy? f))))
 
 (defn foreach [rdd f]
   (.foreach rdd (void-function f)))
@@ -78,10 +105,30 @@
       (.map (function untuple))
       ))
 
+(defn group-by [rdd f]
+  (-> rdd
+      (.groupBy (function f))
+      (.map (function untuple))))
+
 (defn group-by-key [rdd]
   (-> rdd
       (.map (pair-function identity))
       .groupByKey
+      (.map (function untuple))))
+
+(defn count-by-key [rdd]
+  "Only available on RDDs of type (K, V).
+  Returns a `Map` of (K, Int) pairs with the count of each key."
+  (-> rdd
+      (.map (pair-function identity))
+      .countByKey))
+
+(defn combine-by-key [rdd create-combiner merge-value merge-combiners]
+  (-> rdd
+      (.map (pair-function identity))
+      (.combineByKey (function create-combiner)
+                     (function2 merge-value)
+                     (function2 merge-combiners))
       (.map (function untuple))))
 
 (defn sort-by-key
@@ -109,11 +156,21 @@
       (.join (.map other (pair-function identity)))
       (.map (function double-untuple))))
 
+(defn left-outer-join [rdd other]
+  (-> rdd
+      (.map (pair-function identity))
+      (.leftOuterJoin (.map other (pair-function identity)))
+      (.map (function
+             (sparkop [t]
+                      (let [[x t2] (untuple t)
+                            [a b] (untuple t2)]
+                        (vector x [a (.orNull b)])))))))
+
 (defn sample [rdd with-replacement? fraction seed]
-    (-> rdd
-        (.map (pair-function identity))
-        (.sample with-replacement? fraction seed)
-        (.map (function untuple))))
+  (-> rdd
+      (.map (pair-function identity))
+      (.sample with-replacement? fraction seed)
+      (.map (function untuple))))
 
 ;;; Actions
 (defn save-as-text-file [rdd path]
@@ -121,6 +178,9 @@
 
 (defn save-as-sequence-file [rdd path]
   (.saveAsSequenceFile rdd path))
+
+(defn persist [rdd storage-level]
+  (.persist rdd storage-level))
 
 (def first (memfn first))
 (def count (memfn count))
@@ -136,3 +196,4 @@
 (def cache (memfn cache))
 (def collect (memfn collect))
 (def distinct (memfn distinct))
+(def coalesce (memfn coalesce))
