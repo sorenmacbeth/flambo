@@ -56,6 +56,13 @@
                  (conf/app-name app-name))]
     (spark-context conf)))
 
+(defmacro with-context
+  [context-sym & body]
+  `(let [~context-sym (f/spark-context "local[*]" "test")]
+     (try
+       ~@body
+       (finally (.stop ~context-sym)))))
+
 (defn jar-of-ns
   [ns]
   (let [clazz (Class/forName (clojure.string/replace (str ns) #"-" "_"))]
@@ -188,7 +195,7 @@
   [rdd other]
   (-> rdd
       (map-to-pair identity)
-      (.leftOuterJoin (.map other (pair-function identity)))
+      (.leftOuterJoin (map-to-pair other identity))
       (.map (function
              (sparkop [t]
                       (let [[x t2] (untuple t)

@@ -1,27 +1,25 @@
 (ns flambo.api-test
   (:use midje.sweet)
-  (:require [flambo.api :as f]))
-
-(defmacro with-context [context-sym & body]
-  `(let [~context-sym (f/spark-context "local[*]" "test")]
-     (try
-       ~@body
-       (finally (.stop ~context-sym)))))
+  (:require [flambo.api :as f]
+            [flambo.conf :as conf]))
 
 (facts
  "about spark-context"
- (with-context c
-   (fact
-    "gives us a JavaSparkContext"
-    (class c) => org.apache.spark.api.java.JavaSparkContext)
+ (let [conf (-> (conf/spark-conf)
+                (conf/master "local[*]")
+                (conf/app-name "api-test"))]
+   (f/with-context c conf
+     (fact
+      "gives us a JavaSparkContext"
+      (class c) => org.apache.spark.api.java.JavaSparkContext)
 
-   (fact
-    "creates a JavaRDD"
-    (class (f/parallelize c [1 2 3 4 5])) => org.apache.spark.api.java.JavaRDD)
+     (fact
+      "creates a JavaRDD"
+      (class (f/parallelize c [1 2 3 4 5])) => org.apache.spark.api.java.JavaRDD)
 
-   (fact
-    "round-trips a clojure vector"
-    (-> (f/parallelize c [1 2 3 4 5]) f/collect vec) => (just [1 2 3 4 5]))))
+     (fact
+      "round-trips a clojure vector"
+      (-> (f/parallelize c [1 2 3 4 5]) f/collect vec) => (just [1 2 3 4 5])))))
 
 (facts
  "about serializable functions"
