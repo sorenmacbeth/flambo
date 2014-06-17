@@ -32,10 +32,12 @@
                      :memory-and-disk-ser-2 StorageLevels/MEMORY_AND_DISK_SER_2
                      :disk-only-2 StorageLevels/DISK_ONLY_2})
 
-(defmacro sparkop [& body]
+(defmacro sparkop
+  [& body]
   `(sfn/fn ~@body))
 
-(defmacro defsparkfn [name & body]
+(defmacro defsparkfn
+  [name & body]
   `(def ~name
      (sparkop ~@body)))
 
@@ -47,13 +49,15 @@
      (log/debug "JavaSparkContext" master app-name)
      (JavaSparkContext. master app-name)))
 
-(defn local-spark-context [app-name]
+(defn local-spark-context
+  [app-name]
   (let [conf (-> (conf/spark-conf)
                  (conf/master "local[*]")
                  (conf/app-name app-name))]
     (spark-context conf)))
 
-(defn jar-of-ns [ns]
+(defn jar-of-ns
+  [ns]
   (let [clazz (Class/forName (clojure.string/replace (str ns) #"-" "_"))]
     (JavaSparkContext/jarOfClass clazz)))
 
@@ -70,7 +74,8 @@
     (conj! v (untuple t2))
     (persistent! v)))
 
-(defn ftruthy? [f]
+(defn ftruthy?
+  [f]
   (sparkop [x] (u/truthy? (f x))))
 
 ;; ## RDD construction
