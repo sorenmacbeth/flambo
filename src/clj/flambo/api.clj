@@ -79,6 +79,9 @@
   (sparkop [x] (u/truthy? (f x))))
 
 ;; ## RDD construction
+;;
+;; Function for constructing new RDDs
+;;
 (defn text-file [spark-context filename]
   (.textFile spark-context filename))
 
@@ -87,6 +90,9 @@
   ([spark-context lst num-slices] (.parallelize spark-context lst num-slices)))
 
 ;; ## Transformations
+;;
+;; Function for transforming RDDs
+;;
 (defn map
   [rdd f]
   (.map rdd (function f)))
@@ -194,7 +200,9 @@
   (.sample rdd with-replacement? fraction seed))
 
 ;; ## Actions
+;;
 ;; Action return their results to the driver process.
+;;
 (defn count-by-key
   "Only available on RDDs of type (K, V).
   Returns a map of (K, Int) pairs with the count of each key."
