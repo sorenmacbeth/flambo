@@ -12,8 +12,7 @@
 (def deserialize-fn (memoize sfn/deserialize))
 (def array-of-bytes-type (Class/forName "[B"))
 
-;;; Generic
-
+;; ## Generic
 (defn -init
   "Save the function f in state"
   [f]
@@ -30,8 +29,7 @@
     (log/trace "XS" xs)
     (apply f xs)))
 
-;;; Functions
-
+;; ## Functions
 (defn mk-sym
   [fmt sym-name]
   (symbol (format fmt sym-name)))
@@ -64,7 +62,7 @@
 (gen-function PairFlatMapFunction pair-flat-map-function)
 (gen-function PairFunction pair-function)
 
-;; Replaces the PairFunction-call defined by the gen-function macro.
+;; Replaces the PairFunction-call and PairFlatMapFunction-call defined by the gen-function macro.
 (defn PairFunction-call [this x]
   (let [[a b] (-call this x)]
     (Tuple2. a b)))

@@ -4,8 +4,9 @@
 
 (defmacro with-context [context-sym & body]
   `(let [~context-sym (f/spark-context "local[*]" "test")]
-     ~@body
-     (.stop ~context-sym)))
+     (try
+       ~@body
+       (finally (.stop ~context-sym)))))
 
 (facts
  "about spark-context"
@@ -42,11 +43,11 @@
  "about untupling"
 
  (fact
-  "untuple returns a vector"
+  "untuple returns a 2 vector"
   (let [tuple2 (scala.Tuple2. 1 "hi")]
     (f/untuple tuple2) => [1 "hi"]))
 
  (fact
-  "double untuple returns a vector with a key and a vector value"
+  "double untuple returns a vector with a key and a 2 vector value"
   (let [double-tuple2 (scala.Tuple2. 1 (scala.Tuple2. 2 "hi"))]
     (f/double-untuple double-tuple2) => [1 [2 "hi"]])))

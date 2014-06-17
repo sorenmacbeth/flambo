@@ -1,8 +1,11 @@
+;; ## EXPERIMENTAL
+;;
+;; This code as well as SparkSQL itself are considered experimental.
+;;
 (ns flambo.sql
   (:import [org.apache.spark.sql.api.java JavaSQLContext]))
 
-;; JavaSQLContext
-
+;; ## JavaSQLContext
 (defn sql-context [spark-context]
   (JavaSQLContext. spark-context))
 
@@ -15,6 +18,6 @@
 (defn register-rdd-as-table [sql-context rdd table-name]
   (.registerRDDAsTable sql-context rdd table-name))
 
-;; JavaSchemaRDD
+;; ## JavaSchemaRDD
 (defn register-as-table [rdd table-name]
   (.registerAsTable rdd table-name))
