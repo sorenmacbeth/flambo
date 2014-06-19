@@ -17,7 +17,7 @@ In a REPL:
 (require '[flambo.api :as f])
 
 ;; make a SparkConf
-(def c (-> (conf/spark-conf) (conf/master "local[2]") (conf/app-name "flambo")))
+(def c (-> (conf/spark-conf) (conf/master "local[*]") (conf/app-name "flambo")))
 
 ;; start a SparkContext
 (def ctx (f/spark-context c))
@@ -28,8 +28,8 @@ In a REPL:
 ;; define a serializable spark operation
 (f/defsparkfn square [x] (* x x))
 
-;; do stuff to the RDD, define and use an inline op
-(-> xs (f/map square) (f/filter (f/sparkop [x] (< x 10))) f/collect)
+;; do stuff to the RDD, define and use an inline op, not this is `flambo.api/fn` not `clojure.core/fn`
+(-> xs (f/map square) (f/filter (f/fn [x] (< x 10))) f/collect)
 ```
 
 ## Kryo
