@@ -57,8 +57,8 @@
     (spark-context conf)))
 
 (defmacro with-context
-  [context-sym & body]
-  `(let [~context-sym (f/spark-context "local[*]" "test")]
+  [context-sym conf & body]
+  `(let [~context-sym (f/spark-context ~conf)]
      (try
        ~@body
        (finally (.stop ~context-sym)))))
