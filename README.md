@@ -28,7 +28,7 @@ In a REPL:
 ;; define a serializable spark operation
 (f/defsparkfn square [x] (* x x))
 
-;; do stuff to the RDD, define and use an inline op, not this is `flambo.api/fn` not `clojure.core/fn`
+;; do stuff to the RDD, define and use an inline op. note this is flambo.api/fn not clojure.core/fn
 (-> xs (f/map square) (f/filter (f/fn [x] (< x 10))) f/collect)
 ```
 
