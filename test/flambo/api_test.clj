@@ -24,7 +24,7 @@
 (facts
  "about serializable functions"
 
- (let [myfn (f/sparkop [x] (* 2 x))]
+ (let [myfn (f/fn [x] (* 2 x))]
    (fact
     "inline op returns a serializable fn"
     (type myfn) => :serializable.fn/serializable-fn)
@@ -60,7 +60,7 @@
       (fact
         "map returns an RDD formed by passing each element of the source RDD through a function"
         (-> (f/parallelize c [1 2 3 4 5])
-            (f/map (f/sparkop [x] (* 2 x)))
+            (f/map (f/fn [x] (* 2 x)))
             f/collect
             vec) => [2 4 6 8 10])
 
@@ -68,7 +68,7 @@
         "map-to-pair returns an RDD of (K, V) pairs formed by passing each element of the source
         RDD through a pair function"
         (-> (f/parallelize c ["a" "b" "c" "d"])
-            (f/map-to-pair (f/sparkop [x] [x 1]))
+            (f/map-to-pair (f/fn [x] [x 1]))
             (f/map f/untuple)
             f/collect
             vec) => [["a" 1] ["b" 1] ["c" 1] ["d" 1]])
@@ -80,7 +80,7 @@
                               ["key2" 3]
                               ["key2" 4]
                               ["key3" 5]])
-            (f/reduce-by-key (f/sparkop [x y] (+ x y)))
+            (f/reduce-by-key (f/fn [x y] (+ x y)))
             f/collect
             vec) => (contains #{["key1" 3] ["key2" 7] ["key3" 5]}))
 
@@ -89,14 +89,14 @@
         mapping function must therefore return a sequence rather than a single item"
         (-> (f/parallelize c ["Four score and seven years ago our fathers"
                               "brought forth on this continent a new nation"])
-            (f/flat-map (f/sparkop [x] (clojure.string/split x #" ")))
+            (f/flat-map (f/fn [x] (clojure.string/split x #" ")))
             f/collect
             vec) => ["Four" "score" "and" "seven" "years" "ago" "our" "fathers" "brought" "forth" "on" "this" "continent" "a" "new" "nation"])
 
       (fact
         "filter returns an RDD formed by selecting those elements of the source on which func returns true"
         (-> (f/parallelize c [1 2 3 4 5 6])
-            (f/filter (f/sparkop [x] (even? x)))
+            (f/filter (f/fn [x] (even? x)))
             f/collect
             vec) => [2 4 6])
 
@@ -138,7 +138,7 @@
       #_(fact
         ""
         (-> (f/parallelize c ["Four score and seven years ago"])
-            (f/flat-map-to-pair (f/sparkop [x] (map (fn [x] [x 1])
+            (f/flat-map-to-pair (f/fn [x] (map (fn [x] [x 1])
                                                     (clojure.string/split x #" "))))
             (f/map f/double-untuple)
             f/collect
@@ -156,7 +156,7 @@
         "aggregates elements of RDD using a function that takes two arguments and returns one,
         return type is a value"
         (-> (f/parallelize c [1 2 3 4 5])
-            (f/reduce (f/sparkop [x y] (+ x y)))) => 15)
+            (f/reduce (f/fn [x y] (+ x y)))) => 15)
 
       (fact
         "count-by-key returns a hashmap of (K, int) pairs with the count of each key; only available on RDDs of type (K, V)"

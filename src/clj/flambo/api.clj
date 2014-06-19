@@ -1,5 +1,5 @@
 (ns flambo.api
-  (:refer-clojure :exclude [map reduce first count take distinct filter group-by])
+  (:refer-clojure :exclude [fn map reduce first count take distinct filter group-by])
   (:require [serializable.fn :as sfn]
             [clojure.tools.logging :as log]
             [flambo.function :refer [flat-map-function
@@ -32,14 +32,14 @@
                      :memory-and-disk-ser-2 StorageLevels/MEMORY_AND_DISK_SER_2
                      :disk-only-2 StorageLevels/DISK_ONLY_2})
 
-(defmacro sparkop
+(defmacro fn
   [& body]
   `(sfn/fn ~@body))
 
 (defmacro defsparkfn
   [name & body]
   `(def ~name
-     (sparkop ~@body)))
+     (fn ~@body)))
 
 (defn spark-context
   ([conf]
@@ -83,7 +83,7 @@
 
 (defn ftruthy?
   [f]
-  (sparkop [x] (u/truthy? (f x))))
+  (fn [x] (u/truthy? (f x))))
 
 ;; ## RDD construction
 ;;
@@ -197,7 +197,7 @@
       (map-to-pair identity)
       (.leftOuterJoin (map-to-pair other identity))
       (.map (function
-             (sparkop [t]
+             (fn [t]
                       (let [[x t2] (untuple t)
                             [a b] (untuple t2)]
                         (vector x [a (.orNull b)])))))))
