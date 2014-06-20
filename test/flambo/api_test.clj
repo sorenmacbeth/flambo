@@ -186,15 +186,14 @@
             f/collect
             vec) => [["key1" [1 2]] ["key2" [3 4]] ["key3" [5]]])
 
-      #_(fact
+      (fact
         "flat-map-to-pair"
-        (-> (f/parallelize c [["Four score and seven years ago our fathers"]
-                              ["brought forth on this continent a new nation"]])
+        (-> (f/parallelize c [["Four score and seven"]
+                              ["years ago"]])
             (f/flat-map-to-pair (f/fn [x] (map (fn [y] [y 1])
                                                (clojure.string/split (first x) #" "))))
-            #_f/untuple
-            #_f/collect
-            #_vec) => [["Four" 1] ["score" 1] ["and" 1] ["seven" 1] ["years" 1] ["ago" 1]])
+            (f/map f/untuple)
+            f/collect) => [["Four" 1] ["score" 1] ["and" 1] ["seven" 1] ["years" 1] ["ago" 1]])
       )))
 
 (facts
