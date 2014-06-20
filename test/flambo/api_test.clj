@@ -62,7 +62,7 @@
         (-> (f/parallelize c [1 2 3 4 5])
             (f/map (f/fn [x] (* 2 x)))
             f/collect
-            vec) => [2 4 6 8 10])
+            #_vec) => [2 4 6 8 10])
 
       (fact
         "map-to-pair returns an RDD of (K, V) pairs formed by passing each element of the source
@@ -71,7 +71,7 @@
             (f/map-to-pair (f/fn [x] [x 1]))
             (f/map f/untuple)
             f/collect
-            vec) => [["a" 1] ["b" 1] ["c" 1] ["d" 1]])
+            #_vec) => [["a" 1] ["b" 1] ["c" 1] ["d" 1]])
 
       (fact
         "reduce-by-key returns an RDD of (K, V) when called on an RDD of (K, V) pairs"
@@ -87,9 +87,9 @@
       (fact
         "similar to map, but each input item can be mapped to 0 or more output items;
         mapping function must therefore return a sequence rather than a single item"
-        (-> (f/parallelize c ["Four score and seven years ago our fathers"
-                              "brought forth on this continent a new nation"])
-            (f/flat-map (f/fn [x] (clojure.string/split x #" ")))
+        (-> (f/parallelize c [["Four score and seven years ago our fathers"]
+                              ["brought forth on this continent a new nation"]])
+            (f/flat-map (f/fn [x] (clojure.string/split (first x) #" ")))
             f/collect
             vec) => ["Four" "score" "and" "seven" "years" "ago" "our" "fathers" "brought" "forth" "on" "this" "continent" "a" "new" "nation"])
 
@@ -135,14 +135,51 @@
                         ["key1" [[2] [22]]]
                         ["key2" [[3] nil]]])
 
+      (fact
+        "sample returns a fraction of the RDD, with/without replacement,
+        using a given random number generator seed"
+        (-> (f/parallelize c [1 2 3 4 5 6 7 8 9 10 11 12 13 14 15])
+            (f/sample false 0.4 10)
+            f/collect) => [1 4 7 11 14])
+
+      (fact
+        "fold"
+        (-> (f/parallelize c [1 2 3 4 5])
+            (f/fold 0 (f/fn [x y] (+ x y)))) => 15)
+
       #_(fact
-        ""
-        (-> (f/parallelize c ["Four score and seven years ago"])
-            (f/flat-map-to-pair (f/fn [x] (map (fn [x] [x 1])
-                                                    (clojure.string/split x #" "))))
+        "group-by"
+        (-> (f/parallelize c [["key1" 1]
+                              ["key1" 2]
+                              ["key2" 3]
+                              ["key2" 4]
+                              ["key3" 5]])
+            (f/group-by (f/fn [x] (first x)))
+            (f/map f/untuple)
+            f/collect
+            vec) => [["key1" [1 2]] ["key2" [3 4]] ["key3" [5]]])
+
+      #_(fact
+        "group-by-key"
+        (-> (f/parallelize c [["key1" 1]
+                              ["key1" 2]
+                              ["key2" 3]
+                              ["key2" 4]
+                              ["key3" 5]])
+            f/group-by-key
             (f/map f/double-untuple)
             f/collect
-            vec) => [["Four" 1] ["score" 1] ["and" 1] ["seven" 1] ["years" 1] ["ago" 1]])
+            vec) => [])
+
+      #_(fact
+        "flat-map-to-pair"
+        (-> (f/parallelize c [["Four score and seven years ago our fathers"]
+                              ["brought forth on this continent a new nation"]])
+            (f/flat-map-to-pair (f/fn [x] (map (fn [y] [y 1])
+                                               (clojure.string/split (first x) #" "))))
+            #_f/untuple
+            #_f/collect
+            #_vec) => [["Four" 1] ["score" 1] ["and" 1] ["seven" 1] ["years" 1] ["ago" 1]])
       )))
 
 (facts
@@ -166,4 +203,50 @@
                               ["key2" 4]
                               ["key3" 5]])
             (f/count-by-key)) => {"key1" 2, "key2" 2, "key3" 1})
+
+      (fact
+        "foreach runs a function on each element of the RDD, returns nil; this is usually done for side effcts"
+        (-> (f/parallelize c [1 2 3 4 5])
+            (f/foreach (f/fn [x] x))) => nil)
+
+      (fact
+        "first returns the first element of an RDD"
+        (-> (f/parallelize c [1 2 3 4 5])
+            f/first) => 1)
+
+      (fact
+        "count return the number of elements in an RDD"
+        (-> (f/parallelize c [["a" 1] ["b" 2] ["c" 3] ["d" 4] ["e" 5]])
+            f/count) => 5)
+
+      (fact
+        "collect returns all elements of the RDD as an array at the driver program"
+        (-> (f/parallelize c [[1] [2] [3] [4] [5]])
+            f/collect) => [[1] [2] [3] [4] [5]])
+
+      (fact
+        "distinct"
+        (-> (f/parallelize c [1 2 1 3 4 5 4])
+            f/distinct
+            f/collect
+            vec) => (contains #{1 2 3 4 5}))
+
+      (fact
+        "take returns an array with the first n elements of an RDD"
+        (-> (f/parallelize c [1 2 3 4 5])
+            (f/take 3)) => [1 2 3])
+
+      (fact
+        "glom returns an RDD created by coalescing all elements within each partition into a list"
+        (-> (f/parallelize c [[1] [2] [3] [4] [5]])
+            f/glom
+            f/collect
+            vec) => [[[1]] [[2]] [[3]] [[4] [5]]])
+
+      (fact
+        "cache persists this RDD with a default storage level (MEMORY_ONLY)"
+        (let [cache (-> (f/parallelize c [1 2 3 4 5])
+                        (f/cache))]
+          (-> cache
+              f/collect) => [1 2 3 4 5]))
       )))
