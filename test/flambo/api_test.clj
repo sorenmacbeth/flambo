@@ -143,22 +143,36 @@
             f/collect) => [1 4 7 11 14])
 
       (fact
-        "fold returns aggregate each partition, and then the results for all the partitions,
-        using a given associative function and a neutral 'zero value'"
-        (-> (f/parallelize c [1 2 3 4 5])
-            (f/fold 0 (f/fn [x y] (+ x y)))) => 15)
+        "combine-by-key returns an RDD by combining the elements for each key using a custom
+        set of aggregation functions"
+        (-> (f/parallelize c [["key1" 1]
+                              ["key2" 1]
+                              ["key1" 1]])
+            (f/combine-by-key identity + +)
+            f/collect) => [["key1" 2] ["key2" 1]])
+
+      (fact
+        "sort-by-key returns an RDD of (K, V) pairs sorted by keys in asc or desc order"
+        (-> (f/parallelize c [[2 "aa"]
+                              [5 "bb"]
+                              [3 "cc"]
+                              [1 "dd"]])
+            (f/sort-by-key compare false)
+            f/collect) => [[5 "bb"] [3 "cc"] [2 "aa"] [1 "dd"]])
 
       #_(fact
-        "group-by"
-        (-> (f/parallelize c [["key1" 1]
-                              ["key1" 2]
-                              ["key2" 3]
-                              ["key2" 4]
-                              ["key3" 5]])
-            (f/group-by (f/fn [x] (first x)))
-            (f/map f/untuple)
+        "coalesce"
+        (-> (f/parallelize c [1 2 3 4 5])
+            coalesce
+            f/collect) => [1 2 3 4 5])
+
+      #_(fact
+        "group-by returns an RDD of items grouped by the grouping function"
+        (-> (f/parallelize c [1 1 2 3 5 8])
+            (f/group-by (f/fn [x] (mod x 2)))
+            #_(f/map f/untuple)
             f/collect
-            vec) => [["key1" [1 2]] ["key2" [3 4]] ["key3" [5]]])
+            #_vec) => [[0 [2 8]] [1 [1 1 3 5]]])
 
       #_(fact
         "group-by-key"
@@ -170,7 +184,7 @@
             f/group-by-key
             (f/map f/double-untuple)
             f/collect
-            vec) => [])
+            vec) => [["key1" [1 2]] ["key2" [3 4]] ["key3" [5]]])
 
       #_(fact
         "flat-map-to-pair"
@@ -209,6 +223,12 @@
         "foreach runs a function on each element of the RDD, returns nil; this is usually done for side effcts"
         (-> (f/parallelize c [1 2 3 4 5])
             (f/foreach (f/fn [x] x))) => nil)
+
+      (fact
+        "fold returns aggregate each partition, and then the results for all the partitions,
+        using a given associative function and a neutral 'zero value'"
+        (-> (f/parallelize c [1 2 3 4 5])
+            (f/fold 0 (f/fn [x y] (+ x y)))) => 15)
 
       (fact
         "first returns the first element of an RDD"
