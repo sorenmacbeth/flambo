@@ -236,11 +236,11 @@
 (def glom (memfn glom))
 (def cache (memfn cache))
 (def collect (memfn collect))
+(def distinct (memfn distinct))
 
-;; take defined with memfn fails with an ArityException, so doing this instead:
 (defn take
   [rdd cnt]
   (.take rdd cnt))
 
-(def distinct (memfn distinct))
-(def coalesce (memfn coalesce))
+(defn coalesce [rdd n]
+  (.coalesce rdd n))

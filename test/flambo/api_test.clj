@@ -160,13 +160,13 @@
             (f/sort-by-key compare false)
             f/collect) => [[5 "bb"] [3 "cc"] [2 "aa"] [1 "dd"]])
 
-      #_(fact
+      (fact
         "coalesce"
         (-> (f/parallelize c [1 2 3 4 5])
-            coalesce
+            (f/coalesce 1)
             f/collect) => [1 2 3 4 5])
 
-      #_(fact
+      (fact
         "group-by returns an RDD of items grouped by the grouping function"
         (-> (f/parallelize c [1 1 2 3 5 8])
             (f/group-by (f/fn [x] (mod x 2)))
@@ -174,7 +174,7 @@
             f/collect
             #_vec) => [[0 [2 8]] [1 [1 1 3 5]]])
 
-      #_(fact
+      (fact
         "group-by-key"
         (-> (f/parallelize c [["key1" 1]
                               ["key1" 2]
@@ -182,7 +182,7 @@
                               ["key2" 4]
                               ["key3" 5]])
             f/group-by-key
-            (f/map f/double-untuple)
+            ;; (f/map f/double-untuple)
             f/collect
             vec) => [["key1" [1 2]] ["key2" [3 4]] ["key3" [5]]])
 
