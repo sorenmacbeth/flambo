@@ -143,7 +143,8 @@
             f/collect) => [1 4 7 11 14])
 
       (fact
-        "fold"
+        "fold returns aggregate each partition, and then the results for all the partitions,
+        using a given associative function and a neutral 'zero value'"
         (-> (f/parallelize c [1 2 3 4 5])
             (f/fold 0 (f/fn [x y] (+ x y)))) => 15)
 
@@ -225,7 +226,7 @@
             f/collect) => [[1] [2] [3] [4] [5]])
 
       (fact
-        "distinct"
+        "distinct returns distinct elements of an RDD"
         (-> (f/parallelize c [1 2 1 3 4 5 4])
             f/distinct
             f/collect
