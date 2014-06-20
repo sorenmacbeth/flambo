@@ -69,7 +69,6 @@
 
 (defn PairFlatMapFunction-call [this x]
   (let [ret (-call this x)]
-    (log/debug ret)
     (for [v ret
           :let [[a b] v]]
       (Tuple2. a b))))
