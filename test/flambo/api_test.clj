@@ -61,8 +61,7 @@
         "map returns an RDD formed by passing each element of the source RDD through a function"
         (-> (f/parallelize c [1 2 3 4 5])
             (f/map (f/fn [x] (* 2 x)))
-            f/collect
-            #_vec) => [2 4 6 8 10])
+            f/collect) => [2 4 6 8 10])
 
       (fact
         "map-to-pair returns an RDD of (K, V) pairs formed by passing each element of the source
@@ -70,8 +69,7 @@
         (-> (f/parallelize c ["a" "b" "c" "d"])
             (f/map-to-pair (f/fn [x] [x 1]))
             (f/map f/untuple)
-            f/collect
-            #_vec) => [["a" 1] ["b" 1] ["c" 1] ["d" 1]])
+            f/collect) => [["a" 1] ["b" 1] ["c" 1] ["d" 1]])
 
       (fact
         "reduce-by-key returns an RDD of (K, V) when called on an RDD of (K, V) pairs"
@@ -182,7 +180,6 @@
                               ["key2" 4]
                               ["key3" 5]])
             f/group-by-key
-            ;; (f/map f/double-untuple)
             f/collect
             vec) => [["key1" [1 2]] ["key2" [3 4]] ["key3" [5]]])
 
