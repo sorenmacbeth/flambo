@@ -168,9 +168,7 @@
         "group-by returns an RDD of items grouped by the grouping function"
         (-> (f/parallelize c [1 1 2 3 5 8])
             (f/group-by (f/fn [x] (mod x 2)))
-            #_(f/map f/untuple)
-            f/collect
-            #_vec) => [[0 [2 8]] [1 [1 1 3 5]]])
+            f/collect) => [[0 [2 8]] [1 [1 1 3 5]]])
 
       (fact
         "group-by-key"
@@ -180,8 +178,7 @@
                               ["key2" 4]
                               ["key3" 5]])
             f/group-by-key
-            f/collect
-            vec) => [["key1" [1 2]] ["key2" [3 4]] ["key3" [5]]])
+            f/collect) => [["key3" [5]] ["key1" [1 2]] ["key2" [3 4]]])
 
       (fact
         "flat-map-to-pair"

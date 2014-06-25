@@ -16,6 +16,11 @@ public class BaseFlamboRegistrator implements KryoRegistrator {
     try {
       JavaBridge.enhanceRegistry(kryo);
       kryo.register(Tuple2.class, new Tuple2Serializer());
+
+      // we have to reflect this scala class since it's private wheeee
+      Class cls = Class.forName("scala.collection.convert.Wrappers$IterableWrapper");
+      kryo.register(cls, new JavaIterableSerializer());
+
       register(kryo);
 
       /*

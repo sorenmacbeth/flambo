@@ -76,11 +76,17 @@
     (conj! v (._2 t))
     (persistent! v)))
 
-(defsparkfn double-untuple [t]
-  (let [[x t2] (untuple t)
+(defsparkfn double-untuple [^Tuple2 t]
+  (let [[x ^Tuple2 t2] (untuple t)
         v (transient [])]
     (conj! v x)
     (conj! v (untuple t2))
+    (persistent! v)))
+
+(defsparkfn group-untuple [^Tuple2 t]
+  (let [v (transient [])]
+    (conj! v (._1 t))
+    (conj! v (into [] (._2 t)))
     (persistent! v)))
 
 (defn- ftruthy?
@@ -170,7 +176,7 @@
   [rdd f]
   (-> rdd
       (.groupBy (function f))
-      (.map (function untuple))))
+      (.map (function group-untuple))))
 
 (defn group-by-key
   "Groups the values for each key in the RDD into a single sequence"
@@ -178,7 +184,7 @@
   (-> rdd
       (map-to-pair identity)
       .groupByKey
-      (.map (function untuple))))
+      (.map (function group-untuple))))
 
 (defn combine-by-key
   "Combines the elements for each key using a custom set of aggregation functions.
