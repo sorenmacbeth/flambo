@@ -7,11 +7,11 @@ import com.esotericsoftware.kryo.io.Output;
 
 import java.lang.reflect.*;
 
-public class JavaIterableSerializer<T> extends Serializer<T> {
+public class JavaIterableWrapperSerializer<T> extends Serializer<T> {
   Class cls;
   Method underlyingMethod;
 
-  public JavaIterableSerializer() {
+  public JavaIterableWrapperSerializer() {
     try {
       this.cls = Class.forName("scala.collection.convert.Wrappers$IterableWrapper");
       this.underlyingMethod = cls.getDeclaredMethod("underlying");

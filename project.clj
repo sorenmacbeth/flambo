@@ -29,7 +29,7 @@
                [org.apache.spark/spark-sql_2.10 "1.0.0"]]}
              :1.5.1
              {:dependencies [[org.clojure/clojure "1.5.1"]]}}
-  :source-paths ["src/clj"]
-  :java-source-paths ["src/jvm"]
+  :source-paths ["src/clojure"]
+  :java-source-paths ["src/java"]
   :jvm-opts ^:replace []
   :global-vars {*warn-on-reflection* false})
