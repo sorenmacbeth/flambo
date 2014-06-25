@@ -31,7 +31,9 @@
                [org.apache.spark/spark-streaming-kafka_2.10 "1.0.0"]
                [org.apache.spark/spark-sql_2.10 "1.0.0"]]}
              :1.5.1
-             {:dependencies [[org.clojure/clojure "1.5.1"]]}}
+             {:dependencies [[org.clojure/clojure "1.5.1"]]}
+             :1.4.0
+             {:dependencies [[org.clojure/clojure "1.4.0"]]}}
   :source-paths ["src/clojure"]
   :java-source-paths ["src/java"]
   :jvm-opts ^:replace []
