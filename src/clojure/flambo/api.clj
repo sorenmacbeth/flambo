@@ -11,10 +11,14 @@
                                      pair-flat-map-function
                                      void-function]]
             [flambo.conf :as conf]
-            [flambo.utils :as u])
+            [flambo.utils :as u]
+            [flambo.kryo :as k])
   (:import (scala Tuple2)
+           [scala.reflect ClassTag$]
            (java.util Comparator)
            (org.apache.spark.api.java JavaSparkContext StorageLevels)
+           org.apache.spark.api.java.JavaRDD
+           (org.apache.spark.rdd PartitionwiseSampledRDD)
            (flambo.function Function Function2 Function3 VoidFunction FlatMapFunction
                             PairFunction PairFlatMapFunction)))
 
@@ -106,6 +110,10 @@
   "Distributes a local collection to form/return an RDD"
   ([spark-context lst] (.parallelize spark-context lst))
   ([spark-context lst num-slices] (.parallelize spark-context lst num-slices)))
+
+(defn partitionwise-sampled-rdd [rdd sampler seed]
+  (-> (PartitionwiseSampledRDD. (.rdd rdd) sampler seed k/OBJECT-CLASS-TAG k/OBJECT-CLASS-TAG)
+      (JavaRDD/fromRDD k/OBJECT-CLASS-TAG)))
 
 ;; ## Transformations
 ;;
