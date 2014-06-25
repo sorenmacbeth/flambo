@@ -112,6 +112,7 @@
   ([spark-context lst num-slices] (.parallelize spark-context lst num-slices)))
 
 (defn partitionwise-sampled-rdd [rdd sampler seed]
+  "Creates a PartitionwiseSampledRRD from existing RDD and a sampler object"
   (-> (PartitionwiseSampledRDD. (.rdd rdd) sampler seed k/OBJECT-CLASS-TAG k/OBJECT-CLASS-TAG)
       (JavaRDD/fromRDD k/OBJECT-CLASS-TAG)))
 
