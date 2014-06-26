@@ -233,7 +233,7 @@
 (defn sort-by-key
   "When called on `rdd` of (K, V) pairs where K implements ordered, returns a dataset of
    (K, V) pairs sorted by keys in ascending or descending order, as specified by the boolean
-   ascending argument"
+   ascending argument."
   ([rdd]
      (sort-by-key rdd compare true))
   ([rdd x]
