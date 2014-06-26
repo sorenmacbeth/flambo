@@ -32,5 +32,10 @@
                [org.apache.spark/spark-sql_2.10 "1.0.0"]]}}
   :source-paths ["src/clojure"]
   :java-source-paths ["src/java"]
+  :codox {:defaults {:doc/format :markdown}
+          :include [flambo.api flambo.conf flambo.kryo]
+          :output-dir "doc/codox"
+          :src-dir-uri "http://github.com/yieldbot/flambo/blob/develop/"
+          :src-linenum-anchor-prefix "L"}
   :jvm-opts ^:replace []
   :global-vars {*warn-on-reflection* false})
