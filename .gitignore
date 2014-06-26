@@ -6,5 +6,5 @@ pom.xml.asc
 *.jar
 *.class
 /.lein-*
-/.nrepl-por
+/.nrepl-port
 /doc
