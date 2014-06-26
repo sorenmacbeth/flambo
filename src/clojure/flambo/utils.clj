@@ -32,6 +32,9 @@
 (defn bernoulli-sampler [lower-bound upper-bound complement?]
   (BernoulliSampler. lower-bound upper-bound complement? (XORShiftRandom.)))
 
+(defn sampler-complement [sampler]
+  (.cloneComplement sampler))
+
 (defn bootstrap-emacs []
   (-> (Logger/getRootLogger)
       (.addAppender (WriterAppender. (SimpleLayout.) *out*)))
