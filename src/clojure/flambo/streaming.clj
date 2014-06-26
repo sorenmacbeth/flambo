@@ -1,3 +1,8 @@
+;; ## EXPERIMENTAL
+;;
+;; This is a partial and mostly untested implementation of
+;; Spark Streaming; consider it a work in progress.
+;;
 (ns flambo.streaming
   (:refer-clojure :exclude [map time print union])
   (:require [flambo.api :as f]
@@ -49,8 +54,8 @@
       (.map (function f/untuple))))
 
 
-;; transformations
-
+;; ## Transformations
+;;
 (defn transform [dstream f]
   (.transform dstream (function f)))
 
@@ -61,8 +66,8 @@
   (.union dstream other-stream))
 
 
-;; window operations
-
+;; ## Window Operations
+;;
 (defn window [dstream window-length slide-interval]
   (.window dstream (duration window-length) (duration slide-interval)))
 
@@ -85,8 +90,8 @@
       (.map (function f/untuple))))
 
 
-;; output operations
-
+;; ## Actions
+;;
 (def print (memfn print))
 
 (defn foreach-rdd [dstream f]

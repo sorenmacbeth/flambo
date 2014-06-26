@@ -6,6 +6,7 @@
   (:import [org.apache.spark.sql.api.java JavaSQLContext]))
 
 ;; ## JavaSQLContext
+;;
 (defn sql-context [spark-context]
   (JavaSQLContext. spark-context))
 
@@ -19,5 +20,6 @@
   (.registerRDDAsTable sql-context rdd table-name))
 
 ;; ## JavaSchemaRDD
+;;
 (defn register-as-table [rdd table-name]
   (.registerAsTable rdd table-name))
