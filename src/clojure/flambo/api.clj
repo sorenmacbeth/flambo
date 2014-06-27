@@ -37,7 +37,7 @@
 ;; and data structures. Here we ensure that these properties are set so they are inhereted
 ;; into any `SparkConf` objects that are created.
 ;;
-;; flambo WILL NOT WORK with enabling kryo serialization in spark!
+;; flambo WILL NOT WORK without enabling kryo serialization in spark!
 ;;
 (System/setProperty "spark.serializer" "org.apache.spark.serializer.KryoSerializer")
 (System/setProperty "spark.kryo.registrator" "flambo.kryo.BaseFlamboRegistrator")
