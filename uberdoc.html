@@ -3062,7 +3062,7 @@ happily accepted!</p>
 and data structures. Here we ensure that these properties are set so they are inhereted
 into any <code>SparkConf</code> objects that are created.</p>
 
-<p>flambo WILL NOT WORK with enabling kryo serialization in spark!</p>
+<p>flambo WILL NOT WORK without enabling kryo serialization in spark!</p>
 </td><td class="codes"><pre class="brush: clojure">(System/setProperty &quot;spark.serializer&quot; &quot;org.apache.spark.serializer.KryoSerializer&quot;)
 (System/setProperty &quot;spark.kryo.registrator&quot; &quot;flambo.kryo.BaseFlamboRegistrator&quot;)</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(def STORAGE-LEVELS {:memory-only StorageLevels/MEMORY_ONLY
