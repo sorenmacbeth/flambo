@@ -22,7 +22,7 @@ Flambo is a Clojure DSL for [Apache Spark](http://spark.apache.org/docs/latest/)
 
 Apache Spark is a fast and general-purpose cluster computing system. It provides high-level APIs in Java, Scala and Python, and an optimized engine that supports general execution graphs.
 
-Flambo is Clojure a DSL that allows you to access all of the APIs that Spark has to offer. It provides for a more Clojure like view of the Spark data structures; untyped, letting functions deal with data of various shapes. With flambo, you directly work with Clojure data structures. Flambo is pure Clojure. Who knows, it might even convince you to move to Clojure (crossing fiery, flaming fingers).
+Flambo is a Clojure DSL that allows you to access all of the APIs that Spark has to offer. It provides for a more Clojure like view of the Spark data structures; untyped, letting functions deal with data of various shapes. With flambo, you directly work with Clojure data structures. Flambo is pure Clojure. Who knows, it might even convince you to move to Clojure (crossing fiery, flaming fingers).
 
 "So that's where I came from." --flambo
 
@@ -30,7 +30,7 @@ Flambo is Clojure a DSL that allows you to access all of the APIs that Spark has
 ## Supported Spark Versions
 
 flambo 0.3.0-SNAPSHOT **requires** Spark 1.0.0
- 
+
 flambo 0.2.0 targets Spark 0.9.1
 
 <a name="installation">
@@ -60,15 +60,15 @@ Here we create a SparkConf object with the special `local[*]` string to run in l
 (ns com.fire.kingdom.flambit
   (:require [flambo.conf :as conf])
   (:require [flambo.api :as f]))
-  
-(def c (-> (conf/spark-conf) 
-           (conf/master "local[*]") 
+
+(def c (-> (conf/spark-conf)
+           (conf/master "local[*]")
            (conf/app-name "flambo")))
-           
+
 (def sc (f/spark-context c))
 ```
 
-The `master` url string can be `spark://...`, `mesos://...`, yarn-cluster or `local`. 
+The `master` url string can be `spark://...`, `mesos://...`, yarn-cluster or `local`.
 
 However, in practice, when running on a cluster, you will not want to hardcode the `master` setting, instead, launch the application with `spark-submit` and receive it there. For local testing and unit tests, you can pass `local` or `local[*]` to run Spark in-process.
 
@@ -107,7 +107,7 @@ Text file RDDs can be created in flambo using the `text-file` function under the
 ```clojure
 (ns com.fire.kingdom.flambit
   (:require [flambo.api :as f]))
-  
+
 (def data (f/text-file sc "hdfs://hostname:<port>/home/user/data_archive/2013/12/23/*/*.bz2"))
 ```
 
@@ -146,22 +146,22 @@ before the `reduce` action, which would cause line-lengths RDD to be saved to me
 
 Spark’s API relies heavily on passing functions in the driver program to run on the cluster. Flambo makes it is easy and natural to define serializable spark functions/operations and provides two ways to do this:
 
-* `flambo.api/defsparkfn`: which are just normal functions, making it easier to write tests against operations: 
+* `flambo.api/defsparkfn`: which are just normal functions, making it easier to write tests against operations:
 
 ```clojure
 (ns com.fire.kingdom.flambit
   (:require [flambo.api :as f]))
-  
+
 (f/defsparkfn square [x] (* x x))
 ```
 
-* `flambo.api/fn`: which defines an inline anonymous function: 
+* `flambo.api/fn`: which defines an inline anonymous function:
 
 ```clojure
 (ns com.fire.kingdom.flambit
   (:require [flambo.api :as f]))
-  
-(-> (f/parallelize sc [1 2 3 4 5]) 
+
+(-> (f/parallelize sc [1 2 3 4 5])
     (f/map (f/fn [x] (* x x))))
 ```
 
@@ -264,7 +264,7 @@ In a REPL:
 (kryo/defregistrator flameprincess [kryo]
   (.register kryo FlamePrincessHeat (FlamePrincessHeatSerializer.)))
 
-(def c (-> (conf/spark-conf) 
+(def c (-> (conf/spark-conf)
        (conf/set "spark.kryo.registrator" "my.namespace.registrator.flameprincess")))
 ```
 
