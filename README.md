@@ -22,7 +22,7 @@ Flambo is a Clojure DSL for [Apache Spark](http://spark.apache.org/docs/latest/)
 
 Apache Spark is a fast and general-purpose cluster computing system. It provides high-level APIs in Java, Scala and Python, and an optimized engine that supports general execution graphs.
 
-Flambo is Clojure a DSL that allows you access all of the APIs that Spark has to offer. It provides for a more Clojure like view of the Spark data structures; untyped, letting functions deal with data of various shapes. With flambo, you directly work with Clojure data structures. Flambo is pure Clojure. Who knows, it might even convince you to move to Clojure (crossing fiery, flaming fingers).
+Flambo is Clojure a DSL that allows you to access all of the APIs that Spark has to offer. It provides for a more Clojure like view of the Spark data structures; untyped, letting functions deal with data of various shapes. With flambo, you directly work with Clojure data structures. Flambo is pure Clojure. Who knows, it might even convince you to move to Clojure (crossing fiery, flaming fingers).
 
 "So that's where I came from." --flambo
 
