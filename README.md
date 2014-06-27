@@ -92,7 +92,7 @@ Parallelized collections (RDDs) in flambo are created by calling the `paralleliz
 
 Once initialized, the distributed dataset or RDD can be operated on in parallel, as we will see shortly.
 
-An important parameter for parallel collections is the number of slices to cut the dataset into. Spark runs one task for each slice of the cluster. Normally, Spark tries to set the number of slices automatically based on your cluster. However, you can also set it manually in flambo by passing it as a second parameter to parallelize:
+An important parameter for parallel collections is the number of slices to cut the dataset into. Spark runs one task for each slice of the cluster. Normally, Spark tries to set the number of slices automatically based on your cluster. However, you can also set it manually in flambo by passing it as a third parameter to parallelize:
 
 ```clojure
 (def data (f/parallelize sc [1 2 3 4 5] 4))
@@ -114,7 +114,10 @@ Text file RDDs can be created in flambo using the `text-file` function under the
 <a name="rdd-operations">
 ### RDD Operations
 
-RDDs support two types of operations: [_transformations_](#rdd-transformations), which create a new dataset from an existing one, and [_actions_](#rdd-actions), which return a value to the driver program after running a computation on the dataset.
+RDDs support two types of operations: 
+
+* [_transformations_](#rdd-transformations), which create a new dataset from an existing one
+* [_actions_](#rdd-actions), which return a value to the driver program after running a computation on the dataset
 
 <a name="basics">
 #### Basics
@@ -131,7 +134,7 @@ To illustrate RDD basics in flambo, consider the following simple application, u
     (f/reduce (f/fn [x y] (+ x y))))  ;; returns a value
 ```
 
-The first line defines a base RDD from an external file. The dataset is not loaded into memory or otherwise acted on, it is merely a pointer to the file. The second line defines an RDD of the lengths of the lines as a result of the `map` transformation; note, the lengths are not immediately computed, due to laziness. Finally, we run `reduce` on the transformed RDD, which is an action, returning only a value to the driver program.
+The first line defines a base RDD from an external file. The dataset is not loaded into memory or otherwise acted on, it is merely a pointer to the file. The second line defines an RDD of the lengths of the lines as a result of the `map` transformation. Note, the lengths are not immediately computed, due to laziness. Finally, we run `reduce` on the transformed RDD, which is an action, returning only a _value_ to the driver program.
 
 If we also wanted to reuse the resulting RDD of length of lines in later steps, we could add:
 
@@ -182,11 +185,24 @@ The following code uses the `reduce-by-key` operation on key-value pairs to coun
 (-> (f/text-file sc "data.txt")
     (f/flat-map (f/fn [l] (s/split l #" ")))
     (f/map (f/fn [w] [w 1]))
-    (f/reduce-by-key (f/fn [x y] (+ x y)))
-    f/collect)
+    (f/reduce-by-key (f/fn [x y] (+ x y))))
 ```
 
-We could also use `f/sort-by-key`, for example, to sort the pairs alphabetically, and finally `f/collect` to bring them back to the driver program as an array of objects.
+After the `reduce-by-key` operation, we could sort the pairs alphabetically using `f/sort-by-key`. Then, to collect the word counts as an array of objects in the repl, or to write them to a filesysten, we can use the `f/collect` action:
+
+```clojure
+(ns com.fire.kingdom.flambit
+  (:require [flambo.api :as f]
+            [clojure.string :as s]))
+
+(-> (f/text-file sc "data.txt")
+    (f/flat-map (f/fn [l] (s/split l #" ")))
+    (f/map (f/fn [w] [w 1]))
+    (f/reduce-by-key (f/fn [x y] (+ x y)))
+    f/sort-by-key
+    f/collect
+    clojure.pprint/pprint)
+```
 
 <a name="rdd-transformations">
 #### RDD Transformations
@@ -232,7 +248,7 @@ Flambo supports the following RDD actions:
 <a name="rdd-persistence">
 ### RDD Persistence
 
-Spark provides the ability to persist (or cache) a dataset in memory across operations. Spark’s cache is fault-tolerant – if any partition of an RDD is lost, it will automatically be recomputed using the transformations that originally created it. Caching is a key tool for iterative algorithms and fast interactive use, so, mirroring Spark, flambo provides the functions `f/persist` and `f/cache` to mark an RDD to be persisted. `f/persist` sets the storage level of an RDD to persist its values across operations after the first time it is computed. Storage levels are available in the `flambo.api/STORAGE-LEVELS` map. This can only be used to assign a new storage level if the RDD does not have a storage level set already. `cache` is a convenience function for using the default storage level, 'MEMORY_ONLY'.
+Spark provides the ability to persist (or cache) a dataset in memory across operations. Spark’s cache is fault-tolerant – if any partition of an RDD is lost, it will automatically be recomputed using the transformations that originally created it. Caching is a key tool for iterative algorithms and fast interactive use. Like Spark, flambo provides the functions `f/persist` and `f/cache` to persist RDDs. `f/persist` sets the storage level of an RDD to persist its values across operations after the first time it is computed. Storage levels are available in the `flambo.api/STORAGE-LEVELS` map. This can only be used to assign a new storage level if the RDD does not have a storage level set already. `cache` is a convenience function for using the default storage level, 'MEMORY_ONLY'.
 
 ```clojure
 (ns com.fire.kingdom.flambit
