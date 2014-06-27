@@ -119,7 +119,7 @@ RDDs support two types of operations: [_transformations_](#rdd-transformations),
 <a name="basics">
 #### Basics
 
-To illustrate RDD basics in flambo, consider the following simple application:
+To illustrate RDD basics in flambo, consider the following simple application, using our sample `data.txt` file located at the root of the flambo repo:
 
 ```clojure
 (ns com.fire.kingdom.flambit
@@ -139,12 +139,12 @@ If we also wanted to reuse the resulting RDD of length of lines in later steps, 
 (f/cache)
 ```
 
-before the `reduce` action, which would cause line-lengths RDD to be saved to memory after the first time it is realized. More on persisting and caching RDDs in flambo later.
+before the `reduce` action, which would cause the line-lengths RDD to be saved to memory after the first time it is realized. More on persisting and caching RDDs in flambo [later](#rdd-persistence).
 
 <a name="spark-functions">
 #### Passing Functions to Spark
 
-Spark’s API relies heavily on passing functions in the driver program to run on the cluster. Flambo makes it is easy and natural to define serializable spark functions/operations and provides two ways to do this:
+Spark’s API relies heavily on passing functions in the driver program to run on the cluster. Flambo makes it easy and natural to define serializable spark functions/operations and provides two ways to do this:
 
 * `flambo.api/defsparkfn`: which are just normal functions, making it easier to write tests against operations:
 
@@ -170,7 +170,7 @@ Spark’s API relies heavily on passing functions in the driver program to run o
 
 While most Spark operations work on RDDs containing any type of objects, a few special operations are only available on RDDs of key-value pairs. The most common ones are distibuted “shuffle” operations, such as grouping or aggregating the elements by a key.
 
-In flambo, these operations are available on RDDs of (key, value) tuples. However, flambo's superawesome macros transparently handle all transformations/serializations to/from `Tuple`, `Tuple2`, `JavaRDD`, `JavaPairRDD`, etc, class type ickiness. You, dear user, are shielded from the fiery bowls of serialization hell, and only need to define the sequence of operations you'd like to perform on your dataset(s) to enjoy the cool breeze of Zenness...
+In flambo, these operations are available on RDDs of (key, value) tuples. However, flambo's superawesome macros transparently handle all transformations/serializations to/from `Tuple`, `Tuple2`, `JavaRDD`, `JavaPairRDD`, etc, class type ickiness. So you, dear user, are shielded from the fiery bowls of serialization hell, and only need to define the sequence of operations you'd like to perform on your dataset(s) to enjoy the cool breeze of Zenness...
 
 The following code uses the `reduce-by-key` operation on key-value pairs to count how many times each word occurs in a file:
 
