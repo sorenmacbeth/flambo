@@ -129,9 +129,11 @@ To illustrate RDD basics in flambo, consider the following simple application:
 
 The first line defines a base RDD from an external file. The dataset is not loaded into memory or otherwise acted on, it is merely a pointer to the file. The second line defines an RDD of the lengths of the lines as a result of the `map` transformation; note, the lengths are not immediately computed, due to laziness. Finally, we run `reduce` on the transformed RDD, which is an action, returning only a value to the driver program.
 
-If we also wanted to use the resulting RDD of lengths of lines later, we could add:
+If we also wanted to reuse the resulting RDD of length of lines in later step, we could add:
 
-```(f/cache)```
+```clojure
+(f/cache)
+```
 
 before the `reduce` action, which would cause line lengths RDD to be save in memory after the first time it is realized. More on persisting and caching RDDs in memory later.
 
