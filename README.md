@@ -14,6 +14,7 @@ Flambo is a Clojure DSL for [Apache Spark](http://spark.apache.org/docs/latest/)
   * [Resilient Distributed Datasets](#rdds)
   * [RDD Operations](#rdd-operations)
   * [RDD Persistence](#rdd-persistence)
+* [Standalone Applications](#running-flambo)
 * [Kryo](#kryo)
 * [Terminology](#terminology)
 
@@ -70,7 +71,7 @@ Here we create a SparkConf object with the special `local[*]` string to run in l
 
 The `master` url string can be `spark://...`, `mesos://...`, yarn-cluster or `local`.
 
-However, in practice, when running on a cluster, you will not want to hardcode the `master` setting, instead, launch the application with `spark-submit` and receive it there. For local testing and unit tests, you can pass `local` or `local[*]` to run Spark in-process.
+However, in practice, when running on a cluster, you will not want to hardcode the `master` setting, instead, launch the application with `spark-submit` (if running Spark 1.0.0) and receive it there. For local testing and unit tests, you can pass `local` or `local[*]` to run Spark in-process. See [Standalone Applications](#running-flambo) for more details.
 
 The `app-name` configuration setting is the name for your application to show on the Mesos cluster UI.
 
@@ -259,6 +260,27 @@ Spark provides the ability to persist (or cache) a dataset in memory across oper
                        f/cache)]
   (-> line-lengths
       (f/reduce (f/fn [x y] (+ x y)))))
+```
+
+<a name="running-flambo">
+### Standalone Applications
+
+Finally to run your flambo application as a standalone application using the Spark API, you'll need to package your application in an uberjar using `lein` and execute it with:
+
+* `SPARK_CLASSPATH`, if running Spark 0.9.1
+* `./bin/spark-submit`, if running Spark 1.0.0
+
+```shell
+$ lein uberjar
+...
+
+$ SPARK_CLASSPATH=uberjar.jar spark-class com.some.class.with.main --flag1 arg1 --flag2 arg2
+...
+<output>
+
+$ spark-submit --class com.some.class.with.main uberjar.jar --flag1 arg1 --flag2 arg2
+...
+<output>
 ```
 
 <a name="kryo">
