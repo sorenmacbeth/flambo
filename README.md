@@ -25,9 +25,9 @@ Flambo is Clojure a DSL that allows you access all of the APIs that Spark has to
 <a name="versions">
 ## Supported Spark Versions
 
-Flambo 0.3.0-SNAPSHOT **requires** Spark 1.0.0
+flambo 0.3.0-SNAPSHOT **requires** Spark 1.0.0
  
-Flambo 0.2.0 targets Spark 0.9.1
+flambo 0.2.0 targets Spark 0.9.1
 
 <a name="installation">
 ## Installation
@@ -48,9 +48,9 @@ Flambo makes developing Spark applications in Clojure as quick and painless as p
 <a name="initializing-flambo">
 ### Initializing flambo
 
-The first thing a Spark program must do is to create a Spark context object, which tells Spark how to access a cluster. To create a Spark context in flambo you first need to build a Spark configuration object that contains information about your application.
+The first thing a Spark program must do is to create a SparkContext object, which tells Spark how to access a cluster. To create a SparkContext in flambo you first need to build a Spark configuration object, SparkConf, that contains information about your application.
 
-Here we create a Spark configuration object with the special `local[*]` string to run in local mode:
+Here we create a SparkConf object with the special `local[*]` string to run in local mode:
 
 ```clojure
 (ns com.fire.kingdom.flambit
@@ -129,20 +129,20 @@ To illustrate RDD basics in flambo, consider the following simple application:
 
 The first line defines a base RDD from an external file. The dataset is not loaded into memory or otherwise acted on, it is merely a pointer to the file. The second line defines an RDD of the lengths of the lines as a result of the `map` transformation; note, the lengths are not immediately computed, due to laziness. Finally, we run `reduce` on the transformed RDD, which is an action, returning only a value to the driver program.
 
-If we also wanted to reuse the resulting RDD of length of lines in later step, we could add:
+If we also wanted to reuse the resulting RDD of length of lines in later steps, we could add:
 
 ```clojure
 (f/cache)
 ```
 
-before the `reduce` action, which would cause line lengths RDD to be save in memory after the first time it is realized. More on persisting and caching RDDs in memory later.
+before the `reduce` action, which would cause line-lengths RDD to be saved to memory after the first time it is realized. More on persisting and caching RDDs in flambo later.
 
 <a name="spark-functions">
 #### Passing Functions to Spark
 
 Spark’s API relies heavily on passing functions in the driver program to run on the cluster. Flambo makes it is easy and natural to define serializable spark functions/operations and provides two ways to do this:
 
-* `flambo.api/defsparkfn`: which are just normal functions, making it easier to write test against operations: 
+* `flambo.api/defsparkfn`: which are just normal functions, making it easier to write tests against operations: 
 
 ```clojure
 (ns com.fire.kingdom.flambit
@@ -166,9 +166,9 @@ Spark’s API relies heavily on passing functions in the driver program to run o
 
 While most Spark operations work on RDDs containing any type of objects, a few special operations are only available on RDDs of key-value pairs. The most common ones are distibuted “shuffle” operations, such as grouping or aggregating the elements by a key.
 
-In flambo, these operations are available on RDDs of (key, value) tuples. However, flambo's superawesome macros transparently handle all transformations/serializations to/from Tuple, Tuple2, JavaRDD, JavaPairRDD, etc, class type ickiness. You, dear users, are shielded from the fiery bowls of serialization hell, and only need to define the sequence of operations you'd like to perform on your dataset(s) to enjoy the cool breeze of zenness...
+In flambo, these operations are available on RDDs of (key, value) tuples. However, flambo's superawesome macros transparently handle all transformations/serializations to/from `Tuple`, `Tuple2`, `JavaRDD`, `JavaPairRDD`, etc, class type ickiness. You, dear user, are shielded from the fiery bowls of serialization hell, and only need to define the sequence of operations you'd like to perform on your dataset(s) to enjoy the cool breeze of zenness...
 
-For example, the following code uses the `reduce-by-key` operation on key-value pairs to count how many times each word occurs in a file:
+The following code uses the `reduce-by-key` operation on key-value pairs to count how many times each word occurs in a file:
 
 ```clojure
 (ns com.fire.kingdom.flambit
@@ -228,7 +228,7 @@ Flambo supports the following RDD actions:
 <a name="rdd-persistence">
 ### RDD Persistence
 
-Spark provides the ability to persist (or cache) a dataset in memory across operations. Spark’s cache is fault-tolerant – if any partition of an RDD is lost, it will automatically be recomputed using the transformations that originally created it. Caching is a key tool for iterative algorithms and fast interactive use, so flambo provides the functions `f/persist` and `f/cache` to mark an RDD to be persisted. `f/persist` sets the storage level of an RDD to persist its values across operations after the first time it is computed. Storage levels are available in the `flambo.api/STORAGE-LEVELS` map. This can only be used to assign a new storage level if the RDD does not have a storage level set already. `cache` is a convenience function for using the default storage level, 'MEMORY_ONLY'.
+Spark provides the ability to persist (or cache) a dataset in memory across operations. Spark’s cache is fault-tolerant – if any partition of an RDD is lost, it will automatically be recomputed using the transformations that originally created it. Caching is a key tool for iterative algorithms and fast interactive use, so, mirroring Spark, flambo provides the functions `f/persist` and `f/cache` to mark an RDD to be persisted. `f/persist` sets the storage level of an RDD to persist its values across operations after the first time it is computed. Storage levels are available in the `flambo.api/STORAGE-LEVELS` map. This can only be used to assign a new storage level if the RDD does not have a storage level set already. `cache` is a convenience function for using the default storage level, 'MEMORY_ONLY'.
 
 ```clojure
 (ns com.fire.kingdom.flambit
@@ -253,13 +253,15 @@ There is a convenience macro for creating registrators, `flambo.kryo.defregistra
 In a REPL:
 
 ```clojure
-(require '[flambo.kryo :as kryo])
-(import '[flameprincess FlamePrincessHeat FlamePrincessHeatSerializer])
+(ns com.fire.kingdom.flambit
+  (:require [flambo.kryo :as kryo])
+  (:import [flameprincess FlamePrincessHeat FlamePrincessHeatSerializer]))
 
 (kryo/defregistrator flameprincess [kryo]
-(.register kryo FlamePrincessHeat (FlamePrincessHeatSerializer.)))
+  (.register kryo FlamePrincessHeat (FlamePrincessHeatSerializer.)))
 
-(def c (-> (conf/spark-conf) (conf/set "spark.kryo.registrator" "my.namespace.registrator.flameprincess")
+(def c (-> (conf/spark-conf) 
+       (conf/set "spark.kryo.registrator" "my.namespace.registrator.flameprincess")))
 ```
 
 <a name="terminology">
