@@ -10,6 +10,10 @@ Flambo is a Clojure DSL for [Apache Spark](http://spark.apache.org/docs/latest/)
 * [Supported Spark Versions](#versions)
 * [Installation](#installation)
 * [Usage](#usage)
+  * [Initializing flambo](#initializing-flambo)
+  * [Resilient Distributed Datasets](#rdds)
+  * [RDD Operations](#rdd-operations)
+  * [RDD Persistence](#rdd-persistence)
 * [Kryo](#kryo)
 * [Terminology](#terminology)
 
@@ -166,7 +170,7 @@ Spark’s API relies heavily on passing functions in the driver program to run o
 
 While most Spark operations work on RDDs containing any type of objects, a few special operations are only available on RDDs of key-value pairs. The most common ones are distibuted “shuffle” operations, such as grouping or aggregating the elements by a key.
 
-In flambo, these operations are available on RDDs of (key, value) tuples. However, flambo's superawesome macros transparently handle all transformations/serializations to/from `Tuple`, `Tuple2`, `JavaRDD`, `JavaPairRDD`, etc, class type ickiness. You, dear user, are shielded from the fiery bowls of serialization hell, and only need to define the sequence of operations you'd like to perform on your dataset(s) to enjoy the cool breeze of zenness...
+In flambo, these operations are available on RDDs of (key, value) tuples. However, flambo's superawesome macros transparently handle all transformations/serializations to/from `Tuple`, `Tuple2`, `JavaRDD`, `JavaPairRDD`, etc, class type ickiness. You, dear user, are shielded from the fiery bowls of serialization hell, and only need to define the sequence of operations you'd like to perform on your dataset(s) to enjoy the cool breeze of Zenness...
 
 The following code uses the `reduce-by-key` operation on key-value pairs to count how many times each word occurs in a file:
 
