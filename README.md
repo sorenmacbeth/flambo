@@ -16,14 +16,13 @@ Flambo is a Clojure DSL for [Apache Spark](http://spark.apache.org/docs/latest/)
   * [RDD Persistence](#rdd-persistence)
 * [Standalone Applications](#running-flambo)
 * [Kryo](#kryo)
-* [Terminology](#terminology)
 
 <a name="overview">
 ## Overview
 
 Apache Spark is a fast and general-purpose cluster computing system. It provides high-level APIs in Java, Scala and Python, and an optimized engine that supports general execution graphs.
 
-Flambo is a Clojure DSL that allows you to access all of the APIs that Spark has to offer. It provides for a more Clojure like view of the Spark data structures; untyped, letting functions deal with data of various shapes. With flambo, you directly work with Clojure data structures. Flambo is pure Clojure. Who knows, it might even convince you to move to Clojure (crossing fiery, flaming fingers).
+Flambo is a Clojure DSL for Spark. It allows you to create and manipulate Spark data structures using idiomatic Clojure.
 
 "So that's where I came from." --flambo
 
@@ -37,7 +36,7 @@ flambo 0.2.0 targets Spark 0.9.1
 <a name="installation">
 ## Installation
 
-Flambo is available from clojars. Depending on the version of Spark your developing with, please add the following to your project.clj's `deps`:
+Flambo is available from clojars. Depending on the version of Spark you're using, add one of the following to the dependences in your `project.clj` file:
 
 ### With Leiningen
 
@@ -48,14 +47,14 @@ Flambo is available from clojars. Depending on the version of Spark your develop
 <a name="usage">
 ## Usage
 
-Flambo makes developing Spark applications in Clojure as quick and painless as possible, with the added benefit of using the full abstraction of Clojure. For instance, as we'll see, you can use the standard Clojure threading macros `->` (ftw) to define/chain your sequence of operations and transformations.
+Flambo makes developing Spark applications quick and painless by utilizing the powerful abstractions available in Clojure. For instance,  you can use the Clojure threading macro `->`  to chain sequences of operations and transformations.
 
 <a name="initializing-flambo">
 ### Initializing flambo
 
-The first thing a Spark program must do is to create a SparkContext object, which tells Spark how to access a cluster. To create a SparkContext in flambo you first need to build a Spark configuration object, SparkConf, that contains information about your application.
+The first step is to create a Spark configuration object, SparkConf, which contains information about your application. This is used to construct a SparkContext object which tells Spark how to access a cluster.
 
-Here we create a SparkConf object with the special `local[*]` string to run in local mode:
+Here we create a SparkConf object with the string `local[*]` to run in local mode:
 
 ```clojure
 (ns com.fire.kingdom.flambit
@@ -71,14 +70,12 @@ Here we create a SparkConf object with the special `local[*]` string to run in l
 
 The `master` url string can be `spark://...`, `mesos://...`, yarn-cluster or `local`.
 
-However, in practice, when running on a cluster, you will not want to hardcode the `master` setting, instead, launch the application with `spark-submit` (if running Spark 1.0.0) and receive it there. For local testing and unit tests, you can pass `local` or `local[*]` to run Spark in-process. See [Standalone Applications](#running-flambo) for more details.
-
-The `app-name` configuration setting is the name for your application to show on the Mesos cluster UI.
+Hard-coding the value of `master` and other configuration parameters can be avoided by passing the values to Spark when running `spark-submit` (Spark 1.0.0) or by allowing `spark-submit` to read these properties from a configuration file. See [Standalone Applications](#running-flambo) for information on running flambo applications and see Spark's [documentation](http://spark.apache.org/docs/latest/configuration.html) for more details about configuring Spark properties.
 
 <a name="rdds">
 ### Resilient Distributed Datasets (RDDs)
 
-The main abstraction Spark provides is a _resilient distributed dataset_ ([RDD](#terminology)), which is a fault-tolerant collection of elements partitioned across the nodes of the cluster that can be operated on in parallel. There are two ways to create RDDs: _parallelizing_ an existing collection in your driver program, or referencing a dataset in an external storage system, such as a shared filesystem, HDFS, HBase, or any data source offering a Hadoop InputFormat.
+The main abstraction Spark provides is a _resilient distributed dataset_, RDD, which is a fault-tolerant collection of elements partitioned across the nodes of the cluster that can be operated on in parallel. There are two ways to create RDDs: _parallelizing_ an existing collection in your driver program, or referencing a dataset in an external storage system, such as a shared filesystem, HDFS, HBase, or any data source offering a Hadoop InputFormat.
 
 #### Parallelized Collections
 
@@ -91,7 +88,7 @@ Parallelized collections (RDDs) in flambo are created by calling the `paralleliz
 (def data (f/parallelize sc [["a" 1] ["b" 2] ["c" 3] ["d" 4] ["e" 5]]))
 ```
 
-Once initialized, the distributed dataset or RDD can be operated on in parallel, as we will see shortly.
+Once initialized, the distributed dataset or RDD can be operated on in parallel.
 
 An important parameter for parallel collections is the number of slices to cut the dataset into. Spark runs one task for each slice of the cluster. Normally, Spark tries to set the number of slices automatically based on your cluster. However, you can also set it manually in flambo by passing it as a third parameter to parallelize:
 
@@ -101,7 +98,7 @@ An important parameter for parallel collections is the number of slices to cut t
 
 #### External Datasets
 
-Spark can create RDDs from any storage source supported by Hadoop, including your local file system, HDFS, Cassandra, HBase, Amazon S3, etc. Spark supports text files, SequenceFiles, and any other Hadoop InputFormat.
+Spark can create RDDs from any storage source supported by Hadoop, including the local file system, HDFS, Cassandra, HBase, Amazon S3, etc. Spark supports text files, SequenceFiles, and any other Hadoop InputFormat.
 
 Text file RDDs can be created in flambo using the `text-file` function under the `flambo.api` namespace. This function takes a URI for the file (either a local path on the machine, or a `hdfs://...`, `s3n://...`, etc URI) and reads it as a collection of lines. Note, `text-file` supports S3, HDFS globs.
 
@@ -115,7 +112,7 @@ Text file RDDs can be created in flambo using the `text-file` function under the
 <a name="rdd-operations">
 ### RDD Operations
 
-RDDs support two types of operations: 
+RDDs support two types of operations:
 
 * [_transformations_](#rdd-transformations), which create a new dataset from an existing one
 * [_actions_](#rdd-actions), which return a value to the driver program after running a computation on the dataset
@@ -123,7 +120,7 @@ RDDs support two types of operations:
 <a name="basics">
 #### Basics
 
-To illustrate RDD basics in flambo, consider the following simple application, using our sample `data.txt` file located at the root of the flambo repo:
+To illustrate RDD basics in flambo, consider the following simple application using the sample `data.txt` file located at the root of the flambo repo.
 
 ```clojure
 (ns com.fire.kingdom.flambit
@@ -135,22 +132,22 @@ To illustrate RDD basics in flambo, consider the following simple application, u
     (f/reduce (f/fn [x y] (+ x y))))  ;; returns a value
 ```
 
-The first line defines a base RDD from an external file. The dataset is not loaded into memory or otherwise acted on, it is merely a pointer to the file. The second line defines an RDD of the lengths of the lines as a result of the `map` transformation. Note, the lengths are not immediately computed, due to laziness. Finally, we run `reduce` on the transformed RDD, which is an action, returning only a _value_ to the driver program.
+The first line defines a base RDD from an external file. The dataset is not loaded into memory or otherwise acted on; it is merely a pointer to the file. The second line defines an RDD of the lengths of the lines as a result of the `map` transformation. Note, the lengths are not immediately computed due to laziness. Finally, we run `reduce` on the transformed RDD, which is an action, returning only a _value_ to the driver program.
 
-If we also wanted to reuse the resulting RDD of length of lines in later steps, we could add:
+If we also wanted to reuse the resulting RDD of length of lines in later steps, we could insert:
 
 ```clojure
 (f/cache)
 ```
 
-before the `reduce` action, which would cause the line-lengths RDD to be saved to memory after the first time it is realized. More on persisting and caching RDDs in flambo [later](#rdd-persistence).
+before the `reduce` action, which would cause the line-lengths RDD to be saved to memory after the first time it is realized. See [RDD Persistence](#rdd-persistence) for more on persisting and caching RDDs in flambo.
 
 <a name="spark-functions">
 #### Passing Functions to Spark
 
-Spark’s API relies heavily on passing functions in the driver program to run on the cluster. Flambo makes it easy and natural to define serializable spark functions/operations and provides two ways to do this:
+Spark’s API relies heavily on passing functions in the driver program to run on the cluster. Flambo makes it easy and natural to define serializable Spark functions/operations and provides two ways to do this:
 
-* `flambo.api/defsparkfn`: which are just normal functions, making it easier to write tests against operations:
+* `flambo.api/defsparkfn`: defines named functions:
 
 ```clojure
 (ns com.fire.kingdom.flambit
@@ -159,7 +156,7 @@ Spark’s API relies heavily on passing functions in the driver program to run o
 (f/defsparkfn square [x] (* x x))
 ```
 
-* `flambo.api/fn`: which defines an inline anonymous function:
+* `flambo.api/fn`: defines inline anonymous functions:
 
 ```clojure
 (ns com.fire.kingdom.flambit
@@ -169,12 +166,27 @@ Spark’s API relies heavily on passing functions in the driver program to run o
     (f/map (f/fn [x] (* x x))))
 ```
 
+When we evaluate this `map` transformation on the initial RDD, the result is another RDD. The result of this transformation can be seen using the `f/collect` action to return all of the elements of the RDD.
+
+```clojure
+(-> (f/parallelize sc [1 2 3 4 5])
+    (f/map (f/fn [x] (* x x)))
+    f/collect)
+```
+We can also use `f/first` or `f/take` to return just a subset of the data.
+
+```clojure
+(-> (f/parallelize sc [1 2 3 4 5])
+    (f/map square)
+    (f/take 2))
+```
+
 <a name="key-value-pairs">
 #### Working with Key-Value Pairs
 
-While most Spark operations work on RDDs containing any type of objects, a few special operations are only available on RDDs of key-value pairs. The most common ones are distibuted “shuffle” operations, such as grouping or aggregating the elements by a key.
+While most Spark operations work on RDDs containing any type of objects, a few special operations are only available on RDDs of key-value pairs. The most common ones are distributed “shuffle” operations, such as grouping or aggregating the elements by a key.
 
-In flambo, these operations are available on RDDs of (key, value) tuples. However, flambo's superawesome macros transparently handle all transformations/serializations to/from `Tuple`, `Tuple2`, `JavaRDD`, `JavaPairRDD`, etc, class type ickiness. So you, dear user, are shielded from the fiery bowls of serialization hell, and only need to define the sequence of operations you'd like to perform on your dataset(s) to enjoy the cool breeze of Zenness...
+In flambo, these operations are available on RDDs of (key, value) tuples. Flambo handles all of the transformations/serializations to/from `Tuple`, `Tuple2`, `JavaRDD`, `JavaPairRDD`, etc., so you only need to define the sequence of operations you'd like to perform on your data.
 
 The following code uses the `reduce-by-key` operation on key-value pairs to count how many times each word occurs in a file:
 
@@ -189,7 +201,7 @@ The following code uses the `reduce-by-key` operation on key-value pairs to coun
     (f/reduce-by-key (f/fn [x y] (+ x y))))
 ```
 
-After the `reduce-by-key` operation, we could sort the pairs alphabetically using `f/sort-by-key`. Then, to collect the word counts as an array of objects in the repl, or to write them to a filesysten, we can use the `f/collect` action:
+After the `reduce-by-key` operation, we can sort the pairs alphabetically using `f/sort-by-key`. To collect the word counts as an array of objects in the repl or to write them to a filesysten, we can use the `f/collect` action:
 
 ```clojure
 (ns com.fire.kingdom.flambit
@@ -286,9 +298,9 @@ $ spark-submit --class com.some.class.with.main uberjar.jar --flag1 arg1 --flag2
 <a name="kryo">
 ## Kryo
 
-Flambo requires that spark is configured to use kryo for serialization. This is configured by default using system properties.
+Flambo requires that Spark is configured to use kryo for serialization. This is configured by default using system properties.
 
-If you need to register custom serializers, extend `flambo.kryo.BaseFlamboRegistrator` and override it's `register` method. Finally, configure your SparkContext to use your custom registrator by setting `spark.kryo.registrator` to your custom class.
+If you need to register custom serializers, extend `flambo.kryo.BaseFlamboRegistrator` and override its `register` method. Finally, configure your SparkContext to use your custom registrator by setting `spark.kryo.registrator` to your custom class.
 
 There is a convenience macro for creating registrators, `flambo.kryo.defregistrator`. The namespace where a registrator is defined should be AOT compiled.
 
@@ -305,11 +317,6 @@ In a REPL:
 (def c (-> (conf/spark-conf)
        (conf/set "spark.kryo.registrator" "my.namespace.registrator.flameprincess")))
 ```
-
-<a name="terminology">
-## Terminology
-
-* **RDD**: A resilient distributed dataset, which is a fault-tolerant collection of elements that can be operated on in parallel.
 
 
 ## License
