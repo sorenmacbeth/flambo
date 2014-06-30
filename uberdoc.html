@@ -3316,8 +3316,10 @@ objects to pass into <code>spark-context</code>.</p>
   []
   (SparkConf.))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn master
-  [conf master]
-  (.setMaster conf master))</pre></td></tr><tr><td class="docs">
+  ([conf]
+     (master conf &quot;local[*]&quot;))
+  ([conf master]
+     (.setMaster conf master)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn app-name
   [conf name]
   (.setAppName conf name))</pre></td></tr><tr><td class="docs">
