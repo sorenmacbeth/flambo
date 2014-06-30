@@ -30,7 +30,7 @@ Flambo is a Clojure DSL for Spark. It allows you to create and manipulate Spark 
 <a name="versions">
 ## Supported Spark Versions
 
-flambo 0.3.0-SNAPSHOT **requires** Spark 1.0.0
+flambo 0.3.0-SNAPSHOT targets >= Spark 1.0.0
 
 flambo 0.2.0 targets Spark 0.9.1
 
@@ -306,7 +306,7 @@ If you need to register custom serializers, extend `flambo.kryo.BaseFlamboRegist
 
 There is a convenience macro for creating registrators, `flambo.kryo.defregistrator`. The namespace where a registrator is defined should be AOT compiled.
 
-In a REPL:
+Here is an Example (this won't work in your REPL):
 
 ```clojure
 (ns com.fire.kingdom.flambit
@@ -317,7 +317,7 @@ In a REPL:
   (.register kryo FlamePrincessHeat (FlamePrincessHeatSerializer.)))
 
 (def c (-> (conf/spark-conf)
-       (conf/set "spark.kryo.registrator" "my.namespace.registrator.flameprincess")))
+       (conf/set "spark.kryo.registrator" flameprincess)))
 ```
 
 <a name="acknowledgements">
