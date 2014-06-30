@@ -223,34 +223,33 @@ After the `reduce-by-key` operation, we can sort the pairs alphabetically using 
 
 Flambo supports the following RDD transformations:
 
-* `map`: returns a new RDD formed by passing each element of the source through the required given function.
-* `map-to-pair`: returns a new `JavaPairRDD` of (K, V) pairs by applying the required given function to all elements of an RDD.
-* `reduce-by-key`: when called on an RDD of (K, V) pairs, returns an RDD of (K, V) pairs where the values for each key are aggregated using the given reduce function.
-* `flat-map`: similar to `map`, but each input item can be mapped to 0 or more output items (so the given function should return a collection rather than a single item)
+* `map`: returns a new RDD formed by passing each element of the source through a function.
+* `map-to-pair`: returns a new `JavaPairRDD` of (K, V) pairs by applying a function to all elements of an RDD.
+* `reduce-by-key`: when called on an RDD of (K, V) pairs, returns an RDD of (K, V) pairs where the values for each key are aggregated using a reduce function.
+* `flat-map`: similar to `map`, but each input item can be mapped to 0 or more output items (so the function should return a collection rather than a single item)
 * `filter`: returns a new RDD containing only the elements of the source RDD that satisfy a predicate function.
 * `join`: when called on an RDD of type (K, V) and (K, W), returns a dataset of (K, (V, W)) pairs with all pairs of elements for each key.
 * `left-outer-join`: performs a left outer join of a pair of RDDs. For each element (K, V) in the first RDD, the resulting RDD will either contain all pairs (K, (V, W)) for W in second RDD, or the pair (K, (V, nil)) if no elements in the second RDD have key K.
-* `sample`: returns a 'fraction' sample of an RDD, with or without replacement, using a given random number generator 'seed'.
-* `combine-by-key`: combines the elements for each key using a custom set of aggregation functions. Turns an RDD of (K, V) pairs into a result of type (K, C), for a 'combined type' C. Note that V and C can be different -- for example, one might group an RDD of type (Int, Int) into an RDD of type (Int, List[Int]).
-    Users must provide three functions:
-    -- createCombiner, which turns a V into a C (e.g., creates a one-element list)
-    -- mergeValue, to merge a V into a C (e.g., adds it to the end of a list)
-    -- mergeCombiners, to combine two C's into a single one.
+* `sample`: returns a 'fraction' sample of an RDD, with or without replacement, using a random number generator 'seed'.
+* `combine-by-key`: combines the elements for each key using a custom set of aggregation functions. Turns an RDD of (K, V) pairs into a result of type (K, C), for a 'combined type' C. Note that V and C can be different -- for example, one might group an RDD of type (Int, Int) into an RDD of type (Int, List[Int]). Users must provide three functions:
+    - createCombiner, which turns a V into a C (e.g., creates a one-element list)
+    - mergeValue, to merge a V into a C (e.g., adds it to the end of a list)
+    - mergeCombiners, to combine two C's into a single one.
 * `sort-by-key`: when called on an RDD of (K, V) pairs where K implements ordered, returns a dataset of (K, V) pairs sorted by keys in ascending or descending order, as specified by the optional boolean ascending argument.
 * `coalesce`: decreases the number of partitions in an RDD to 'n'. Useful for running operations more efficiently after filtering down a large dataset.
-* `group-by`: returns an RDD of items grouped by the return value of the required given function.
+* `group-by`: returns an RDD of items grouped by the return value of a function.
 * `group-by-key`: groups the values for each key in an RDD into a single sequence.
-* `flat-map-to-pair`: returns a new `JavaPairRDD` by first applying the given function to all elements of the RDD, and then flattening the results.
+* `flat-map-to-pair`: returns a new `JavaPairRDD` by first applying a function to all elements of the RDD, and then flattening the results.
 
 <a name="rdd-actions">
 #### RDD Actions
 
 Flambo supports the following RDD actions:
 
-* `reduce`: aggregates the elements of an RDD using the given function (which should take two arguments and returns one). The function should be commutative and associative so that it can be computed correctly in parallel.
+* `reduce`: aggregates the elements of an RDD using a function which takes two arguments and returns one. The function should be commutative and associative so that it can be computed correctly in parallel.
 * `count-by-key`: only available on RDDs of type (K, V). Returns a map of (K, Int) pairs with the count of each key.
-* `foreach`: applies the required given function to all elements of an RDD.
-* `fold`: aggregates the elements of each partition, and then the results for all the partitions, using a given associative function and a neutral 'zero value'.
+* `foreach`: applies a function to all elements of an RDD.
+* `fold`: aggregates the elements of each partition, and then the results for all the partitions using an associative function and a neutral 'zero value'.
 * `first`: returns the first element of an RDD.
 * `count`: returns the number of elements in an RDD.
 * `collect`: returns all the elements of an RDD as an array at the driver process.
