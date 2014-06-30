@@ -55,7 +55,7 @@ Flambo makes developing Spark applications quick and painless by utilizing the p
 
 The first step is to create a Spark configuration object, SparkConf, which contains information about your application. This is used to construct a SparkContext object which tells Spark how to access a cluster.
 
-Here we create a SparkConf object with the string `local[*]` to run in local mode:
+Here we create a SparkConf object with the string `local` to run in local mode:
 
 ```clojure
 (ns com.fire.kingdom.flambit
@@ -63,13 +63,23 @@ Here we create a SparkConf object with the string `local[*]` to run in local mod
   (:require [flambo.api :as f]))
 
 (def c (-> (conf/spark-conf)
-           (conf/master "local[*]")
-           (conf/app-name "flambo")))
+           (conf/master "local")
+           (conf/app-name "flame_princess")))
 
 (def sc (f/spark-context c))
 ```
 
-The `master` url string can be `spark://...`, `mesos://...`, yarn-cluster or `local`.
+The `master` url string parameter can be one of the following formats:
+
+|  Master URL         | Meaning                                                                                                 |
+|---------------------|---------------------------------------------------------------------------------------------------------|
+| `spark://HOST:PORT` | Connect to [standalone Spark cluster](https://spark.apache.org/docs/0.9.1/spark-standalone.html) master.|
+| `mesos://HOST:PORT` | Connect to [Mesos](https://spark.apache.org/docs/0.9.1/running-on-mesos.html) cluster.                  |
+| `local`             | Use one worker thread to run Spark locally (no parallelism).                                            |
+| `local[N]`          | Use `N` worker threads to run Spark locally.                                                            |
+| `local[*]`          | Use the same number of threads as cores to run Spark locally. _Only_ available on Spark 1.0.0+          |
+
+For running on YARN, see [running on YARN](https://spark.apache.org/docs/0.9.1/running-on-yarn.html) for details.
 
 Hard-coding the value of `master` and other configuration parameters can be avoided by passing the values to Spark when running `spark-submit` (Spark 1.0.0) or by allowing `spark-submit` to read these properties from a configuration file. See [Standalone Applications](#running-flambo) for information on running flambo applications and see Spark's [documentation](http://spark.apache.org/docs/latest/configuration.html) for more details about configuring Spark properties.
 
