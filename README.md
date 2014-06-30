@@ -48,7 +48,7 @@ Flambo is available from clojars. Depending on the version of Spark you're using
 <a name="usage">
 ## Usage
 
-Flambo makes developing Spark applications quick and painless by utilizing the powerful abstractions available in Clojure. For instance,  you can use the Clojure threading macro `->`  to chain sequences of operations and transformations.
+Flambo makes developing Spark applications quick and painless by utilizing the powerful abstractions available in Clojure. For instance, you can use the Clojure threading macro `->` to chain sequences of operations and transformations.
 
 <a name="initializing-flambo">
 ### Initializing flambo
@@ -101,7 +101,7 @@ An important parameter for parallel collections is the number of slices to cut t
 
 Spark can create RDDs from any storage source supported by Hadoop, including the local file system, HDFS, Cassandra, HBase, Amazon S3, etc. Spark supports text files, SequenceFiles, and any other Hadoop InputFormat.
 
-Text file RDDs can be created in flambo using the `text-file` function under the `flambo.api` namespace. This function takes a URI for the file (either a local path on the machine, or a `hdfs://...`, `s3n://...`, etc URI) and reads it as a collection of lines. Note, `text-file` supports S3, HDFS globs.
+Text file RDDs can be created in flambo using the `text-file` function under the `flambo.api` namespace. This function takes a URI for the file (either a local path on the machine, or a `hdfs://...`, `s3n://...`, etc URI) and reads it as a collection of lines. Note, `text-file` supports S3 and HDFS globs.
 
 ```clojure
 (ns com.fire.kingdom.flambit
@@ -128,12 +128,12 @@ To illustrate RDD basics in flambo, consider the following simple application us
   (:require [flambo.api :as f]))
 
 ;; NOTE: we are using the flambo.api/fn not clojure.core/fn
-(-> (f/text-file sc "data.txt")  ;; returns an unrealized lazy dataset
+(-> (f/text-file sc "data.txt")   ;; returns an unrealized lazy dataset
     (f/map (f/fn [s] (count s)))  ;; returns RDD array of length of lines
-    (f/reduce (f/fn [x y] (+ x y))))  ;; returns a value
+    (f/reduce (f/fn [x y] (+ x y)))) ;; returns a value, should be 1406
 ```
 
-The first line defines a base RDD from an external file. The dataset is not loaded into memory or otherwise acted on; it is merely a pointer to the file. The second line defines an RDD of the lengths of the lines as a result of the `map` transformation. Note, the lengths are not immediately computed due to laziness. Finally, we run `reduce` on the transformed RDD, which is an action, returning only a _value_ to the driver program.
+The first line defines a base RDD from an external file. The dataset is not loaded into memory; it is merely a pointer to the file. The second line defines an RDD of the lengths of the lines as a result of the `map` transformation. Note, the lengths are not immediately computed due to laziness. Finally, we run `reduce` on the transformed RDD, which is an action, returning only a _value_ to the driver program.
 
 If we also wanted to reuse the resulting RDD of length of lines in later steps, we could insert:
 
@@ -173,6 +173,7 @@ When we evaluate this `map` transformation on the initial RDD, the result is ano
 (-> (f/parallelize sc [1 2 3 4 5])
     (f/map (f/fn [x] (* x x)))
     f/collect)
+;; => [1 4 9 16 25]
 ```
 We can also use `f/first` or `f/take` to return just a subset of the data.
 
@@ -180,6 +181,7 @@ We can also use `f/first` or `f/take` to return just a subset of the data.
 (-> (f/parallelize sc [1 2 3 4 5])
     (f/map square)
     (f/take 2))
+;; => [1 4]
 ```
 
 <a name="key-value-pairs">
@@ -277,7 +279,7 @@ Spark provides the ability to persist (or cache) a dataset in memory across oper
 <a name="running-flambo">
 ### Standalone Applications
 
-Finally to run your flambo application as a standalone application using the Spark API, you'll need to package your application in an uberjar using `lein` and execute it with:
+To run your flambo application as a standalone application using the Spark API, you'll need to package your application in an uberjar using `lein` and execute it with:
 
 * `SPARK_CLASSPATH`, if running Spark 0.9.1
 * `./bin/spark-submit`, if running Spark 1.0.0
