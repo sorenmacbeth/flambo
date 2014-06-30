@@ -16,6 +16,7 @@ Flambo is a Clojure DSL for [Apache Spark](http://spark.apache.org/docs/latest/)
   * [RDD Persistence](#rdd-persistence)
 * [Standalone Applications](#running-flambo)
 * [Kryo](#kryo)
+* [Acknowledgements](#acknowledgements)
 
 <a name="overview">
 ## Overview
@@ -317,6 +318,13 @@ In a REPL:
 (def c (-> (conf/spark-conf)
        (conf/set "spark.kryo.registrator" "my.namespace.registrator.flameprincess")))
 ```
+
+<a name="acknowledgements">
+## Acknowledgements
+
+Thanks to The Climate Corporation and their open source project [clj-spark](https://github.com/TheClimateCorporation/clj-spark) which served as the starting point for this project.
+
+Thanks to [Ben Black](https://github.com/b) for doing the work on the streaming api.
 
 
 ## License
