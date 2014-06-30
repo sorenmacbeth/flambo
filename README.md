@@ -187,7 +187,7 @@ We can also use `f/first` or `f/take` to return just a subset of the data.
 <a name="key-value-pairs">
 #### Working with Key-Value Pairs
 
-While most Spark operations work on RDDs containing any type of objects, a few special operations are only available on RDDs of key-value pairs. The most common ones are distributed “shuffle” operations, such as grouping or aggregating the elements by a key.
+While most Spark operations work on RDDs containing any type of objects, a few special operations are only available on RDDs of key-value pairs. The most common ones are distributed "shuffle" operations, such as grouping or aggregating the elements by a key.
 
 In flambo, these operations are available on RDDs of (key, value) tuples. Flambo handles all of the transformations/serializations to/from `Tuple`, `Tuple2`, `JavaRDD`, `JavaPairRDD`, etc., so you only need to define the sequence of operations you'd like to perform on your data.
 
