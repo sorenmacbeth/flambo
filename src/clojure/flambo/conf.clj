@@ -16,8 +16,10 @@
   (SparkConf.))
 
 (defn master
-  [conf master]
-  (.setMaster conf master))
+  ([conf]
+     (master conf "local[*]"))
+  ([conf master]
+     (.setMaster conf master)))
 
 (defn app-name
   [conf name]
