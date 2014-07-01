@@ -77,7 +77,7 @@ The `master` url string parameter can be one of the following formats:
 | `mesos://HOST:PORT` | Connect to a [Mesos](https://spark.apache.org/docs/0.9.1/running-on-mesos.html) cluster.                  |
 | `local`             | Use one worker thread to run Spark locally (no parallelism).                                              |
 | `local[N]`          | Use `N` worker threads to run Spark locally.                                                              |
-| `local[*]`          | Use the same number of threads as cores to run Spark locally. _Only_ available on Spark 1.0.0+            |
+| `local[*]`          | Use the same number of threads as cores to run Spark locally. <br> _Only_ available for Spark 1.0.0+      |
 
 For running on YARN, see [running on YARN](https://spark.apache.org/docs/0.9.1/running-on-yarn.html) for details.
 
