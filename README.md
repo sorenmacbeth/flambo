@@ -25,7 +25,7 @@ Apache Spark is a fast and general-purpose cluster computing system. It provides
 
 Flambo is a Clojure DSL for Spark. It allows you to create and manipulate Spark data structures using idiomatic Clojure.
 
-"So that's where I came from." --flambo
+"So that's where I came from." --Flambo
 
 <a name="versions">
 ## Supported Spark Versions
