@@ -1,19 +1,32 @@
+;; Functions for creating and modifying `SparkConf` objects
+;;
+;; The functions are designed to be used with the threading macro `->` for building
+;; objects to pass into `spark-context`.
+;;
+;; (-> (spark-conf)
+;;      (app-name "aname")
+;;      (master "local[2]"))
+;;
 (ns flambo.conf
   (:import [org.apache.spark SparkConf])
   (:refer-clojure :exclude (set get contains remove)))
 
-;; SparkConf functions
-
-(defn spark-conf []
+(defn spark-conf
+  []
   (SparkConf.))
 
-(defn master [conf master]
-  (.setMaster conf master))
+(defn master
+  ([conf]
+     (master conf "local[*]"))
+  ([conf master]
+     (.setMaster conf master)))
 
-(defn app-name [conf name]
+(defn app-name
+  [conf name]
   (.setAppName conf name))
 
-(defn jars [conf jars]
+(defn jars
+  [conf jars]
   (.setJars conf (into-array String jars)))
 
 (defn set
@@ -28,7 +41,8 @@
            (recur c (next aseq)))
          c))))
 
-(defn set-if-missing [conf key val]
+(defn set-if-missing
+  [conf key val]
   (.setIfMissing key val))
 
 (defn set-executor-env
@@ -43,7 +57,8 @@
            (recur c (next aseq)))
          c))))
 
-(defn remove [conf key]
+(defn remove
+  [conf key]
   (.remove conf key))
 
 (defn get
@@ -52,12 +67,15 @@
   ([conf key default]
      (.get conf key default)))
 
-(defn get-all [conf]
+(defn get-all
+  [conf]
   (into {} (for [t (.getAll conf)]
              {(._1 t) (._2 t)})))
 
-(defn spark-home [conf home]
+(defn spark-home
+  [conf home]
   (.setSparkHome conf home))
 
-(defn to-string [conf]
+(defn to-string
+  [conf]
   (.toDebugString conf))

@@ -1,6 +1,7 @@
 (ns flambo.utils
   (:require [clojure.tools.logging :as log])
   (:import [scala Tuple2]
+           [org.apache.spark.util.random BernoulliSampler XORShiftRandom]
            [java.io PrintStream]
            [flambo WriterOutputStream]
            [org.apache.log4j Logger WriterAppender SimpleLayout]))
@@ -27,6 +28,12 @@
 
 (defn as-double [s]
   (Double. s))
+
+(defn bernoulli-sampler [lower-bound upper-bound complement?]
+  (BernoulliSampler. lower-bound upper-bound complement? (XORShiftRandom.)))
+
+(defn sampler-complement [sampler]
+  (.cloneComplement sampler))
 
 (defn bootstrap-emacs []
   (-> (Logger/getRootLogger)
