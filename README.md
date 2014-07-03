@@ -340,7 +340,7 @@ Thanks to [Ben Black](https://github.com/b) for doing the work on the streaming 
 
 ## License
 
-Copyright © 2014 Soren Macbeth
+Copyright © 2014 Yieldbot, Inc.
 
 Distributed under the Eclipse Public License either version 1.0 or (at
 your option) any later version.
