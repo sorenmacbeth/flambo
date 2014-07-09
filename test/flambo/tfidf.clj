@@ -66,6 +66,7 @@
 
           ;; number of documents with a given term in it
           doc-frequencies (-> doc-term-seq
+                              f/distinct
                               (f/group-by (f/fn [[_ term]] term))
                               (f/map (f/fn [[term doc-seq]] [term (count doc-seq)]))
                               f/cache)
