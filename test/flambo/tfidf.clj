@@ -1,47 +1,23 @@
 (ns flambo.tfidf
-  #_(:use [clojure.tools.cli :only [cli]])
   (:require [flambo.api :as f]
             [flambo.conf :as conf]
             [flambo.utils :as u]
             [clojure.string :as s])
   (:gen-class))
 
-#_(def docs-dir "~/repos/flambo/test-docs")
 (def master "local")
 (def jars (f/jar-of-ns *ns*))
 (def conf {})
 (def env {})
 
-(def stopwords #{"the" "is"})
+(def stopwords #{"the" "is"}) ;; TODO add more stopwords
 
 (defn -main [& args]
   (try
-    (let [#_[{:keys [input output master spark-home jars env spark-executor conf]} _ _]
-          #_(cli args
-               ["--input" "the input file, a path in local mode, or full hdfs: url for a cluster"]
-               ["--output" "the output file.."]
-               ["--master" "The master url (local, local[N], spark://..., mesos://..."
-                :default (or (System/getenv "MASTER") "local")]
-               ["--spark-home" "Path to the Spark home directory."
-                :default (System/getenv "SPARK_HOME")]
-               ["--jars" (str "A comma separated list of JARs to send to the cluster. These can be paths "
-                              "on the local file system or HDFS, HTTP, HTTPS, or FTP URLs.")
-                :parse-fn #(s/split % #",") :default this-jar]
-               ["--env" "Environment variables to set on worker nodes (e.g. \"k=v,k=v\")"
-                :parse-fn #(->> (s/split % #",") (map (fn [s] (s/split s #"="))) (into {}))
-                :default {}]
-               ["--conf" "Additional key/val pairs to add to SparkConf (e.g. \"k=v,k=v\")"
-                :parse-fn #(->> (s/split % #",") (map (fn [s] (s/split s #"="))) (into {}))
-                :default {}]
-               ["--spark-executor" "path to Spark exectutor"
-                :default (System/getenv "SPARK_EXECUTOR_URI")])
-          c (-> (conf/spark-conf)
+    (let [c (-> (conf/spark-conf)
                 (conf/master master)
                 (conf/app-name "tfidf")
                 (conf/jars jars)
-                #_(when-> spark-home (conf/spark-home spark-home))
-                #_(when-> spark-executor
-                        (conf/set "spark.executor.uri" spark-executor))
                 (conf/set "spark.executor.memory" "2g")
                 (conf/set "spark.kryoserializer.buffer.mb" "10")
                 (conf/set "spark.default.parallelism" "288")
@@ -49,11 +25,13 @@
                 (conf/set conf)
                 (conf/set-executor-env env))
           sc (f/spark-context c)
+
           ;; sample docs and terms
           documents [["doc1" "a b c d"]
                      ["doc2" "a e f g"]
                      ["doc3" "a h i j"]
                      ["doc4" "a b b k l l l l"]]
+
           doc-data (-> (f/parallelize sc documents))
 
           ;; total number of documents in corpus
@@ -86,7 +64,7 @@
                                      [term [doc-id (double (/ term-feq terms-count))]]))
                         f/cache)
 
-          ;; number of documents with given term in it
+          ;; number of documents with a given term in it
           doc-frequencies (-> doc-term-seq
                               (f/group-by (f/fn [[_ term]] term))
                               (f/map (f/fn [[term doc-seq]] [term (count doc-seq)]))
