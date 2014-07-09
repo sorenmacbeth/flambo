@@ -23,7 +23,8 @@
                         [lein-marginalia "0.7.1"]
                         [codox "0.8.9"]]
               ;; so gen-class stuff works in the repl
-              :aot [flambo.function]}
+              :aot [flambo.function
+                    flambo.tfidf]}
              :provided
              {:dependencies
               [[org.apache.spark/spark-core_2.10 "1.0.0"]
