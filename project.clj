@@ -11,7 +11,7 @@
                  [org.clojure/tools.logging "0.2.6"]
                  [yieldbot/serializable-fn "0.0.5"
                   :exclusions [com.twitter/chill-java]]
-                 [com.twitter/carbonite "1.3.3"
+                 [com.twitter/carbonite "1.4.0"
                   :exclusions [com.twitter/chill-java]]
                  [com.twitter/chill_2.10 "0.3.6"
                   :exclusions [org.scala-lang/scala-library]]]
