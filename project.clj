@@ -24,7 +24,7 @@
                         [codox "0.8.9"]]
               ;; so gen-class stuff works in the repl
               :aot [flambo.function
-                    flambo.tfidf]}
+                    flambo.example.tfidf]}
              :provided
              {:dependencies
               [[org.apache.spark/spark-core_2.10 "1.0.0"]
