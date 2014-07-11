@@ -3,10 +3,6 @@
   :url "https://github.com/yieldbot/flambo"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :repositories {"releases" {:url "s3p://maven.yieldbot.com/releases/"
-                             :username :env :passphrase :env}
-                 "snapshots" {:url "s3p://maven.yieldbot.com/snapshots/"
-                              :username :env :passphrase :env}}
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [org.clojure/tools.logging "0.2.6"]
                  [yieldbot/serializable-fn "0.0.5"
@@ -15,7 +11,6 @@
                   :exclusions [com.twitter/chill-java]]
                  [com.twitter/chill_2.10 "0.3.6"
                   :exclusions [org.scala-lang/scala-library]]]
-  :plugins [[s3-wagon-private "1.1.2"]]
   :profiles {:dev
              {:dependencies [[midje "1.6.3"]
                              [criterium "0.4.3"]]
