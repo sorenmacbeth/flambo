@@ -1,8 +1,6 @@
 (ns flambo.example.tfidf
   (:require [flambo.api :as f]
-            [flambo.conf :as conf]
-            [flambo.utils :as u]
-            [clojure.string :as s])
+            [flambo.conf :as conf])
   (:gen-class))
 
 (def master "local")
@@ -15,7 +13,7 @@
 ;; Returns a seq of (doc_id, term) tuples
 (f/defsparkfn gen-docid-term-tuples [x]
   (let [[doc-id content] x
-        terms (s/split content #" ")]
+        terms (clojure.string/split content #" ")]
     (map (fn [term] [doc-id term]) terms)))
 
 ;; Filters (doc_id, term) tuples if term is a stopword
@@ -50,10 +48,7 @@
                      ["doc3" "Now we are engaged in a great civil war testing whether that nation or any nation so"]
                      ["doc4" "conceived and so dedicated can long endure We are met on a great battlefield of that war"]]
 
-          doc-data (-> (f/parallelize sc documents))
-
-          ;; total number of documents in corpus
-          num-docs (f/count doc-data)
+          doc-data (f/parallelize sc documents)
 
           ;; stopword filtered RDD of (document_id, term) tuples
           doc-term-seq (-> doc-data
@@ -69,6 +64,9 @@
                         f/group-by-key
                         (f/flat-map term-freq-per-doc)
                         f/cache)
+
+          ;; total number of documents in corpus
+          num-docs (f/count doc-data)
 
           ;; idf of terms, that is, idf(term)
           idf-by-term (-> doc-term-seq
@@ -86,4 +84,6 @@
           ]
       (-> tfidf-by-term
           f/collect
-          clojure.pprint/pprint))))
+          clojure.pprint/pprint))
+    (catch Exception e
+      (println (.printStackTrace e)))))
