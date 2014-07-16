@@ -61,7 +61,7 @@ an empty map, `(def conf {})`, for illustration.
 
 Similarly, we set the executor runtime enviroment properties either directly via key/value strings or by passing a Clojure map of key/value strings. `conf/set-executor-env` handles both.
 
-### tf-idf me bro
+### Computing TF-IDF
 
 To keep the output of our example application manageble we take the simplified documents below to define our document space or corpus:
 
@@ -88,7 +88,7 @@ We are now ready to start applying [_actions_](https://github.com/yieldbot/flamb
 
 #### Term Frequency
 
-To compute the term freqencies, we need a dictionary of terms in the documents filtered by a set of [_stopwords_](https://github.com/yieldbot/flambo/blob/develop/test/flambo/example/tfidf.clj#L10):
+To compute the term freqencies, we need a dictionary of then terms in each document filtered by a set of [_stopwords_](https://github.com/yieldbot/flambo/blob/develop/test/flambo/example/tfidf.clj#L10):
 
 ```clojure
 doc-term-seq (-> doc-data
