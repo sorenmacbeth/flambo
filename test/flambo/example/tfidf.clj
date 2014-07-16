@@ -32,6 +32,11 @@
            [term [doc-id (double (/ term-freq terms-count))]])
          term-freq-seq)))
 
+(defn calc-idf [doc-count]
+  (f/fn [[term doc-seq]]
+    (let [df (count doc-seq)]
+      [term (Math/log (/ doc-count (+ 1.0 df)))])))
+
 (defn -main [& args]
   (try
     (let [c (-> (conf/spark-conf)
@@ -72,18 +77,19 @@
           idf-by-term (-> doc-term-seq
                           f/distinct
                           (f/group-by (f/fn [[_ term]] term))
-                          (f/map (f/fn [[term doc-seq]] [term (count doc-seq)])) ;; num of docs with a given term in it
-                          (f/map (f/fn [[term df]] [term [(Math/log (/ num-docs (+ 1.0 df)))]]))
+                          (f/map (calc-idf num-docs))
                           f/cache)
 
           ;; tf-idf of terms, that is, tf(term, document) x idf(term)
           tfidf-by-term (-> (f/join tf-by-doc idf-by-term)
-                            (f/map (f/fn [[term [[doc-id tf] [idf]]]]
+                            (f/map (f/fn [[term [[doc-id tf] idf]]]
                                          [doc-id term (* tf idf)]))
                             f/cache)
           ]
-      (-> tfidf-by-term
+      (->> tfidf-by-term
           f/collect
+          ((partial sort-by last >))
+          (take 10)
           clojure.pprint/pprint))
     (catch Exception e
       (println (.printStackTrace e)))))

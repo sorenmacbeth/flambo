@@ -12,7 +12,7 @@ TF-IDF (term frequency-inverse document frequency) is a way to score the importa
 
 and its `idf` weight:
 
-`idf(t) = ln(total number of documents in corpus / number of documents with term t in it)`
+`idf(t) = ln(total number of documents in corpus / (1 + number of documents with term t in it))`
 
 ## Example Application Walkthrough
 
@@ -25,12 +25,7 @@ First we define our example application's namespace and requires:
   (:gen-class))
 ```
 
-This will import and alias flambo's `api` and `conf` namespaces. The `(:gen-class)` expression is added so you can execute and inspect the output of the example application from the flambo repo as such:
-
-<a name="executing">
-```bash
-$> lein run -m flambo.example.tdidf
-```
+This will import and alias flambo's `api` and `conf` namespaces, which contain functions to access Spark's API and functions for creating/modifying Spark configuration objects, respectively.
 
 ### Initializing Spark
 
