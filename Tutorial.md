@@ -154,28 +154,25 @@ At this point we have an RDD of *raw* term frequencies, but, since we need norma
 
 Once again, we cache the results for future actions.
 
-And that essentially summarizes how you construct both steps in a flambo application and a full flambo application.
 
 #### Inverse Document Frequency
 
-In order to compute the inverse document frequency for our corpus, we need to determine the total number of documents in the corpus and the number of documents with a term t in it.
+In order to compute the inverse document frequencies, we need the total number of documents 
 
 ```clojure
 num-docs (f/count doc-data)
 ```
 
-We use the count of the number of documents together with the following step to get an RDD of [term idf] tuples:
+and the number of documents that contain each term `t`. The following step groups distinct [doc-id term] tuples by term and maps over the results to count the documents associated with each term. This is combined with the total document count to get an RDD of [term idf] tuples:
 
 ```clojure
 idf-by-term (-> doc-term-seq
                 f/distinct
                 (f/group-by (f/fn [[_ term]] term))
-                (f/map (f/fn [[term doc-seq]] [term (count doc-seq)])) ;; num of docs with a given term in it
+                (f/map (f/fn [[term doc-seq]] [term (count doc-seq)])) ;; num of docs containing each term
                 (f/map (f/fn [[term df]] [term [(Math/log (/ num-docs (+ 1.0 df)))]]))
                 f/cache)
 ```
-
-Here `f/distinct` is applied to our original stopword filtered RDD, `doc-term-seq`, to insure we don't over count the occurrence of a term in a document.
 
 #### TF-IDF
 
