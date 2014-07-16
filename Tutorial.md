@@ -196,7 +196,7 @@ Again, caching the RDD for future actions. Which in our example application is t
     clojure.pprint/pprint)
 ```
 
-Of course, you can also save the results to a textfile, via flambo's `save-as-text-file` function, or an HDFS sequence file, via `save-as-sequence-file`, but, we'll leave those APIs for you to explore.
+Of course, you can also save the results to a text file, via flambo's `save-as-text-file` function, or an HDFS sequence file, via `save-as-sequence-file`, but, we'll leave those APIs for you to explore.
 
 ### Conclusion
 
