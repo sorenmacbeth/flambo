@@ -11,8 +11,8 @@
                  "or" "our" "so" "this" "the" "that" "to" "we"})
 
 ;; Returns a seq of (doc_id, term) tuples
-(f/defsparkfn gen-docid-term-tuples [x]
-  (let [[doc-id content] x
+(f/defsparkfn gen-docid-term-tuples [doc-tuple]
+  (let [[doc-id content] doc-tuple
         terms (clojure.string/split content #" ")]
     (map (fn [term] [doc-id term]) terms)))
 
