@@ -30,7 +30,7 @@ Flambo is a Clojure DSL for Spark. It allows you to create and manipulate Spark 
 <a name="versions">
 ## Supported Spark Versions
 
-flambo 0.3.1 targets >= Spark 1.0.0
+flambo 0.3.2 targets >= Spark 1.0.0
 
 flambo 0.2.0 targets Spark 0.9.1
 
@@ -41,7 +41,7 @@ Flambo is available from clojars. Depending on the version of Spark you're using
 
 ### With Leiningen
 
-`[yieldbot/flambo "0.3.1"]` for Spark 1.0.0
+`[yieldbot/flambo "0.3.2"]` for Spark 1.0.0 or greater
 
 `[yieldbot/flambo "0.2.0"]` for Spark 0.9.1
 
@@ -77,7 +77,7 @@ The `master` url string parameter can be one of the following formats:
 | `mesos://HOST:PORT` | Connect to a [Mesos](https://spark.apache.org/docs/0.9.1/running-on-mesos.html) cluster.                  |
 | `local`             | Use one worker thread to run Spark locally (no parallelism).                                              |
 | `local[N]`          | Use `N` worker threads to run Spark locally.                                                              |
-| `local[*]`          | Use the same number of threads as cores to run Spark locally. _Only_ available on Spark 1.0.0+            |
+| `local[*]`          | Use the same number of threads as cores to run Spark locally. <br> _Only_ available for Spark 1.0.0+      |
 
 For running on YARN, see [running on YARN](https://spark.apache.org/docs/0.9.1/running-on-yarn.html) for details.
 
@@ -292,7 +292,7 @@ Spark provides the ability to persist (or cache) a dataset in memory across oper
 To run your flambo application as a standalone application using the Spark API, you'll need to package your application in an uberjar using `lein` and execute it with:
 
 * `SPARK_CLASSPATH`, if running Spark 0.9.1
-* `./bin/spark-submit`, if running Spark 1.0.0
+* `./bin/spark-submit`, if running Spark 1.0.0 or greater
 
 ```shell
 $ lein uberjar
