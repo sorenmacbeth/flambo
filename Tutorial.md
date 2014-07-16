@@ -1,18 +1,18 @@
-# flambo
+# TF-IDF using flambo
 
 We present a tutorial on how to use [flambo](https://github.com/yieldbot/flambo) to implement the classic [tf-idf](https://en.wikipedia.org/wiki/Tf-idf) algoithm.
 
-Flambo is a Clojure DSL for [Spark](http://spark.apache.org/docs/latest/) created by the data team at [Yieldbot](http://www.yieldbot.com/). It allows you to create and manipulate Spark data structures using idiomatic Clojure.
+flambo is a Clojure DSL for [Spark](http://spark.apache.org/docs/latest/) created by the data team at [Yieldbot](http://www.yieldbot.com/). It allows you to create and manipulate Spark data structures using idiomatic Clojure.
 
 As we walk-through the tf-idf example application, we'll highlight various flambo API usages and facilities.
 
 The code for the tutorial is located under the `flambo.example.tfidf` namespace, under flambo's [`/test/flambo/example`](https://github.com/yieldbot/flambo/tree/develop/test/flambo/example) directory.
 
-We recommend you download [flambo](https://github.com/yieldbot/flambo) and follow along in your REPL. Let's get started.
+We recommend you download [flambo](https://github.com/yieldbot/flambo) and follow along. Let's get started.
 
 ### What is tf-idf?
 
-TF-IDF (Term Frequency, Inverse Document Frequency) is a way to score the importance of words (or terms) in a document based on how frequently they appear across multiple doucments (or corpus). The tf-idf weight of a term in a document is the product of its `tf` weight:
+TF-IDF (term frequency-inverse document frequency) is a way to score the importance of words (or terms) in a document based on how frequently they appear across multiple doucments (or corpus). The tf-idf weight of a term in a document is the product of its `tf` weight:
  
 `tf(t, d) = (number of times term t appears in document d) / (total number of terms in document d)`
 
@@ -33,13 +33,14 @@ First we define our example application's namespace and requires:
 
 This will import and alias flambo's `api` and `conf` namespaces. The `(:gen-class)` expression is added so you can execute and inspect the output of the example application from the flambo repo as such:
 
+<a name="executing">
 ```bash
 $> lein run -m flambo.example.tdidf
 ```
 
 ### Initializing Spark
 
-Flambo applications require a `SparkContext` object, which tells Spark how to access a cluster. `SparkContext` objects in turn require a `SparkConf` object that encapsulates information about the application. In our [`-main`](https://github.com/yieldbot/flambo/blob/develop/test/flambo/example/tfidf.clj#L37) method we first build a spark configuration, `c`, then pass _it_ to flambo's `spark-context` function which returns the requisite context object, `sc`:
+flambo applications require a `SparkContext` object, which tells Spark how to access a cluster. `SparkContext` objects in turn require a `SparkConf` object that encapsulates information about the application. In our [`-main`](https://github.com/yieldbot/flambo/blob/develop/test/flambo/example/tfidf.clj#L35) method we first build a spark configuration, `c`, then pass _it_ to flambo's `spark-context` function which returns the requisite context object, `sc`:
 
 ```clojure
 (let [c (-> (conf/spark-conf)
@@ -62,7 +63,7 @@ Similarly, we set the executor runtime enviroment properties either directly via
 
 ### tf-idf me bro
 
-To keep the output of our example application manageble we take the simplified 'documents' below to define our document space or corpus:
+To keep the output of our example application manageble we take the simplified documents below to define our document space or corpus:
 
 ```clojure
 documents [["doc1" "Four score and seven years ago our fathers brought forth on this continent a new nation"]
@@ -163,7 +164,7 @@ In order to compute the inverse document frequency for our corpus, we need to de
 num-docs (f/count doc-data)
 ```
 
-Flambo's `count` function above maps to the Spark action _count_ which gives us the number of elements in our original parallelized collection, `doc-data`. We use it together with the following step to get an RDD of [term idf] tuples:
+We use the count of the number of documents together with the following step to get an RDD of [term idf] tuples:
 
 ```clojure
 idf-by-term (-> doc-term-seq
@@ -176,7 +177,7 @@ idf-by-term (-> doc-term-seq
 
 Here `f/distinct` is applied to our original stopword filtered RDD, `doc-term-seq`, to insure we don't over count the occurrence of a term in a document.
 
-#### tf-idf
+#### TF-IDF
 
 Now that we have both a term-frequency RDD of [term [doc-id tf]] tuples and an inverse-document-frequency RDD of [term idf] tuples, we perform a `join` on the "terms" producing an new RDD of [term [[doc-id tf] [idf]]] tuples. Then, we `map` an inline Spark function to compute the tf-idf weight of each term per document returning our final resulting
 RDD of [doc-id term tf-idf] tuples:
@@ -194,6 +195,13 @@ Again, caching the RDD for future actions. Which in our example application is t
 (-> tfidf-by-term
     f/collect
     clojure.pprint/pprint)
+```
+
+Finally, [executing](#executing) the example app from the terminal you should see the following output:
+ 
+```bash
+$> lein run -m flambo.example.tdidf
+$> [["doc1" "score" 0.06301338005090412] ["doc2" "created" 0.09902102579427793] ["doc1" "ago" 0.06301338005090412] ["doc1" "Four" 0.06301338005090412] ["doc1" "forth" 0.06301338005090412] ["doc1" "nation" 0.026152915677434625] ["doc3" "nation" 0.06392934943372908] ["doc1" "brought" 0.06301338005090412] ["doc1" "fathers" 0.06301338005090412] ["doc4" "long" 0.06931471805599453] ["doc1" "seven" 0.06301338005090412] ["doc2" "proposition" 0.09902102579427793] ["doc2" "Liberty" 0.09902102579427793] ["doc4" "battlefield" 0.06931471805599453] ["doc4" "can" 0.06931471805599453] ["doc4" "conceived" 0.028768207245178087] ["doc2" "conceived" 0.041097438921682994] ["doc2" "men" 0.09902102579427793] ["doc3" "civil" 0.07701635339554948] ["doc4" "dedicated" 0.028768207245178087] ["doc2" "dedicated" 0.041097438921682994] ["doc2" "equal" 0.09902102579427793] ["doc3" "Now" 0.07701635339554948] ["doc4" "endure" 0.06931471805599453] ["doc4" "war" 0.028768207245178087] ["doc3" "war" 0.03196467471686454] ["doc3" "testing" 0.07701635339554948] ["doc1" "continent" 0.06301338005090412] ["doc1" "new" 0.06301338005090412] ["doc4" "great" 0.028768207245178087] ["doc3" "great" 0.03196467471686454] ["doc4" "We" 0.06931471805599453] ["doc3" "whether" 0.07701635339554948] ["doc3" "engaged" 0.07701635339554948] ["doc4" "met" 0.06931471805599453] ["doc1" "years" 0.06301338005090412]]
 ```
 
 Of course, you can also save the results to a text file, via flambo's `save-as-text-file` function, or an HDFS sequence file, via `save-as-sequence-file`, but, we'll leave those APIs for you to explore.
