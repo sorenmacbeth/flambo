@@ -85,9 +85,9 @@ doc-data (f/parallelize sc documents)
 
 We are now ready to start applying [_actions_](https://github.com/yieldbot/flambo/blob/develop/README.md#rdd-actions) and [_transformations_](https://github.com/yieldbot/flambo/blob/develop/README.md#rdd-transformations) to our RDD; this is where flambo truly shines (or rather burns bright). It utilizes the powerful abstractions available in Clojure to reason about data. You can use pure Clojure constructs such as the threading macro `->` to chain sequences of operations and transformations.  
 
-#### Term-frequency, tf
+#### Term Frequency
 
-To compute the term freqencies, `tf`, for our corpus we first need to create a dictionary of terms present in documents filtered by some given set of [_stopwords_](https://github.com/yieldbot/flambo/blob/develop/test/flambo/example/tfidf.clj#L10):
+To compute the term freqencies, we need a dictionary of terms in the documents filtered by a set of [_stopwords_](https://github.com/yieldbot/flambo/blob/develop/test/flambo/example/tfidf.clj#L10):
 
 ```clojure
 doc-term-seq (-> doc-data
@@ -155,7 +155,7 @@ Once again, we cache the results for future actions.
 
 And that essentially summarizes how you construct both steps in a flambo application and a full flambo application.
 
-#### Inverse-document-frequency, idf
+#### Inverse Document Frequency
 
 In order to compute the inverse document frequency for our corpus, we need to determine the total number of documents in the corpus and the number of documents with a term t in it.
 
