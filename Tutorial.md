@@ -202,4 +202,4 @@ Of course, you can also save the results to a textfile, via flambo's `save-as-te
 
 And that's it, we're done! We hope you found this tutorial of the flambo API useful and informative.
 
-flambo is being actively improved, so you can expect more features as Spark continues to grow and we continue to support it. We'd love to hear your feedback on flmabo.
+flambo is being actively improved, so you can expect more features as Spark continues to grow and we continue to support it. We'd love to hear your feedback on flambo.
