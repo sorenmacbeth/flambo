@@ -34,7 +34,7 @@ $> lein run -m flambo.example.tdidf
 
 ### Initializing Spark
 
-flambo applications require a `SparkContext` object, which tells Spark how to access a cluster. `SparkContext` objects in turn require a `SparkConf` object that encapsulates information about the application. In our [`-main`](https://github.com/yieldbot/flambo/blob/develop/test/flambo/example/tfidf.clj#L35) method we first build a spark configuration, `c`, then pass _it_ to flambo's `spark-context` function which returns the requisite context object, `sc`:
+flambo applications require a `SparkContext` object which tells Spark how to access a cluster. The `SparkContext` object requires a `SparkConf` object that encapsulates information about the application. In our [`-main`](https://github.com/yieldbot/flambo/blob/develop/test/flambo/example/tfidf.clj#L35) method we first build a spark configuration, `c`, then pass it to flambo's `spark-context` function which returns the requisite context object, `sc`:
 
 ```clojure
 (let [c (-> (conf/spark-conf)
@@ -46,7 +46,7 @@ flambo applications require a `SparkContext` object, which tells Spark how to ac
       sc (f/spark-context c)])
 ```
 
-`master` is a special "local" string that tells Spark to run our app in local mode. `master` can be a Spark, Mesos or YARN cluster URL, or any one of the special strings to run in local mode (see [README.md](https://github.com/yieldbot/flambo/blob/develop/README.md) for formatting details). 
+`master` is a special "local" string that tells Spark to run our app in local mode. `master` can be a Spark, Mesos or YARN cluster URL, or any one of the special strings to run in local mode (see [README.md](https://github.com/yieldbot/flambo/blob/develop/README.md#initializing-flambo) for formatting details). 
 
 The `app-name` flambo function is used to set the name of our application. 
 
@@ -57,7 +57,7 @@ Similarly, we set the executor runtime enviroment properties either directly via
 
 ### Computing TF-IDF
 
-To keep the output of our example application manageble we take the simplified documents below to define our document space or corpus:
+Our example uses the following corpus:
 
 ```clojure
 documents [["doc1" "Four score and seven years ago our fathers brought forth on this continent a new nation"]
@@ -66,9 +66,9 @@ documents [["doc1" "Four score and seven years ago our fathers brought forth on 
            ["doc4" "conceived and so dedicated can long endure We are met on a great battlefield of that war"]]
 ```
 
-Note, `doc#` represents the unique document id.
+where `doc#` is a unique document id.
 
-Next, we take our corpus and freshly minted spark-context to create a Spark _resilient distributed dataset_ ([RDD](http://spark.apache.org/docs/latest/programming-guide.html#resilient-distributed-datasets-rdds)). There are two ways to create RDDs in flambo: 
+We use the corpus and spark context to create a Spark _resilient distributed dataset_ ([RDD](http://spark.apache.org/docs/latest/programming-guide.html#resilient-distributed-datasets-rdds)). There are two ways to create RDDs in flambo: 
 
 * _parallelizing_ an existing Clojure collection, as we've done in our example app:
 
@@ -78,11 +78,11 @@ doc-data (f/parallelize sc documents)
 
 * [reading](https://github.com/yieldbot/flambo/blob/develop/README.md#external-datasets) a dataset from an external storage system
 
-We are now ready to start applying [_actions_](https://github.com/yieldbot/flambo/blob/develop/README.md#rdd-actions) and [_transformations_](https://github.com/yieldbot/flambo/blob/develop/README.md#rdd-transformations) to our RDD; this is where flambo truly shines (or rather burns bright). It utilizes the powerful abstractions available in Clojure to reason about data. You can use pure Clojure constructs such as the threading macro `->` to chain sequences of operations and transformations.  
+We are now ready to start applying [_actions_](https://github.com/yieldbot/flambo/blob/develop/README.md#rdd-actions) and [_transformations_](https://github.com/yieldbot/flambo/blob/develop/README.md#rdd-transformations) to our RDD; this is where flambo truly shines (or rather burns bright). It utilizes the powerful abstractions available in Clojure to reason about data. You can use Clojure constructs such as the threading macro `->` to chain sequences of operations and transformations.  
 
 #### Term Frequency
 
-To compute the term freqencies, we need a dictionary of then terms in each document filtered by a set of [_stopwords_](https://github.com/yieldbot/flambo/blob/develop/test/flambo/example/tfidf.clj#L10):
+To compute the term freqencies, we need a dictionary of the terms in each document filtered by a set of [_stopwords_](https://github.com/yieldbot/flambo/blob/develop/test/flambo/example/tfidf.clj#L10):
 
 ```clojure
 doc-term-seq (-> doc-data
@@ -93,7 +93,7 @@ doc-term-seq (-> doc-data
 
 We pass the RDD of `[doc-id content]` tuples to flambo's `flat-map` transformation to get a new RDD of `[doc-id term]` tuples, the dictionary for our corpus. 
 
-`flat-map` accomplishes the transformation of the source RDD by passing each tuple element through a function. Here we use flambo's named function macro `flambo.api/defsparkfn` to define our Clojure function `gen-docid-term-tuples`: 
+`flat-map` transforms the source RDD by passing each tuple through a function. It is similar to `map`, but the output is a collection of 0 or more items which is then flattened. Here we use flambo's named function macro `flambo.api/defsparkfn` to define our Clojure function `gen-docid-term-tuples`: 
 
 ```clojure
 (f/defsparkfn gen-docid-term-tuples [x]
