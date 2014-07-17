@@ -55,19 +55,19 @@ Our example will use the following corpus:
 
 ```bash
 user=> (def documents 
-            [["doc1" "Four score and seven years ago our fathers brought forth on this continent a new nation"]
-             ["doc2" "conceived in Liberty and dedicated to the proposition that all men are created equal"]
-             ["doc3" "Now we are engaged in a great civil war testing whether that nation or any nation so"]
-             ["doc4" "conceived and so dedicated can long endure We are met on a great battlefield of that war"]])
+        [["doc1" "Four score and seven years ago our fathers brought forth on this continent a new nation"]
+         ["doc2" "conceived in Liberty and dedicated to the proposition that all men are created equal"]
+         ["doc3" "Now we are engaged in a great civil war testing whether that nation or any nation so"]
+         ["doc4" "conceived and so dedicated can long endure We are met on a great battlefield of that war"]])
 ```
 
 where `doc#` is a unique document id.
 
 We use the corpus and spark context to create a Spark _resilient distributed dataset_ ([RDD](http://spark.apache.org/docs/latest/programming-guide.html#resilient-distributed-datasets-rdds)). There are two ways to create RDDs in flambo: 
 
-* _parallelizing_ an existing Clojure collection, as we've done in our app:
+* _parallelizing_ an existing Clojure collection, as we'll do now:
 
-```bash
+```sh
 user=> (def doc-data (f/parallelize sc documents))
 ```
 
@@ -101,7 +101,7 @@ This is flambo's raison d'être. It handles all of the underlying serializations
 
 Having constructed our dictionary we `f/cache` (or _persist_) the dataset in memory for future actions.
 
-Recall term-freqency is defined as a function of the document id and term, `tf(document, term)`. At this point we only have an RDD of *raw* term frequencies and since we need normalized term frequencies, we use flambo's inline anonymous function macro, `f/fn`, to define an anonymous Clojure function to normalize the frequencies and `map` our `doc-term-seq` RDD of [doc-id term term-freq doc-terms-count] tuples to an RDD of key/value, [term [doc-id tf]], tuples. This new tuple format of the term-frequency RDD will be later used to `join` the inverse-document-frequency RDD and compute the final tfidf weights.
+Recall term-freqency is defined as a function of the document id and term, `tf(document, term)`. At this point we only have an RDD of *raw* term frequencies and since we need normalized term frequencies, we use flambo's inline anonymous function macro, `f/fn`, to define an anonymous Clojure function to normalize the frequencies and `map` our `doc-term-seq` RDD of `[doc-id term term-freq doc-terms-count]` tuples to an RDD of key/value, `[term [doc-id tf]]`, tuples. This new tuple format of the term-frequency RDD will be later used to `join` the inverse-document-frequency RDD and compute the final tfidf weights.
 
 ```bash
 user=> (def tf-by-doc (-> doc-term-seq
@@ -117,15 +117,19 @@ As before, we cache the results for future actions.
 
 #### Inverse Document Frequency
 
-In order to compute the inverse document frequencies, we need the total number of documents 
+In order to compute the inverse document frequencies, we need the total number of documents: 
 
 ```bash
 user=> (def num-docs (f/count doc-data))
 ```
 
-and the number of documents that contain each term. The following step maps over the distinct [doc-id term term-freq doc-terms-count] tuples to count the documents associated with each term. This is combined with the total document count to get an RDD of [term idf] tuples:
+and the number of documents that contain each term. The following step maps over the distinct `[doc-id term term-freq doc-terms-count]` tuples to count the documents associated with each term. This is combined with the total document count to get an RDD of `[term idf]` tuples:
 
 ```bash
+user=> (defn calc-idf [doc-count]
+         (f/fn [[term tuple-seq]]
+           (let [df (count tuple-seq)]
+             [term (Math/log (/ doc-count (+ 1.0 df)))])))
 user=> (def idf-by-term (-> doc-term-seq
                             (f/group-by (f/fn [[_ term _ _]] term))
                             (f/map (calc-idf num-docs))
@@ -134,8 +138,7 @@ user=> (def idf-by-term (-> doc-term-seq
 
 #### TF-IDF
 
-Now that we have both a term-frequency RDD of [term [doc-id tf]] tuples and an inverse-document-frequency RDD of [term idf] tuples, we perform a `join` on the "terms" producing a new RDD of [term [[doc-id tf] idf]] tuples. Then, we `map` an inline Spark function to compute the tf-idf weight of each term per document returning our final resulting
-RDD of [doc-id term tf-idf] tuples:
+Now that we have both a term-frequency RDD of `[term [doc-id tf]]` tuples and an inverse-document-frequency RDD of `[term idf]` tuples, we perform the aforementioned `join` on the "terms" producing a new RDD of `[term [[doc-id tf] idf]]` tuples. Then, we `map` an inline Spark function to compute the tf-idf weight of each term per document returning our final resulting RDD of `[doc-id term tf-idf]` tuples:
 
 ```bash
 user=> (def tfidf-by-term (-> (f/join tf-by-doc idf-by-term)
