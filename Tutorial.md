@@ -6,7 +6,7 @@ The code for this tutorial is located under the flambo.example.tfidf namespace, 
 
 ### What is tf-idf?
 
-TF-IDF (term frequency-inverse document frequency) is a way to score the importance of words (or terms) in a document based on how frequently they appear across multiple doucments (or corpus). The tf-idf weight of a term in a document is the product of its `tf` weight:
+TF-IDF (term frequency-inverse document frequency) is a way to score the importance of terms in a document based on how frequently they appear across a collection of documents (corpus). The tf-idf weight of a term in a document is the product of its `tf` weight:
  
 `tf(t, d) = (number of times term t appears in document d) / (total number of terms in document d)`
 
