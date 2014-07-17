@@ -1,14 +1,8 @@
 # TF-IDF using flambo
 
-We present a tutorial on how to use [flambo](https://github.com/yieldbot/flambo) to implement the classic [tf-idf](https://en.wikipedia.org/wiki/Tf-idf) algoithm.
+[flambo](https://github.com/yieldbot/flambo) is a Clojure DSL for [Spark](http://spark.apache.org/docs/latest/) created by the data team at [Yieldbot](http://www.yieldbot.com/). It allows you to create and manipulate Spark data structures using idiomatic Clojure. The following tutorial demonstrates typical flambo API usage and facilities by implementing the classic [tf-idf](https://en.wikipedia.org/wiki/Tf-idf) algorithm.
 
-flambo is a Clojure DSL for [Spark](http://spark.apache.org/docs/latest/) created by the data team at [Yieldbot](http://www.yieldbot.com/). It allows you to create and manipulate Spark data structures using idiomatic Clojure.
-
-As we walk-through the tf-idf example application, we'll highlight various flambo API usages and facilities.
-
-The code for the tutorial is located under the `flambo.example.tfidf` namespace, under flambo's [`/test/flambo/example`](https://github.com/yieldbot/flambo/tree/develop/test/flambo/example) directory.
-
-We recommend you download [flambo](https://github.com/yieldbot/flambo) and follow along. Let's get started.
+The code for this tutorial is located under the flambo.example.tfidf namespace, under flambo's /test/flambo/example directory. We recommend you download flambo and follow along in your REPL.
 
 ### What is tf-idf?
 
