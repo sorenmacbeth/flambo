@@ -10,31 +10,20 @@
 (def stopwords #{"a" "all" "and" "any" "are" "is" "in" "of" "on"
                  "or" "our" "so" "this" "the" "that" "to" "we"})
 
-;; Returns a seq of (doc_id, term) tuples
+;; Returns a stopword filtered seq of
+;; [doc-id term term-frequency doc-terms-count] tuples
 (f/defsparkfn gen-docid-term-tuples [doc-tuple]
   (let [[doc-id content] doc-tuple
-        terms (clojure.string/split content #" ")]
-    (map (fn [term] [doc-id term]) terms)))
-
-;; Filters (doc_id, term) tuples if term is a stopword
-(f/defsparkfn filter-stopwords
-  [[_ term]]
-  (not (contains? stopwords term)))
-
-;; Returns a seq of term-frequency tuples: (term, (doc_id, tf))
-(f/defsparkfn term-freq-per-doc
-  [[doc-id term-freq-seq]]
-  (let [terms-count (reduce (fn [accum [_ term-freq]]
-                              (+ accum term-freq))
-                            0
-                            term-freq-seq)]
-    (map (fn [[term term-freq]]
-           [term [doc-id (double (/ term-freq terms-count))]])
-         term-freq-seq)))
+        terms (filter #(not (contains? stopwords %))
+                      (clojure.string/split content #" "))
+        doc-terms-count (count terms)
+        term-frequencies (frequencies terms)]
+    (map (fn [term] [doc-id term (term-frequencies term) doc-terms-count])
+         (distinct terms))))
 
 (defn calc-idf [doc-count]
-  (f/fn [[term doc-seq]]
-    (let [df (count doc-seq)]
+  (f/fn [[term tuple-seq]]
+    (let [df (count tuple-seq)]
       [term (Math/log (/ doc-count (+ 1.0 df)))])))
 
 (defn -main [& args]
@@ -55,19 +44,16 @@
 
           doc-data (f/parallelize sc documents)
 
-          ;; stopword filtered RDD of (document_id, term) tuples
+          ;; stopword filtered RDD of [doc-id term term-freq doc-terms-count] tuples
           doc-term-seq (-> doc-data
                            (f/flat-map gen-docid-term-tuples)
-                           (f/filter filter-stopwords)
                            f/cache)
 
-          ;; tf per document, that is, tf(term, document)
+          ;; RDD of term-frequency tuples: [term [doc-id tf]]
+          ;; where tf is per document, that is, tf(term, document)
           tf-by-doc (-> doc-term-seq
-                        (f/group-by (f/fn [[doc-id term]] [doc-id term]))
-                        ;; (raw) number of times a term appears in a document
-                        (f/map (f/fn [[[doc-id term] val-seq]] [doc-id [term (count val-seq)]]))
-                        f/group-by-key
-                        (f/flat-map term-freq-per-doc)
+                        (f/map (f/fn [[doc-id term term-freq doc-terms-count]]
+                                     [term [doc-id (double (/ term-freq doc-terms-count))]]))
                         f/cache)
 
           ;; total number of documents in corpus
@@ -75,8 +61,7 @@
 
           ;; idf of terms, that is, idf(term)
           idf-by-term (-> doc-term-seq
-                          f/distinct
-                          (f/group-by (f/fn [[_ term]] term))
+                          (f/group-by (f/fn [[_ term _ _]] term))
                           (f/map (calc-idf num-docs))
                           f/cache)
 
@@ -87,9 +72,9 @@
                             f/cache)
           ]
       (->> tfidf-by-term
-          f/collect
-          ((partial sort-by last >))
-          (take 10)
-          clojure.pprint/pprint))
+           f/collect
+           ((partial sort-by last >))
+           (take 10)
+           clojure.pprint/pprint))
     (catch Exception e
       (println (.printStackTrace e)))))
