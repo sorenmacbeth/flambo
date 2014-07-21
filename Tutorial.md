@@ -2,7 +2,7 @@
 
 [flambo](https://github.com/yieldbot/flambo) is a Clojure DSL for [Spark](http://spark.apache.org/docs/latest/) created by the data team at [Yieldbot](http://www.yieldbot.com/). It allows you to create and manipulate Spark data structures using idiomatic Clojure. The following tutorial demonstrates typical flambo API usage and facilities by implementing the classic [tf-idf](https://en.wikipedia.org/wiki/Tf-idf) algorithm.
 
-The complete runnable file of the code presented in this tutorial is located under the flambo.example.tfidf namespace, under flambo's /test/flambo/example directory. We recommend you download flambo and follow along in your REPL.
+The complete runnable file of the code presented in this tutorial is located under the flambo.example.tfidf namespace, under the flambo /test/flambo/example directory. We recommend you download flambo and follow along in your REPL.
 
 ### What is tf-idf?
 
@@ -24,11 +24,11 @@ user=> (require '[flambo.api :as f])
 user=> (require '[flambo.conf :as conf])
 ```
 
-flambo's `api` and `conf` namespaces contain functions to access Spark's API and to create/modify Spark configuration objects, respectively.
+The flambo `api` and `conf` namespaces contain functions to access Spark's API and to create and modify Spark configuration objects, respectively.
 
 ### Initializing Spark
 
-flambo applications require a `SparkContext` object which tells Spark how to access a cluster. The `SparkContext` object requires a `SparkConf` object that encapsulates information about the application. We first build a spark configuration, `c`, then pass it to flambo's `spark-context` function which returns the requisite context object, `sc`:
+flambo applications require a `SparkContext` object which tells Spark how to access a cluster. The `SparkContext` object requires a `SparkConf` object that encapsulates information about the application. We first build a spark configuration, `c`, then pass it to the flambo `spark-context` function which returns the requisite context object, `sc`:
 
 ```bash
 user=> (def c (-> (conf/spark-conf)
@@ -44,7 +44,7 @@ user=> (def sc (f/spark-context c))
 
 The `app-name` flambo function is used to set the name of our application. 
 
-As with most distributed computing systems, Spark has a [myriad](http://spark.apache.org/docs/latest/configuration.html) of properties that control most application settings. With flambo you can either `set` these properties directly on a _SparkConf_ object, e.g. `(conf/set "spark.akka.timeout" "300")`, or via a Clojure map, `(conf/set conf)`. Here, we set 
+As with most distributed computing systems, Spark has a [myriad of properties](http://spark.apache.org/docs/latest/configuration.html) that control most application settings. With flambo you can either `set` these properties directly on a _SparkConf_ object, e.g., `(conf/set "spark.akka.timeout" "300")`, or via a Clojure map, `(conf/set conf)`. Here, we set 
 an empty map, `(def conf {})`, for illustration.
 
 Similarly, we set the executor runtime enviroment properties either directly via key/value strings or by passing a Clojure map of key/value strings. `conf/set-executor-env` handles both.
@@ -63,7 +63,7 @@ user=> (def documents
 
 where `doc#` is a unique document id.
 
-We use the corpus and spark context to create a Spark _resilient distributed dataset_ ([RDD](http://spark.apache.org/docs/latest/programming-guide.html#resilient-distributed-datasets-rdds)). There are two ways to create RDDs in flambo: 
+We use the corpus and spark context to create a Spark [_resilient distributed dataset_](http://spark.apache.org/docs/latest/programming-guide.html#resilient-distributed-datasets-rdds) (RDD). There are two ways to create RDDs in flambo: 
 
 * _parallelizing_ an existing Clojure collection, as we'll do now:
 
@@ -77,9 +77,9 @@ We are now ready to start applying [_actions_](https://github.com/yieldbot/flamb
 
 #### Term Frequency
 
-To compute the term freqencies, we need a dictionary of the terms in each document filtered by a set of [_stopwords_](https://github.com/yieldbot/flambo/blob/develop/test/flambo/example/tfidf.clj#L10). We pass the RDD, `doc-data`, of `[doc-id content]` tuples to flambo's `flat-map` transformation to get a new, stopword filtered, RDD of `[doc-id term term-frequency doc-terms-count]` tuples, the dictionary for our corpus.
+To compute the term freqencies, we need a dictionary of the terms in each document filtered by a set of [_stopwords_](https://github.com/yieldbot/flambo/blob/develop/test/flambo/example/tfidf.clj#L10). We pass the RDD, `doc-data`, of `[doc-id content]` tuples to the flambo `flat-map` transformation to get a new, stopword filtered RDD of `[doc-id term term-frequency doc-terms-count]` tuples, the dictionary for our corpus.
 
-`flat-map` transforms the source RDD by passing each tuple through a function. It is similar to `map`, but the output is a collection of 0 or more items which is then flattened. Here we use flambo's named function macro `flambo.api/defsparkfn` to define our Clojure function `gen-docid-term-tuples`: 
+`flat-map` transforms the source RDD by passing each tuple through a function. It is similar to `map`, but the output is a collection of 0 or more items which is then flattened. Here we use the flambo named function macro `flambo.api/defsparkfn` to define our Clojure function `gen-docid-term-tuples`: 
 
 ```bash
 user=> (f/defsparkfn gen-docid-term-tuples [doc-tuple]
@@ -95,13 +95,13 @@ user=> (def doc-term-seq (-> doc-data
                              f/cache))
 ```
 
-Notice how we use pure Clojure in our Spark function definition to operate on and transform input parameters. We're able to filter stopwords, determine the number of terms per document and the term-frequencies for each document, all from within Clojure. Once the Spark function returns, `flat-map` serializes the results back to an RDD for the next action/transformation.
+Notice how we use pure Clojure in our Spark function definition to operate on and transform input parameters. We're able to filter stopwords, determine the number of terms per document and the term-frequencies for each document, all from within Clojure. Once the Spark function returns, `flat-map` serializes the results back to an RDD for the next action and transformation.
 
-This is flambo's raison d'être. It handles all of the underlying serializations to/from the various Spark Java types, so you only need to define the sequence of operations you would like to perform on your data. That's powerful.
+This is the raison d'être for flambo. It handles all of the underlying serializations to and from the various Spark Java types, so you only need to define the sequence of operations you would like to perform on your data. That's powerful.
 
 Having constructed our dictionary we `f/cache` (or _persist_) the dataset in memory for future actions.
 
-Recall term-freqency is defined as a function of the document id and term, `tf(document, term)`. At this point we only have an RDD of *raw* term frequencies and since we need normalized term frequencies, we use flambo's inline anonymous function macro, `f/fn`, to define an anonymous Clojure function to normalize the frequencies and `map` our `doc-term-seq` RDD of `[doc-id term term-freq doc-terms-count]` tuples to an RDD of key/value, `[term [doc-id tf]]`, tuples. This new tuple format of the term-frequency RDD will be later used to `join` the inverse-document-frequency RDD and compute the final tfidf weights.
+Recall term-freqency is defined as a function of the document id and term, `tf(document, term)`. At this point we only have an RDD of *raw* term frequencies and since we need normalized term frequencies, we use the flambo inline anonymous function macro, `f/fn`, to define an anonymous Clojure function to normalize the frequencies and `map` our `doc-term-seq` RDD of `[doc-id term term-freq doc-terms-count]` tuples to an RDD of key/value, `[term [doc-id tf]]`, tuples. This new tuple format of the term-frequency RDD will be later used to `join` the inverse-document-frequency RDD and compute the final tfidf weights.
 
 ```bash
 user=> (def tf-by-doc (-> doc-term-seq
@@ -110,7 +110,7 @@ user=> (def tf-by-doc (-> doc-term-seq
                           f/cache)
 ```
 
-Notice, again how we were able to easily use Clojure's destructuring facilities on our inline function's arguments to name parameters.
+Notice, again how we were easily able to use Clojure's destructuring facilities on the arguments of our inline function to name parameters.
 
 As before, we cache the results for future actions.
 
@@ -170,7 +170,7 @@ user=> (->> tfidf-by-term
 user=> 
 ```
 
-You can also save the results to a text file via flambo's `save-as-text-file` function, or an HDFS sequence file via `save-as-sequence-file`, but we'll leave those APIs for you to explore.
+You can also save the results to a text file via the flambo `save-as-text-file` function, or an HDFS sequence file via `save-as-sequence-file`, but we'll leave those APIs for you to explore.
 
 ### Conclusion
 
