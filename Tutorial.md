@@ -66,7 +66,7 @@ We use the corpus and spark context to create a Spark [_resilient distributed da
 
 * _parallelizing_ an existing Clojure collection, as we'll do now:
 
-```sh
+```clojure
 user=> (def doc-data (f/parallelize sc documents))
 ```
 
