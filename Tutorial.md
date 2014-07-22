@@ -44,8 +44,7 @@ user=> (def sc (f/spark-context c))
 
 The `app-name` flambo function is used to set the name of our application. 
 
-As with most distributed computing systems, Spark has a [myriad of properties](http://spark.apache.org/docs/latest/configuration.html) that control most application settings. With flambo you can either `set` these properties directly on a _SparkConf_ object, e.g., `(conf/set "spark.akka.timeout" "300")`, or via a Clojure map, `(conf/set conf)`. Here, we set 
-an empty map, `(def conf {})`, for illustration.
+As with most distributed computing systems, Spark has a [myriad of properties](http://spark.apache.org/docs/latest/configuration.html) that control most application settings. With flambo you can either `set` these properties directly on a _SparkConf_ object, e.g., `(conf/set "spark.akka.timeout" "300")`, or via a Clojure map, `(conf/set conf)`. We set an empty map, `(def conf {})`, for illustration.
 
 Similarly, we set the executor runtime enviroment properties either directly via key/value strings or by passing a Clojure map of key/value strings. `conf/set-executor-env` handles both.
 
@@ -77,9 +76,9 @@ We are now ready to start applying [_actions_](https://github.com/yieldbot/flamb
 
 #### Term Frequency
 
-To compute the term freqencies, we need a dictionary of the terms in each document filtered by a set of [_stopwords_](https://github.com/yieldbot/flambo/blob/develop/test/flambo/example/tfidf.clj#L10). We pass the RDD, `doc-data`, of `[doc-id content]` tuples to the flambo `flat-map` transformation to get a new, stopword filtered RDD of `[doc-id term term-frequency doc-terms-count]` tuples, the dictionary for our corpus.
+To compute the term freqencies, we need a dictionary of the terms in each document filtered by a set of [_stopwords_](https://github.com/yieldbot/flambo/blob/develop/test/flambo/example/tfidf.clj#L10). We pass the RDD, `doc-data`, of `[doc-id content]` tuples to the flambo `flat-map` transformation to get a new stopword filtered RDD of `[doc-id term term-frequency doc-terms-count]` tuples. This is the dictionary for our corpus.
 
-`flat-map` transforms the source RDD by passing each tuple through a function. It is similar to `map`, but the output is a collection of 0 or more items which is then flattened. Here we use the flambo named function macro `flambo.api/defsparkfn` to define our Clojure function `gen-docid-term-tuples`: 
+`flat-map` transforms the source RDD by passing each tuple through a function. It is similar to `map`, but the output is a collection of 0 or more items which is then flattened. We use the flambo named function macro `flambo.api/defsparkfn` to define our Clojure function `gen-docid-term-tuples`: 
 
 ```bash
 user=> (f/defsparkfn gen-docid-term-tuples [doc-tuple]
@@ -101,7 +100,7 @@ This is the raison d'être for flambo. It handles all of the underlying serializ
 
 Having constructed our dictionary we `f/cache` (or _persist_) the dataset in memory for future actions.
 
-Recall term-freqency is defined as a function of the document id and term, `tf(document, term)`. At this point we only have an RDD of *raw* term frequencies and since we need normalized term frequencies, we use the flambo inline anonymous function macro, `f/fn`, to define an anonymous Clojure function to normalize the frequencies and `map` our `doc-term-seq` RDD of `[doc-id term term-freq doc-terms-count]` tuples to an RDD of key/value, `[term [doc-id tf]]`, tuples. This new tuple format of the term-frequency RDD will be later used to `join` the inverse-document-frequency RDD and compute the final tfidf weights.
+Recall term-freqency is defined as a function of the document id and term, `tf(document, term)`. At this point we have an RDD of *raw* term frequencies, but we need normalized term frequencies. We use the flambo inline anonymous function macro, `f/fn`, to define an anonymous Clojure function to normalize the frequencies and `map` our `doc-term-seq` RDD of `[doc-id term term-freq doc-terms-count]` tuples to an RDD of key/value, `[term [doc-id tf]]`, tuples. This new tuple format of the term-frequency RDD will be later used to `join` the inverse-document-frequency RDD and compute the final tfidf weights.
 
 ```bash
 user=> (def tf-by-doc (-> doc-term-seq
@@ -138,7 +137,7 @@ user=> (def idf-by-term (-> doc-term-seq
 
 #### TF-IDF
 
-Now that we have both a term-frequency RDD of `[term [doc-id tf]]` tuples and an inverse-document-frequency RDD of `[term idf]` tuples, we perform the aforementioned `join` on the "terms" producing a new RDD of `[term [[doc-id tf] idf]]` tuples. Then, we `map` an inline Spark function to compute the tf-idf weight of each term per document returning our final resulting RDD of `[doc-id term tf-idf]` tuples:
+Now that we have both a term-frequency RDD of `[term [doc-id tf]]` tuples and an inverse-document-frequency RDD of `[term idf]` tuples, we perform the aforementioned `join` on the "terms" producing a new RDD of `[term [[doc-id tf] idf]]` tuples. Then, we `map` an inline Spark function to compute the tf-idf weight of each term per document returning our final RDD of `[doc-id term tf-idf]` tuples:
 
 ```bash
 user=> (def tfidf-by-term (-> (f/join tf-by-doc idf-by-term)
@@ -147,7 +146,7 @@ user=> (def tfidf-by-term (-> (f/join tf-by-doc idf-by-term)
                               f/cache)
 ```
 
-Again, caching the RDD for future actions. 
+We cache the RDD for future actions. 
 
 Finally, to see the output of our example application we `collect` all the elements of our tf-idf RDD as a Clojure array, sort them by tf-idf weight, and for illustration print the top 10 to standard out:
 
