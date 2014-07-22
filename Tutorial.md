@@ -12,7 +12,7 @@ TF-IDF (term frequency-inverse document frequency) is a way to score the importa
 
 and its `idf` weight:
 
-`idf(t) = ln(total number of documents in corpus / (1 + number of documents with term t in it))`
+`idf(t) = ln(total number of documents in corpus / (1 + number of documents with term t))`
 
 ## Example Application Walkthrough
 
