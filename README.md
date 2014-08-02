@@ -45,6 +45,14 @@ Flambo is available from clojars. Depending on the version of Spark you're using
 
 `[yieldbot/flambo "0.2.0"]` for Spark 0.9.1
 
+Don't forget to add spark (and possibly your hadoop distribution's hadoop-client library) to the `:provided` profile in your `project.clj` file:
+
+```clojure
+{:profiles {:provided
+             {:dependencies
+              [[org.apache.spark/spark-core_2.10 "1.0.1"]]}}}
+```
+
 <a name="usage">
 ## Usage
 
