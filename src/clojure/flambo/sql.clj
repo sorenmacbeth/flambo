@@ -16,6 +16,9 @@
 (defn parquet-file [sql-context path]
   (.parquetFile sql-context path))
 
+(defn json-file [sql-context path]
+  (.jsonFile sql-context path))
+
 (defn register-rdd-as-table [sql-context rdd table-name]
   (.registerRDDAsTable sql-context rdd table-name))
 
@@ -23,3 +26,5 @@
 ;;
 (defn register-as-table [rdd table-name]
   (.registerAsTable rdd table-name))
+
+(def print-schema (memfn printSchema))
