@@ -1,6 +1,6 @@
 ![Flambo](http://static1.wikia.nocookie.net/__cb20120216165717/adventuretimewithfinnandjake/images/e/ee/Flambos_fire_magic.jpg)
 
-# flambo
+# Flambo
 
 Flambo is a Clojure DSL for [Apache Spark](http://spark.apache.org/docs/latest/)
 
