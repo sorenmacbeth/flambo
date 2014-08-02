@@ -52,6 +52,7 @@ Don't forget to add spark (and possibly your hadoop distribution's hadoop-client
              {:dependencies
               [[org.apache.spark/spark-core_2.10 "1.0.1"]]}}}
 ```
+It is also recommended to AOT compile your application uberjar before running it in your spark cluster. This can easily accomplished by adding an `:uberjar` profile with `{:aot :all}` in it.
 
 <a name="usage">
 ## Usage
