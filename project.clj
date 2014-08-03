@@ -35,5 +35,5 @@
           :output-dir "doc/codox"
           :src-dir-uri "http://github.com/yieldbot/flambo/blob/develop/"
           :src-linenum-anchor-prefix "L"}
-  :jvm-opts ^:replace []
+  :jvm-opts ^:replace ["-server" "-Xmx1g"]
   :global-vars {*warn-on-reflection* false})
