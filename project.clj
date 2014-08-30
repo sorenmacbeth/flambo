@@ -11,6 +11,7 @@
                   :exclusions [com.twitter/chill-java]]
                  [com.twitter/chill_2.10 "0.3.6"
                   :exclusions [org.scala-lang/scala-library]]]
+  :repositories {"spark-rc" "https://repository.apache.org/content/repositories/orgapachespark-1029"}
   :profiles {:dev
              {:dependencies [[midje "1.6.3"]
                              [criterium "0.4.3"]]
@@ -22,10 +23,10 @@
                     flambo.example.tfidf]}
              :provided
              {:dependencies
-              [[org.apache.spark/spark-core_2.10 "1.0.1"]
-               [org.apache.spark/spark-streaming_2.10 "1.0.1"]
-               [org.apache.spark/spark-streaming-kafka_2.10 "1.0.1"]
-               [org.apache.spark/spark-sql_2.10 "1.0.1"]]}
+              [[org.apache.spark/spark-core_2.10 "1.1.0"]
+               [org.apache.spark/spark-streaming_2.10 "1.1.0"]
+               [org.apache.spark/spark-streaming-kafka_2.10 "1.1.0"]
+               [org.apache.spark/spark-sql_2.10 "1.1.0"]]}
              :uberjar
              {:aot :all}}
   :source-paths ["src/clojure"]
