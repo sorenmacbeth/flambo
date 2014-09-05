@@ -298,7 +298,7 @@
   "Return the count of each unique value in `rdd` as a map of (value, count)
   pairs."
   [rdd]
-  (.countByValue rdd))
+  (into {} (.countByValue rdd)))
 
 (defn save-as-text-file
   "Writes the elements of `rdd` as a text file (or set of text files)
