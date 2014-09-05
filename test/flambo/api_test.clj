@@ -213,6 +213,15 @@
             (f/count-by-key)) => {"key1" 2, "key2" 2, "key3" 1})
 
       (fact
+       "count-by-value returns a hashmap of (V, int) pairs with the count of each value"
+       (-> (f/parallelize c [["key1" 11]
+                             ["key1" 11]
+                             ["key2" 12]
+                             ["key2" 12]
+                             ["key3" 13]])
+           (f/count-by-value)) => {["key1" 11] 2, ["key2" 12] 2, ["key3" 13] 1})
+
+      (fact
         "foreach runs a function on each element of the RDD, returns nil; this is usually done for side effcts"
         (-> (f/parallelize c [1 2 3 4 5])
             (f/foreach (f/fn [x] x))) => nil)
