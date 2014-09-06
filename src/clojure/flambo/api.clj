@@ -294,6 +294,12 @@
             (map-to-pair identity)
             .countByKey)))
 
+(defn count-by-value
+  "Return the count of each unique value in `rdd` as a map of (value, count)
+  pairs."
+  [rdd]
+  (into {} (.countByValue rdd)))
+
 (defn save-as-text-file
   "Writes the elements of `rdd` as a text file (or set of text files)
   in a given directory `path` in the local filesystem, HDFS or any other Hadoop-supported
