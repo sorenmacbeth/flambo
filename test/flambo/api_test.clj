@@ -113,9 +113,9 @@
               ]
           (-> (f/join LDATA RDATA)
               f/collect
-              vec)) => [["key3" [[5] [33]]]
-                        ["key4" [[1] [44]]]
-                        ["key1" [[2] [22]]]])
+              vec)) => (just [["key3" [[5] [33]]]
+                              ["key4" [[1] [44]]]
+                              ["key1" [[2] [22]]]] :in-any-order))
 
       (fact
         "left-outer-join returns an RDD of (K, (V, W)) when called on RDDs of type (K, V) and (K, W)"
@@ -129,11 +129,11 @@
                                       ["key4" [44]]])]
           (-> (f/left-outer-join LDATA RDATA)
               f/collect
-              vec)) => [["key3" [[5] [33]]]
-                        ["key4" [[1] [44]]]
-                        ["key5" [[2] nil]]
-                        ["key1" [[2] [22]]]
-                        ["key2" [[3] nil]]])
+              vec)) => (just [["key3" [[5] [33]]]
+                              ["key4" [[1] [44]]]
+                              ["key5" [[2] nil]]
+                              ["key1" [[2] [22]]]
+                              ["key2" [[3] nil]]] :in-any-order))
 
       (fact
         "sample returns a fraction of the RDD, with/without replacement,
@@ -141,7 +141,7 @@
         (-> (f/parallelize c [1 2 3 4 5 6 7 8 9 10 11 12 13 14 15])
             (f/sample false 0.4 10)
             f/collect
-            vec) => [1 4 7 11 14])
+            vec) => (just [1 4 7 11 14] :in-any-order))
 
       (fact
         "combine-by-key returns an RDD by combining the elements for each key using a custom
@@ -151,7 +151,7 @@
                               ["key1" 1]])
             (f/combine-by-key identity + +)
             f/collect
-            vec) => [["key1" 2] ["key2" 1]])
+            vec) => (just [["key1" 2] ["key2" 1]] :in-any-order))
 
       (fact
         "sort-by-key returns an RDD of (K, V) pairs sorted by keys in asc or desc order"
@@ -175,7 +175,7 @@
         (-> (f/parallelize c [1 1 2 3 5 8])
             (f/group-by (f/fn [x] (mod x 2)))
             f/collect
-            vec) => [[0 [2 8]] [1 [1 1 3 5]]])
+            vec) => (just [[0 [2 8]] [1 [1 1 3 5]]] :in-any-order))
 
       (fact
         "group-by-key"
@@ -186,7 +186,7 @@
                               ["key3" 5]])
             f/group-by-key
             f/collect
-            vec) => [["key3" [5]] ["key1" [1 2]] ["key2" [3 4]]])
+            vec) => (just [["key3" [5]] ["key1" [1 2]] ["key2" [3 4]]] :in-any-order))
 
       (fact
         "flat-map-to-pair"
@@ -268,7 +268,7 @@
            vec) => (contains #{1 2 3 4 5}))
 
       (fact
-       "distinct returns distinct elements of an RDD with the give number of partitions"
+       "distinct returns distinct elements of an RDD with the given number of partitions"
        (-> (f/parallelize c [1 2 1 3 4 5 4])
            (f/distinct 2)
            f/collect
@@ -281,10 +281,10 @@
 
       (fact
         "glom returns an RDD created by coalescing all elements within each partition into a list"
-        (-> (f/parallelize c [[1] [2] [3] [4] [5]])
+        (-> (f/parallelize c [[1] [2] [3] [4] [5]] 1)
             f/glom
             f/collect
-            vec) => [[[1]] [[2]] [[3]] [[4] [5]]])
+            vec) => (just [[[1] [2] [3] [4] [5]]] :in-any-order))
 
       (fact
         "cache persists this RDD with a default storage level (MEMORY_ONLY)"
