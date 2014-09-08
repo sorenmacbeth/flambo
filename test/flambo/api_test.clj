@@ -281,10 +281,10 @@
 
       (fact
         "glom returns an RDD created by coalescing all elements within each partition into a list"
-        (-> (f/parallelize c [[1] [2] [3] [4] [5]] 1)
+        (-> (f/parallelize c [1 2 3 4 5 6 7 8 9 10] 2)
             f/glom
             f/collect
-            vec) => (just [[[1] [2] [3] [4] [5]]] :in-any-order))
+            vec) => (just [[1 2 3 4 5] [6 7 8 9 10]] :in-any-order))
 
       (fact
         "cache persists this RDD with a default storage level (MEMORY_ONLY)"
