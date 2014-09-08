@@ -61,7 +61,8 @@
         "map returns an RDD formed by passing each element of the source RDD through a function"
         (-> (f/parallelize c [1 2 3 4 5])
             (f/map (f/fn [x] (* 2 x)))
-            f/collect) => [2 4 6 8 10])
+            f/collect
+            vec) => [2 4 6 8 10])
 
       (fact
         "map-to-pair returns an RDD of (K, V) pairs formed by passing each element of the source
@@ -69,7 +70,8 @@
         (-> (f/parallelize c ["a" "b" "c" "d"])
             (f/map-to-pair (f/fn [x] [x 1]))
             (f/map f/untuple)
-            f/collect) => [["a" 1] ["b" 1] ["c" 1] ["d" 1]])
+            f/collect
+            vec) => [["a" 1] ["b" 1] ["c" 1] ["d" 1]])
 
       (fact
         "reduce-by-key returns an RDD of (K, V) when called on an RDD of (K, V) pairs"
@@ -138,7 +140,8 @@
         using a given random number generator seed"
         (-> (f/parallelize c [1 2 3 4 5 6 7 8 9 10 11 12 13 14 15])
             (f/sample false 0.4 10)
-            f/collect) => [1 4 7 11 14])
+            f/collect
+            vec) => [1 4 7 11 14])
 
       (fact
         "combine-by-key returns an RDD by combining the elements for each key using a custom
@@ -147,7 +150,8 @@
                               ["key2" 1]
                               ["key1" 1]])
             (f/combine-by-key identity + +)
-            f/collect) => [["key1" 2] ["key2" 1]])
+            f/collect
+            vec) => [["key1" 2] ["key2" 1]])
 
       (fact
         "sort-by-key returns an RDD of (K, V) pairs sorted by keys in asc or desc order"
@@ -156,19 +160,22 @@
                               [3 "cc"]
                               [1 "dd"]])
             (f/sort-by-key compare false)
-            f/collect) => [[5 "bb"] [3 "cc"] [2 "aa"] [1 "dd"]])
+            f/collect
+            vec) => [[5 "bb"] [3 "cc"] [2 "aa"] [1 "dd"]])
 
       (fact
         "coalesce"
         (-> (f/parallelize c [1 2 3 4 5])
             (f/coalesce 1)
-            f/collect) => [1 2 3 4 5])
+            f/collect
+            vec) => [1 2 3 4 5])
 
       (fact
         "group-by returns an RDD of items grouped by the grouping function"
         (-> (f/parallelize c [1 1 2 3 5 8])
             (f/group-by (f/fn [x] (mod x 2)))
-            f/collect) => [[0 [2 8]] [1 [1 1 3 5]]])
+            f/collect
+            vec) => [[0 [2 8]] [1 [1 1 3 5]]])
 
       (fact
         "group-by-key"
@@ -178,7 +185,8 @@
                               ["key2" 4]
                               ["key3" 5]])
             f/group-by-key
-            f/collect) => [["key3" [5]] ["key1" [1 2]] ["key2" [3 4]]])
+            f/collect
+            vec) => [["key3" [5]] ["key1" [1 2]] ["key2" [3 4]]])
 
       (fact
         "flat-map-to-pair"
@@ -187,7 +195,11 @@
             (f/flat-map-to-pair (f/fn [x] (map (fn [y] [y 1])
                                                (clojure.string/split (first x) #" "))))
             (f/map f/untuple)
-            f/collect) => [["Four" 1] ["score" 1] ["and" 1] ["seven" 1] ["years" 1] ["ago" 1]])
+            f/collect
+            vec) => [["Four" 1] ["score" 1] ["and" 1] ["seven" 1] ["years" 1] ["ago" 1]])
+
+      (future-fact "repartition returns a new RDD with exactly n partitions")
+
       )))
 
 (facts
@@ -210,7 +222,7 @@
                               ["key2" 3]
                               ["key2" 4]
                               ["key3" 5]])
-            (f/count-by-key)) => {"key1" 2, "key2" 2, "key3" 1})
+            (f/count-by-key)) => {"key1" 2 "key2" 2 "key3" 1})
 
       (fact
        "count-by-value returns a hashmap of (V, int) pairs with the count of each value"
@@ -245,14 +257,22 @@
       (fact
         "collect returns all elements of the RDD as an array at the driver program"
         (-> (f/parallelize c [[1] [2] [3] [4] [5]])
-            f/collect) => [[1] [2] [3] [4] [5]])
+            f/collect
+            vec) => [[1] [2] [3] [4] [5]])
 
       (fact
-        "distinct returns distinct elements of an RDD"
-        (-> (f/parallelize c [1 2 1 3 4 5 4])
-            f/distinct
-            f/collect
-            vec) => (contains #{1 2 3 4 5}))
+       "distinct returns distinct elements of an RDD"
+       (-> (f/parallelize c [1 2 1 3 4 5 4])
+           f/distinct
+           f/collect
+           vec) => (contains #{1 2 3 4 5}))
+
+      (fact
+       "distinct returns distinct elements of an RDD with the give number of partitions"
+       (-> (f/parallelize c [1 2 1 3 4 5 4])
+           (f/distinct 2)
+           f/collect
+           vec) => (contains #{1 2 3 4 5}))
 
       (fact
         "take returns an array with the first n elements of an RDD"
