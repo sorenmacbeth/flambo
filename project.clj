@@ -1,11 +1,11 @@
-(defproject yieldbot/flambo "0.3.4-SNAPSHOT"
+(defproject yieldbot/flambo "0.3.3-SNAPSHOT"
   :description "A Clojure DSL for Apache Spark"
   :url "https://github.com/yieldbot/flambo"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [org.clojure/tools.logging "0.2.6"]
-                 [yieldbot/serializable-fn "0.0.6-SNAPSHOT"
+                 [yieldbot/serializable-fn "0.0.5"
                   :exclusions [com.twitter/chill-java]]
                  [com.twitter/carbonite "1.4.0"
                   :exclusions [com.twitter/chill-java]]
