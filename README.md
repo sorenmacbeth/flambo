@@ -55,6 +55,8 @@ Don't forget to add spark (and possibly your hadoop distribution's hadoop-client
 ```
 
 <a name="aot">
+## AOT
+
 It is necessary to AOT compile any namespaces which require `flambo.api`. You can AOT compile your application uberjar before running it in your spark cluster. This can easily accomplished by adding an `:uberjar` profile with `{:aot :all}` in it.
 
 When working locally in a REPL, you'll want to AOT compile those namespaces as well. An easy way to do that is to add an `:aot` key to your `:dev` profile in your leiningen project.clj
