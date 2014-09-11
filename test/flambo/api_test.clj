@@ -138,10 +138,10 @@
       (fact
         "sample returns a fraction of the RDD, with/without replacement,
         using a given random number generator seed"
-        (-> (f/parallelize c [1 2 3 4 5 6 7 8 9 10 11 12 13 14 15])
-            (f/sample false 0.4 10)
+        (-> (f/parallelize c [0 1 2 3 4 5 6 7 8 9])
+            (f/sample false 0.1 2)
             f/collect
-            vec) => (just [1 4 7 11 14] :in-any-order))
+            vec) => [6])
 
       (fact
         "combine-by-key returns an RDD by combining the elements for each key using a custom
