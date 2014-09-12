@@ -1,4 +1,4 @@
-(defproject yieldbot/flambo "0.3.3"
+(defproject yieldbot/flambo "0.4.0-SNAPSHOT"
   :description "A Clojure DSL for Apache Spark"
   :url "https://github.com/yieldbot/flambo"
   :license {:name "Eclipse Public License"
@@ -22,10 +22,10 @@
                     flambo.example.tfidf]}
              :provided
              {:dependencies
-              [[org.apache.spark/spark-core_2.10 "1.0.2"]
-               [org.apache.spark/spark-streaming_2.10 "1.0.2"]
-               [org.apache.spark/spark-streaming-kafka_2.10 "1.0.2"]
-               [org.apache.spark/spark-sql_2.10 "1.0.2"]]}
+              [[org.apache.spark/spark-core_2.10 "1.1.0"]
+               [org.apache.spark/spark-streaming_2.10 "1.1.0"]
+               [org.apache.spark/spark-streaming-kafka_2.10 "1.1.0"]
+               [org.apache.spark/spark-sql_2.10 "1.1.0"]]}
              :uberjar
              {:aot :all}}
   :source-paths ["src/clojure"]

@@ -129,9 +129,15 @@
   ([spark-context lst] (.parallelize spark-context lst))
   ([spark-context lst num-slices] (.parallelize spark-context lst num-slices)))
 
-(defn partitionwise-sampled-rdd [rdd sampler seed]
+(defn partitionwise-sampled-rdd [rdd sampler preserve-partitioning? seed]
   "Creates a PartitionwiseSampledRRD from existing RDD and a sampler object"
-  (-> (PartitionwiseSampledRDD. (.rdd rdd) sampler seed k/OBJECT-CLASS-TAG k/OBJECT-CLASS-TAG)
+  (-> (PartitionwiseSampledRDD.
+       (.rdd rdd)
+       sampler
+       preserve-partitioning?
+       seed
+       k/OBJECT-CLASS-TAG
+       k/OBJECT-CLASS-TAG)
       (JavaRDD/fromRDD k/OBJECT-CLASS-TAG)))
 
 ;; ## Transformations
