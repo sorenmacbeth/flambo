@@ -22,10 +22,10 @@
                     flambo.example.tfidf]}
              :provided
              {:dependencies
-              [[org.apache.spark/spark-core_2.10 "1.0.1"]
-               [org.apache.spark/spark-streaming_2.10 "1.0.1"]
-               [org.apache.spark/spark-streaming-kafka_2.10 "1.0.1"]
-               [org.apache.spark/spark-sql_2.10 "1.0.1"]]}
+              [[org.apache.spark/spark-core_2.10 "1.0.2"]
+               [org.apache.spark/spark-streaming_2.10 "1.0.2"]
+               [org.apache.spark/spark-streaming-kafka_2.10 "1.0.2"]
+               [org.apache.spark/spark-sql_2.10 "1.0.2"]]}
              :uberjar
              {:aot :all}}
   :source-paths ["src/clojure"]
