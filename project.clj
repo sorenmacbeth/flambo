@@ -1,11 +1,11 @@
-(defproject yieldbot/flambo "0.3.2"
+(defproject yieldbot/flambo "0.3.3"
   :description "A Clojure DSL for Apache Spark"
   :url "https://github.com/yieldbot/flambo"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [org.clojure/tools.logging "0.2.6"]
-                 [yieldbot/serializable-fn "0.0.5"
+                 [yieldbot/serializable-fn "0.0.6"
                   :exclusions [com.twitter/chill-java]]
                  [com.twitter/carbonite "1.4.0"
                   :exclusions [com.twitter/chill-java]]
@@ -22,10 +22,12 @@
                     flambo.example.tfidf]}
              :provided
              {:dependencies
-              [[org.apache.spark/spark-core_2.10 "1.0.1"]
-               [org.apache.spark/spark-streaming_2.10 "1.0.1"]
-               [org.apache.spark/spark-streaming-kafka_2.10 "1.0.1"]
-               [org.apache.spark/spark-sql_2.10 "1.0.1"]]}}
+              [[org.apache.spark/spark-core_2.10 "1.0.2"]
+               [org.apache.spark/spark-streaming_2.10 "1.0.2"]
+               [org.apache.spark/spark-streaming-kafka_2.10 "1.0.2"]
+               [org.apache.spark/spark-sql_2.10 "1.0.2"]]}
+             :uberjar
+             {:aot :all}}
   :source-paths ["src/clojure"]
   :java-source-paths ["src/java"]
   :codox {:defaults {:doc/format :markdown}
@@ -33,5 +35,6 @@
           :output-dir "doc/codox"
           :src-dir-uri "http://github.com/yieldbot/flambo/blob/develop/"
           :src-linenum-anchor-prefix "L"}
-  :jvm-opts ^:replace []
+  :javac-options ["-source" "1.7" "-target" "1.7"]
+  :jvm-opts ^:replace ["-server" "-Xmx1g"]
   :global-vars {*warn-on-reflection* false})

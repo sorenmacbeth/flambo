@@ -1,6 +1,6 @@
 ![Flambo](http://static1.wikia.nocookie.net/__cb20120216165717/adventuretimewithfinnandjake/images/e/ee/Flambos_fire_magic.jpg)
 
-# flambo
+# Flambo
 
 Flambo is a Clojure DSL for [Apache Spark](http://spark.apache.org/docs/latest/)
 
@@ -9,6 +9,7 @@ Flambo is a Clojure DSL for [Apache Spark](http://spark.apache.org/docs/latest/)
 * [Overview](#overview)
 * [Supported Spark Versions](#versions)
 * [Installation](#installation)
+* [AOT](#aot)
 * [Usage](#usage)
   * [Initializing flambo](#initializing-flambo)
   * [Resilient Distributed Datasets](#rdds)
@@ -30,7 +31,7 @@ Flambo is a Clojure DSL for Spark. It allows you to create and manipulate Spark 
 <a name="versions">
 ## Supported Spark Versions
 
-flambo 0.3.2 targets >= Spark 1.0.0
+flambo 0.3.3 targets >= Spark 1.0.0
 
 flambo 0.2.0 targets Spark 0.9.1
 
@@ -41,9 +42,29 @@ Flambo is available from clojars. Depending on the version of Spark you're using
 
 ### With Leiningen
 
-`[yieldbot/flambo "0.3.2"]` for Spark 1.0.0 or greater
+`[yieldbot/flambo "0.3.3"]` for Spark 1.0.0 or greater
 
 `[yieldbot/flambo "0.2.0"]` for Spark 0.9.1
+
+Don't forget to add spark (and possibly your hadoop distribution's hadoop-client library) to the `:provided` profile in your `project.clj` file:
+
+```clojure
+{:profiles {:provided
+             {:dependencies
+              [[org.apache.spark/spark-core_2.10 "1.0.2"]]}}}
+```
+
+<a name="aot">
+## AOT
+
+It is necessary to AOT compile any namespaces which require `flambo.api`. You can AOT compile your application uberjar before running it in your spark cluster. This can easily accomplished by adding an `:uberjar` profile with `{:aot :all}` in it.
+
+When working locally in a REPL, you'll want to AOT compile those namespaces as well. An easy way to do that is to add an `:aot` key to your `:dev` profile in your leiningen project.clj
+
+```clojure
+:profiles {:dev
+    {:aot [my.namespace my.other.namespace]}}
+```
 
 <a name="usage">
 ## Usage
