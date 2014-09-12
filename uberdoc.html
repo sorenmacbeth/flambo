@@ -3028,8 +3028,8 @@ net.brehaut.ClojureTools = (function (SH) {
     build_tree: build_tree
   };
 })(SyntaxHighlighter);
-</script><title>yieldbot/flambo -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">yieldbot/flambo</h1><h2 class="project-version">0.3.2</h2><br /><p>A Clojure DSL for Apache Spark</p>
-</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.6.0</td></tr><tr><td class="dep-name">org.clojure/tools.logging</td><td class="dotted"><hr /></td><td class="dep-version">0.2.6</td></tr><tr><td class="dep-name">yieldbot/serializable-fn</td><td class="dotted"><hr /></td><td class="dep-version">0.0.5</td></tr><tr><td class="dep-name">com.twitter/carbonite</td><td class="dotted"><hr /></td><td class="dep-version">1.4.0</td></tr><tr><td class="dep-name">com.twitter/chill_2.10</td><td class="dotted"><hr /></td><td class="dep-version">0.3.6</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#flambo.api">flambo.api</a></li><li><a href="#flambo.conf">flambo.conf</a></li><li><a href="#flambo.function">flambo.function</a></li><li><a href="#flambo.kryo">flambo.kryo</a></li><li><a href="#flambo.sql">flambo.sql</a></li><li><a href="#flambo.streaming">flambo.streaming</a></li><li><a href="#flambo.utils">flambo.utils</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#flambo.api" name="flambo.api"><h1 class="project-name">flambo.api</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><p>This is the main entry point to flambo, typically required like <code>[flambo.api :as f]</code>.</p>
+</script><title>yieldbot/flambo -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">yieldbot/flambo</h1><h2 class="project-version">0.3.3</h2><br /><p>A Clojure DSL for Apache Spark</p>
+</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.6.0</td></tr><tr><td class="dep-name">org.clojure/tools.logging</td><td class="dotted"><hr /></td><td class="dep-version">0.2.6</td></tr><tr><td class="dep-name">yieldbot/serializable-fn</td><td class="dotted"><hr /></td><td class="dep-version">0.0.6</td></tr><tr><td class="dep-name">com.twitter/carbonite</td><td class="dotted"><hr /></td><td class="dep-version">1.4.0</td></tr><tr><td class="dep-name">com.twitter/chill_2.10</td><td class="dotted"><hr /></td><td class="dep-version">0.3.6</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#flambo.api">flambo.api</a></li><li><a href="#flambo.conf">flambo.conf</a></li><li><a href="#flambo.function">flambo.function</a></li><li><a href="#flambo.kryo">flambo.kryo</a></li><li><a href="#flambo.sql">flambo.sql</a></li><li><a href="#flambo.streaming">flambo.streaming</a></li><li><a href="#flambo.utils">flambo.utils</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#flambo.api" name="flambo.api"><h1 class="project-name">flambo.api</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><p>This is the main entry point to flambo, typically required like <code>[flambo.api :as f]</code>.</p>
 </td><td class="codes"></td></tr><tr><td class="docs"><p>By design, most operations in flambo are built up via the threading macro <code>-&gt;</code>.</p>
 </td><td class="codes"></td></tr><tr><td class="docs"><p>The main objective is to provide an idiomatic clojure experience, hiding most of the typing
 of RDDs and outputs such as dealing with <code>scala.Tuple2</code> objects behind the curtains of
@@ -3185,16 +3185,25 @@ into any <code>SparkConf</code> objects that are created.</p>
       (.reduceByKey (function2 f))
       (.map (function untuple))))</pre></td></tr><tr><td class="docs"><p>Returns an RDD of items grouped by the return value of function <code>f</code>.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn group-by
-  [rdd f]
-  (-&gt; rdd
-      (.groupBy (function f))
-      (.map (function group-untuple))))</pre></td></tr><tr><td class="docs"><p>Groups the values for each key in <code>rdd</code> into a single sequence.</p>
+  ([rdd f]
+     (-&gt; rdd
+         (.groupBy (function f))
+         (.map (function group-untuple))))
+  ([rdd f n]
+     (-&gt; rdd
+         (.groupBy (function f) n)
+         (.map (function group-untuple)))))</pre></td></tr><tr><td class="docs"><p>Groups the values for each key in <code>rdd</code> into a single sequence.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn group-by-key
-  [rdd]
-  (-&gt; rdd
-      (map-to-pair identity)
-      .groupByKey
-      (.map (function group-untuple))))</pre></td></tr><tr><td class="docs"><p>Combines the elements for each key using a custom set of aggregation functions.
+  ([rdd]
+     (-&gt; rdd
+         (map-to-pair identity)
+         .groupByKey
+         (.map (function group-untuple))))
+  ([rdd n]
+     (-&gt; rdd
+         (map-to-pair identity)
+         (.groupByKey n)
+         (.map (function group-untuple)))))</pre></td></tr><tr><td class="docs"><p>Combines the elements for each key using a custom set of aggregation functions.
   Turns an RDD of (K, V) pairs into a result of type (K, C), for a 'combined type' C.
   Note that V and C can be different -- for example, one might group an RDD of type
   (Int, Int) into an RDD of type (Int, List[Int]).
@@ -3203,13 +3212,21 @@ into any <code>SparkConf</code> objects that are created.</p>
   -- mergeValue, to merge a V into a C (e.g., adds it to the end of a list)
   -- mergeCombiners, to combine two C's into a single one.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn combine-by-key
-  [rdd create-combiner merge-value merge-combiners]
-  (-&gt; rdd
-      (map-to-pair identity)
-      (.combineByKey (function create-combiner)
-                     (function2 merge-value)
-                     (function2 merge-combiners))
-      (.map (function untuple))))</pre></td></tr><tr><td class="docs"><p>When called on <code>rdd</code> of (K, V) pairs where K implements ordered, returns a dataset of
+  ([rdd create-combiner merge-value merge-combiners]
+     (-&gt; rdd
+         (map-to-pair identity)
+         (.combineByKey (function create-combiner)
+                        (function2 merge-value)
+                        (function2 merge-combiners))
+         (.map (function untuple))))
+  ([rdd create-combiner merge-value merge-combiners n]
+     (-&gt; rdd
+         (map-to-pair identity)
+         (.combineByKey (function create-combiner)
+                        (function2 merge-value)
+                        (function2 merge-combiners)
+                        n)
+         (.map (function untuple)))))</pre></td></tr><tr><td class="docs"><p>When called on <code>rdd</code> of (K, V) pairs where K implements ordered, returns a dataset of
    (K, V) pairs sorted by keys in ascending or descending order, as specified by the boolean
    ascending argument.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn sort-by-key
@@ -3252,7 +3269,16 @@ into any <code>SparkConf</code> objects that are created.</p>
   using a given random number generator <code>seed</code>.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn sample
   [rdd with-replacement? fraction seed]
-  (.sample rdd with-replacement? fraction seed))</pre></td></tr><tr><td class="docs"><p>Only available on RDDs of type (K, V).
+  (.sample rdd with-replacement? fraction seed))</pre></td></tr><tr><td class="docs"><p>Decrease the number of partitions in <code>rdd</code> to <code>n</code>.
+  Useful for running operations more efficiently after filtering down a large dataset.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn coalesce
+  ([rdd n]
+     (.coalesce rdd n))
+  ([rdd n shuffle?]
+     (.coalesce rdd n shuffle?)))</pre></td></tr><tr><td class="docs"><p>Returns a new <code>rdd</code> with exactly <code>n</code> partitions.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn repartition
+  [rdd n]
+  (.repartition rdd n))</pre></td></tr><tr><td class="docs"><p>Only available on RDDs of type (K, V).
   Returns a map of (K, Int) pairs with the count of each key.</p>
 
 <h2>Actions</h2>
@@ -3263,7 +3289,11 @@ into any <code>SparkConf</code> objects that are created.</p>
   (into {}
         (-&gt; rdd
             (map-to-pair identity)
-            .countByKey)))</pre></td></tr><tr><td class="docs"><p>Writes the elements of <code>rdd</code> as a text file (or set of text files)
+            .countByKey)))</pre></td></tr><tr><td class="docs"><p>Return the count of each unique value in <code>rdd</code> as a map of (value, count)
+  pairs.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn count-by-value
+  [rdd]
+  (into {} (.countByValue rdd)))</pre></td></tr><tr><td class="docs"><p>Writes the elements of <code>rdd</code> as a text file (or set of text files)
   in a given directory <code>path</code> in the local filesystem, HDFS or any other Hadoop-supported
   file system. Spark will call toString on each element to convert it to a line of
   text in the file.</p>
@@ -3291,17 +3321,16 @@ into any <code>SparkConf</code> objects that are created.</p>
   (memfn cache))</pre></td></tr><tr><td class="docs"><p>Returns all the elements of <code>rdd</code> as an array at the driver process.</p>
 </td><td class="codes"><pre class="brush: clojure">(def collect
   (memfn collect))</pre></td></tr><tr><td class="docs"><p>Return a new RDD that contains the distinct elements of the source <code>rdd</code>.</p>
-</td><td class="codes"><pre class="brush: clojure">(def distinct
-  (memfn distinct))</pre></td></tr><tr><td class="docs"><p>Return an array with the first n elements of <code>rdd</code>.
+</td><td class="codes"><pre class="brush: clojure">(defn distinct
+  ([rdd]
+     (.distinct rdd))
+  ([rdd n]
+     (.distinct rdd n)))</pre></td></tr><tr><td class="docs"><p>Return an array with the first n elements of <code>rdd</code>.
   (Note: this is currently not executed in parallel. Instead, the driver
   program computes all the elements).</p>
 </td><td class="codes"><pre class="brush: clojure">(defn take
   [rdd cnt]
-  (.take rdd cnt))</pre></td></tr><tr><td class="docs"><p>Decrease the number of partitions in <code>rdd</code> to <code>n</code>.
-  Useful for running operations more efficiently after filtering down a large dataset.</p>
-</td><td class="codes"><pre class="brush: clojure">(defn coalesce
-  [rdd n]
-  (.coalesce rdd n))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#flambo.conf" name="flambo.conf"><h1 class="project-name">flambo.conf</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><p>Functions for creating and modifying <code>SparkConf</code> objects</p>
+  (.take rdd cnt))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#flambo.conf" name="flambo.conf"><h1 class="project-name">flambo.conf</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><p>Functions for creating and modifying <code>SparkConf</code> objects</p>
 
 <p>The functions are designed to be used with the threading macro <code>-&gt;</code> for building
 objects to pass into <code>spark-context</code>.</p>
@@ -3471,17 +3500,31 @@ objects to pass into <code>spark-context</code>.</p>
 
 <p>This code as well as SparkSQL itself are considered experimental.</p>
 </td><td class="codes"><pre class="brush: clojure">(ns flambo.sql
-  (:import [org.apache.spark.sql.api.java JavaSQLContext]))</pre></td></tr><tr><td class="docs"><h2>JavaSQLContext</h2>
+  (:require [flambo.api :as f :refer [defsparkfn]])
+  (:import [org.apache.spark.sql.api.java JavaSQLContext Row]
+           [org.apache.spark.sql SQLContext]))</pre></td></tr><tr><td class="docs"><h2>JavaSQLContext</h2>
 </td><td class="codes"><pre class="brush: clojure">(defn sql-context [spark-context]
   (JavaSQLContext. spark-context))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn sql [sql-context query]
   (.sql sql-context query))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn parquet-file [sql-context path]
   (.parquetFile sql-context path))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn json-file [sql-context path]
+  (.jsonFile sql-context path))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn register-rdd-as-table [sql-context rdd table-name]
-  (.registerRDDAsTable sql-context rdd table-name))</pre></td></tr><tr><td class="docs"><h2>JavaSchemaRDD</h2>
+  (.registerRDDAsTable sql-context rdd table-name))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn cache-table [sql-context table-name]
+  (let [scala-sql-context (.sqlContext sql-context)]
+    (.cacheTable scala-sql-context table-name)))</pre></td></tr><tr><td class="docs"><h2>JavaSchemaRDD</h2>
 </td><td class="codes"><pre class="brush: clojure">(defn register-as-table [rdd table-name]
-  (.registerAsTable rdd table-name))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#flambo.streaming" name="flambo.streaming"><h1 class="project-name">flambo.streaming</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>EXPERIMENTAL</h2>
+  (.registerAsTable rdd table-name))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(def print-schema (memfn printSchema))</pre></td></tr><tr><td class="docs"><h2>Row</h2>
+</td><td class="codes"><pre class="brush: clojure">(defsparkfn row-&gt;vec [^Row row]
+  (let [n (.length row)]
+    (loop [i 0 v (transient [])]
+      (if (&lt; i n)
+        (recur (inc i) (conj! v (.get row i)))
+        (persistent! v)))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#flambo.streaming" name="flambo.streaming"><h1 class="project-name">flambo.streaming</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>EXPERIMENTAL</h2>
 
 <p>This is a partial and mostly untested implementation of
 Spark Streaming; consider it a work in progress.</p>
