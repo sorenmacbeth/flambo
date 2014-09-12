@@ -206,18 +206,27 @@
 
 (defn group-by
   "Returns an RDD of items grouped by the return value of function `f`."
-  [rdd f]
-  (-> rdd
-      (.groupBy (function f))
-      (.map (function group-untuple))))
+  ([rdd f]
+     (-> rdd
+         (.groupBy (function f))
+         (.map (function group-untuple))))
+  ([rdd f n]
+     (-> rdd
+         (.groupBy (function f) n)
+         (.map (function group-untuple)))))
 
 (defn group-by-key
   "Groups the values for each key in `rdd` into a single sequence."
-  [rdd]
-  (-> rdd
-      (map-to-pair identity)
-      .groupByKey
-      (.map (function group-untuple))))
+  ([rdd]
+     (-> rdd
+         (map-to-pair identity)
+         .groupByKey
+         (.map (function group-untuple))))
+  ([rdd n]
+     (-> rdd
+         (map-to-pair identity)
+         (.groupByKey n)
+         (.map (function group-untuple)))))
 
 (defn combine-by-key
   "Combines the elements for each key using a custom set of aggregation functions.
@@ -228,13 +237,21 @@
   -- createCombiner, which turns a V into a C (e.g., creates a one-element list)
   -- mergeValue, to merge a V into a C (e.g., adds it to the end of a list)
   -- mergeCombiners, to combine two C's into a single one."
-  [rdd create-combiner merge-value merge-combiners]
-  (-> rdd
-      (map-to-pair identity)
-      (.combineByKey (function create-combiner)
-                     (function2 merge-value)
-                     (function2 merge-combiners))
-      (.map (function untuple))))
+  ([rdd create-combiner merge-value merge-combiners]
+     (-> rdd
+         (map-to-pair identity)
+         (.combineByKey (function create-combiner)
+                        (function2 merge-value)
+                        (function2 merge-combiners))
+         (.map (function untuple))))
+  ([rdd create-combiner merge-value merge-combiners n]
+     (-> rdd
+         (map-to-pair identity)
+         (.combineByKey (function create-combiner)
+                        (function2 merge-value)
+                        (function2 merge-combiners)
+                        n)
+         (.map (function untuple)))))
 
 (defn sort-by-key
   "When called on `rdd` of (K, V) pairs where K implements ordered, returns a dataset of
@@ -287,6 +304,19 @@
   [rdd with-replacement? fraction seed]
   (.sample rdd with-replacement? fraction seed))
 
+(defn coalesce
+  "Decrease the number of partitions in `rdd` to `n`.
+  Useful for running operations more efficiently after filtering down a large dataset."
+  ([rdd n]
+     (.coalesce rdd n))
+  ([rdd n shuffle?]
+     (.coalesce rdd n shuffle?)))
+
+(defn repartition
+  "Returns a new `rdd` with exactly `n` partitions."
+  [rdd n]
+  (.repartition rdd n))
+
 ;; ## Actions
 ;;
 ;; Action return their results to the driver process.
@@ -299,6 +329,12 @@
         (-> rdd
             (map-to-pair identity)
             .countByKey)))
+
+(defn count-by-value
+  "Return the count of each unique value in `rdd` as a map of (value, count)
+  pairs."
+  [rdd]
+  (into {} (.countByValue rdd)))
 
 (defn save-as-text-file
   "Writes the elements of `rdd` as a text file (or set of text files)
@@ -343,9 +379,12 @@
   "Returns all the elements of `rdd` as an array at the driver process."
   (memfn collect))
 
-(def distinct
+(defn distinct
   "Return a new RDD that contains the distinct elements of the source `rdd`."
-  (memfn distinct))
+  ([rdd]
+     (.distinct rdd))
+  ([rdd n]
+     (.distinct rdd n)))
 
 (defn take
   "Return an array with the first n elements of `rdd`.
@@ -353,9 +392,3 @@
   program computes all the elements)."
   [rdd cnt]
   (.take rdd cnt))
-
-(defn coalesce
-  "Decrease the number of partitions in `rdd` to `n`.
-  Useful for running operations more efficiently after filtering down a large dataset."
-  [rdd n]
-  (.coalesce rdd n))
