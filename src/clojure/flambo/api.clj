@@ -114,6 +114,9 @@
   [f]
   (fn [x] (u/truthy? (f x))))
 
+;; TODO: accumulators
+;; http://spark.apache.org/docs/latest/programming-guide.html#accumulators
+
 ;; ## RDD construction
 ;;
 ;; Function for constructing new RDDs
