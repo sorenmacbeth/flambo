@@ -19,8 +19,9 @@ public class BaseFlamboRegistrator implements KryoRegistrator {
 
       // we have to reflect this scala class since it's private wheeee
       // and grouping returns these, will be fixed in spark 1.0.1
-      Class cls = Class.forName("scala.collection.convert.Wrappers$IterableWrapper");
-      kryo.register(cls, new JavaIterableWrapperSerializer());
+
+      // Class cls = Class.forName("scala.collection.convert.Wrappers$IterableWrapper");
+      // kryo.register(cls, new JavaIterableWrapperSerializer());
 
       register(kryo);
 
@@ -31,11 +32,11 @@ public class BaseFlamboRegistrator implements KryoRegistrator {
         problem.
       */
 
-      kryo.register(scala.collection.convert.Wrappers.IteratorWrapper.class);
-      kryo.register(scala.collection.convert.Wrappers.SeqWrapper.class);
-      kryo.register(scala.collection.convert.Wrappers.MapWrapper.class);
-      kryo.register(scala.collection.convert.Wrappers.JListWrapper.class);
-      kryo.register(scala.collection.convert.Wrappers.JMapWrapper.class);
+      // kryo.register(scala.collection.convert.Wrappers.IteratorWrapper.class);
+      // kryo.register(scala.collection.convert.Wrappers.SeqWrapper.class);
+      // kryo.register(scala.collection.convert.Wrappers.MapWrapper.class);
+      // kryo.register(scala.collection.convert.Wrappers.JListWrapper.class);
+      // kryo.register(scala.collection.convert.Wrappers.JMapWrapper.class);
 
     } catch (Exception e) {
       throw new RuntimeException("Failed to register kryo!");
