@@ -39,7 +39,7 @@ public class BaseFlamboRegistrator implements KryoRegistrator {
       // kryo.register(scala.collection.convert.Wrappers.JMapWrapper.class);
 
     } catch (Exception e) {
-      throw new RuntimeException("Failed to register kryo!");
+      throw new RuntimeException("Failed to register kryo!",e);
     }
   }
 }
