@@ -18,7 +18,7 @@
     x))
 
 (defn truthy? [x]
-  (if x (Boolean. true) (Boolean. false)))
+  (if x (Boolean/TRUE) (Boolean/FALSE)))
 
 (defn as-integer [s]
   (Integer. s))

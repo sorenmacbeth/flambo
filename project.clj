@@ -4,18 +4,19 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.6.0"]
-                 [org.clojure/tools.logging "0.2.6"]
+                 [org.clojure/tools.logging "0.3.1"]
                  [yieldbot/serializable-fn "0.0.6"
                   :exclusions [com.twitter/chill-java]]
                  [com.twitter/carbonite "1.4.0"
                   :exclusions [com.twitter/chill-java]]
-                 [com.twitter/chill_2.10 "0.3.6"
+                 [com.twitter/chill_2.10 "0.5.0"
                   :exclusions [org.scala-lang/scala-library]]]
   :profiles {:dev
              {:dependencies [[midje "1.6.3"]
                              [criterium "0.4.3"]]
               :plugins [[lein-midje "3.1.3"]
                         [lein-marginalia "0.8.0"]
+                        [lein-ancient "0.5.4"]
                         [codox "0.8.9"]]
               ;; so gen-class stuff works in the repl
               :aot [flambo.function
@@ -37,4 +38,4 @@
           :src-linenum-anchor-prefix "L"}
   :javac-options ["-source" "1.6" "-target" "1.6"]
   :jvm-opts ^:replace ["-server" "-Xmx1g"]
-  :global-vars {*warn-on-reflection* false})
+  :global-vars {*warn-on-reflection* true})
