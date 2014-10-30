@@ -10,7 +10,17 @@
                  [com.twitter/carbonite "1.4.0"
                   :exclusions [com.twitter/chill-java]]
                  [com.twitter/chill_2.10 "0.5.0"
-                  :exclusions [org.scala-lang/scala-library]]]
+                  :exclusions [org.scala-lang/scala-library]]
+
+                 ;; [AVRO Feature] This adds support for reading avro files
+                 [com.damballa/parkour "0.6.0"]
+                 [org.apache.avro/avro "1.7.5"]
+                 [org.apache.avro/avro-mapred "1.7.5"  :exclusions [org.slf4j/slf4j-log4j12 org.mortbay.jetty/servlet-api com.thoughtworks.paranamer/paranamer io.netty/netty commons-lang]]
+                 [com.damballa/abracad "0.4.11" :exclusions [org.apache.avro/avro]]
+                 ;; [/AVRO Feature]
+
+
+                 ]
   :profiles {:dev
              {:dependencies [[midje "1.6.3"]
                              [criterium "0.4.3"]]
@@ -18,8 +28,10 @@
                         [lein-marginalia "0.8.0"]
                         [lein-ancient "0.5.4"]
                         [codox "0.8.9"]]
+              :resource-paths ["data"]
               ;; so gen-class stuff works in the repl
               :aot [flambo.function
+                    flambo.scalaInterop
                     flambo.example.tfidf]}
              :provided
              {:dependencies
@@ -38,4 +50,4 @@
           :src-linenum-anchor-prefix "L"}
   :javac-options ["-source" "1.6" "-target" "1.6"]
   :jvm-opts ^:replace ["-server" "-Xmx1g"]
-  :global-vars {*warn-on-reflection* true})
+  :global-vars {*warn-on-reflection* false})

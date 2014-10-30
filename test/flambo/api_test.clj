@@ -141,7 +141,8 @@
                       (-> (f/parallelize c [0 1 2 3 4 5 6 7 8 9])
                           (f/sample false 0.1 2)
                           f/collect
-                          vec) => [6])
+                          vec
+                          count) => #(<= 1 %1 2))
 
                     (fact
                       "combine-by-key returns an RDD by combining the elements for each key using a custom
@@ -330,7 +331,16 @@
                                       (f/cache))]
                         (-> cache
                             f/collect) => [1 2 3 4 5]))
+                    )))
 
+
+(facts
+  "about other stuff"
+
+  (let [conf (-> (conf/spark-conf)
+                 (conf/master "local[*]")
+                 (conf/app-name "api-test"))]
+    (f/with-context c conf
                     (fact
                       "comp is the same as clojure.core/comp but returns a serializable fn"
                       ((f/comp (partial * 2) inc) 1) => 4
