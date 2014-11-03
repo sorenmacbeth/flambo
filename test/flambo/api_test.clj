@@ -198,6 +198,19 @@
             f/collect
             vec) => [["Four" 1] ["score" 1] ["and" 1] ["seven" 1] ["years" 1] ["ago" 1]])
 
+      (fact
+        "map-partition"
+        (-> (f/parallelize c [0 1 2 3 4])
+            (f/map-partition (f/fn [it] (map identity (iterator-seq it))))
+            f/collect) => [0 1 2 3 4])
+
+      (fact
+        "map-partition-with-index"
+        (-> (f/parallelize c [0 1 2 3 4])
+            (f/repartition 4)
+            (f/map-partition-with-index (f/fn [i it] (.iterator (map identity (iterator-seq it)))))
+            f/collect) => [0 1 2 3 4])
+
       (future-fact "repartition returns a new RDD with exactly n partitions")
 
       )))
@@ -237,6 +250,11 @@
         "foreach runs a function on each element of the RDD, returns nil; this is usually done for side effcts"
         (-> (f/parallelize c [1 2 3 4 5])
             (f/foreach (f/fn [x] x))) => nil)
+
+      (fact
+        "foreach-partition runs a function on each partition iterator of RDD; basically for side effects like foreach"
+        (-> (f/parallelize c [1 2 3 4 5])
+            (f/foreach-partition (f/fn [it] (iterator-seq it)))) => nil)
 
       (fact
         "fold returns aggregate each partition, and then the results for all the partitions,
