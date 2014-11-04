@@ -11,8 +11,7 @@
 ;;
 (ns flambo.api
   (:refer-clojure :exclude [fn map reduce first count take distinct filter group-by])
-  (:require [serializable.fn :as sfn]
-            [clojure.tools.logging :as log]
+  (:require [clojure.tools.logging :as log]
             [flambo.function :refer [flat-map-function
                                      flat-map-function2
                                      function
@@ -29,9 +28,7 @@
            (java.util Comparator)
            (org.apache.spark.api.java JavaSparkContext StorageLevels)
            org.apache.spark.api.java.JavaRDD
-           (org.apache.spark.rdd PartitionwiseSampledRDD)
-           (flambo.function Function Function2 Function3 VoidFunction FlatMapFunction
-                            PairFunction PairFlatMapFunction)))
+           (org.apache.spark.rdd PartitionwiseSampledRDD)))
 
 ;; flambo makes extensive use of kryo to serialize and deserialize clojure functions
 ;; and data structures. Here we ensure that these properties are set so they are inhereted
@@ -55,7 +52,7 @@
 
 (defmacro fn
   [& body]
-  `(sfn/fn ~@body))
+  `(clojure.core/fn ~@body))
 
 (defmacro defsparkfn
   [name & body]

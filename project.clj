@@ -5,8 +5,6 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [org.clojure/tools.logging "0.2.6"]
-                 [yieldbot/serializable-fn "0.0.6"
-                  :exclusions [com.twitter/chill-java]]
                  [com.twitter/carbonite "1.4.0"
                   :exclusions [com.twitter/chill-java]]
                  [com.twitter/chill_2.10 "0.3.6"
@@ -17,8 +15,8 @@
               :plugins [[lein-midje "3.1.3"]
                         [lein-marginalia "0.8.0"]
                         [codox "0.8.9"]]
-              ;; so gen-class stuff works in the repl
-              :aot [flambo.function
+              :aot [flambo.api
+                    flambo.function
                     flambo.example.tfidf]}
              :provided
              {:dependencies
@@ -26,6 +24,10 @@
                [org.apache.spark/spark-streaming_2.10 "1.1.0"]
                [org.apache.spark/spark-streaming-kafka_2.10 "1.1.0"]
                [org.apache.spark/spark-sql_2.10 "1.1.0"]]}
+             :test
+             {:aot [flambo.api
+                    flambo.function
+                    flambo.api-test]}
              :uberjar
              {:aot :all}}
   :source-paths ["src/clojure"]

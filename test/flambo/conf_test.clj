@@ -1,18 +1,15 @@
 (ns flambo.conf-test
-  (:use midje.sweet)
+  (:use clojure.test)
   (:require [flambo.conf :as conf]))
 
-(facts
- "about setting k/v into spark-conf"
- (let [c (conf/spark-conf)]
-   (fact
-    "spark-conf returns a SparkConf object"
-    (class c) => org.apache.spark.SparkConf)
+(deftest spark-conf
+  "about setting k/v into spark-conf"
+  (let [c (conf/spark-conf)]
+    (testing "spark-conf returns a SparkConf object"
+      (is (= (class c) org.apache.spark.SparkConf)))
 
-   (fact
-    "setting master works"
-    (conf/get (conf/master c "local") "spark.master") => "local")
+    (testing "setting master works"
+      (is (= (conf/get (conf/master c "local") "spark.master") "local")))
 
-   (fact
-    "setting app-name works"
-    (conf/get (conf/app-name c "test") "spark.app.name") => "test")))
+    (testing "setting app-name works"
+      (is (= (conf/get (conf/app-name c "test") "spark.app.name") "test")))))

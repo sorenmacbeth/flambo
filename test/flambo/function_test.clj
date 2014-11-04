@@ -1,3 +1,3 @@
 (ns flambo.function-test
-  (:use midje.sweet)
+  (:use clojure.test)
   (:require [flambo.function :as func]))
