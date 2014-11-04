@@ -4,9 +4,10 @@
 ;; Spark Streaming; consider it a work in progress.
 ;;
 (ns flambo.streaming
-  (:refer-clojure :exclude [map time print union])
+  (:refer-clojure :exclude [filter map time print union])
   (:require [flambo.api :as f]
             [flambo.conf :as conf]
+            [flambo.utils :as u]
             [flambo.function :refer [flat-map-function
                                      function
                                      function2
@@ -31,6 +32,17 @@
                  (conf/app-name app-name))]
     (streaming-context conf duration)))
 
+
+(defn start [streaming-context]
+  (.start streaming-context))
+
+(defn await-termination [streaming-context]
+  (.awaitTermination streaming-context))
+
+(defn stop [streaming-context]
+  (.stop streaming-context true true))
+
+
 (defmulti checkpoint (fn [context arg] (class arg)))
 (defmethod checkpoint java.lang.String [streaming-context path] (.checkpoint streaming-context path))
 (defmethod checkpoint java.lang.Long [dstream interval] (.checkpoint dstream (duration interval)))
@@ -48,10 +60,15 @@
   (.map dstream (function f)))
 
 (defn reduce-by-key [dstream f]
-  (-> dstream
+    (-> dstream
       (.map (pair-function identity))
       (.reduceByKey (function2 f))
       (.map (function f/untuple))))
+
+
+(defn sfilter [dstream f]
+  (.filter dstream (function f)))
+
 
 
 ;; ## Transformations
@@ -92,7 +109,12 @@
 
 ;; ## Actions
 ;;
+
+
 (def print (memfn print))
+
+(defn sprint [dstream]
+  (.print dstream))
 
 (defn foreach-rdd [dstream f]
   (.foreachRDD dstream (function2 f)))
