@@ -10,7 +10,7 @@
 ;; happily accepted!
 ;;
 (ns flambo.api
-  (:refer-clojure :exclude [fn map reduce first count take distinct filter group-by])
+  (:refer-clojure :exclude [fn map reduce first count take distinct filter group-by values])
   (:require [serializable.fn :as sfn]
             [clojure.tools.logging :as log]
             [flambo.function :refer [flat-map-function
@@ -163,6 +163,13 @@
   computed correctly in parallel."
   [rdd f]
   (.reduce rdd (function2 f)))
+
+(defn values
+  "Returns the values of a JavaPairRDD"
+  [rdd]
+  (-> rdd
+      (map-to-pair identity)
+      .values))
 
 (defn flat-map
   "Similar to `map`, but each input item can be mapped to 0 or more output items (so the
