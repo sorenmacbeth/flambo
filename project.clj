@@ -1,4 +1,4 @@
-(defproject yieldbot/flambo "0.4.1-SNAPSHOT"
+(defproject yieldbot/flambo "0.4.0-SNAPSHOT"
   :description "A Clojure DSL for Apache Spark"
   :url "https://github.com/yieldbot/flambo"
   :license {:name "Eclipse Public License"
@@ -19,10 +19,9 @@
                         [codox "0.8.9"]]
               ;; so gen-class stuff works in the repl
               :aot [flambo.function
-                    ;; flambo.example.tfidf
+                    flambo.example.tfidf
                     flambo.streaming
                     flambo.api
-                    ;; flambo.conf
                     ]}
              :provided
              {:dependencies
