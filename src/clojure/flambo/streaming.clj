@@ -4,9 +4,10 @@
 ;; Spark Streaming; consider it a work in progress.
 ;;
 (ns flambo.streaming
-  (:refer-clojure :exclude [map time print union])
+  (:refer-clojure :exclude [filter map time print union])
   (:require [flambo.api :as f]
             [flambo.conf :as conf]
+            [flambo.utils :as u]
             [flambo.function :refer [flat-map-function
                                      function
                                      function2
@@ -31,15 +32,38 @@
                  (conf/app-name app-name))]
     (streaming-context conf duration)))
 
+(defn start
+  "Start the execution of the streams"
+  [streaming-context]
+  (.start streaming-context))
+
+(defn await-termination
+  "Wait for the execution to stop"
+  [streaming-context]
+  (.awaitTermination streaming-context))
+
+(defn stop
+  "Stop the execution stream with with option of ensuring all received data has been processed"
+  [streaming-context]
+  (.stop streaming-context true true))
+
 (defmulti checkpoint (fn [context arg] (class arg)))
-(defmethod checkpoint java.lang.String [streaming-context path] (.checkpoint streaming-context path))
-(defmethod checkpoint java.lang.Long [dstream interval] (.checkpoint dstream (duration interval)))
+
+(defmethod checkpoint java.lang.String
+  [streaming-context path]
+  (.checkpoint streaming-context path))
+
+(defmethod checkpoint java.lang.Long
+  [dstream interval]
+  (.checkpoint dstream (duration interval)))
 
 (defn socket-text-stream [context ip port]
   (.socketTextStream context ip port))
 
 (defn kafka-stream [& {:keys [streaming-context zk-connect group-id topic-map]}]
-  (KafkaUtils/createStream streaming-context zk-connect group-id (into {} (for [[k, v] topic-map] [k (Integer. v)]))))
+  (KafkaUtils/createStream streaming-context zk-connect group-id
+                           (into {} (for [[k, v] topic-map]
+                                      [k (Integer. v)]))))
 
 (defn flat-map [dstream f]
   (.flatMap dstream (flat-map-function f)))
@@ -47,11 +71,15 @@
 (defn map [dstream f]
   (.map dstream (function f)))
 
+(defn filter [dstream f]
+  (.filter dstream (function f)))
+
 (defn reduce-by-key [dstream f]
-  (-> dstream
-      (.map (pair-function identity))
+    (-> dstream
+      (.mapToPair (pair-function identity))
       (.reduceByKey (function2 f))
       (.map (function f/untuple))))
+
 
 
 ;; ## Transformations
@@ -76,7 +104,7 @@
 
 (defn group-by-key-and-window [dstream window-length slide-interval]
   (-> dstream
-      (.map (pair-function identity))
+      (.mapToPair (pair-function identity))
       (.groupByKeyAndWindow (duration window-length) (duration slide-interval))
       (.map (function f/untuple))))
 
@@ -85,14 +113,16 @@
 
 (defn reduce-by-key-and-window [dstream f window-length slide-interval]
   (-> dstream
-      (.map (pair-function identity))
+      (.mapToPair (pair-function identity))
       (.reduceByKeyAndWindow (function2 f) (duration window-length) (duration slide-interval))
       (.map (function f/untuple))))
 
 
 ;; ## Actions
 ;;
-(def print (memfn print))
+
+(defn print [dstream]
+  (.print dstream))
 
 (defn foreach-rdd [dstream f]
   (.foreachRDD dstream (function2 f)))
