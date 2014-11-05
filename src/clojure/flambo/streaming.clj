@@ -49,7 +49,7 @@
 
 (defn reduce-by-key [dstream f]
   (-> dstream
-      (.map (pair-function identity))
+      (.mapToPair (pair-function identity))
       (.reduceByKey (function2 f))
       (.map (function f/untuple))))
 
@@ -76,7 +76,7 @@
 
 (defn group-by-key-and-window [dstream window-length slide-interval]
   (-> dstream
-      (.map (pair-function identity))
+      (.mapToPair (pair-function identity))
       (.groupByKeyAndWindow (duration window-length) (duration slide-interval))
       (.map (function f/untuple))))
 
@@ -85,7 +85,7 @@
 
 (defn reduce-by-key-and-window [dstream f window-length slide-interval]
   (-> dstream
-      (.map (pair-function identity))
+      (.mapToPair (pair-function identity))
       (.reduceByKeyAndWindow (function2 f) (duration window-length) (duration slide-interval))
       (.map (function f/untuple))))
 
