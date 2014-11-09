@@ -10,7 +10,7 @@
 ;; happily accepted!
 ;;
 (ns flambo.api
-  (:refer-clojure :exclude [fn map reduce first count take distinct filter group-by values])
+  (:refer-clojure :exclude [fn map reduce first count take distinct filter group-by values partition-by keys comp])
   (:require [serializable.fn :as sfn]
             [clojure.tools.logging :as log]
             [flambo.function :refer [flat-map-function
@@ -24,11 +24,12 @@
             [flambo.conf :as conf]
             [flambo.utils :as u]
             [flambo.kryo :as k])
-  (:import (scala Tuple2)
+  (:import [scala Tuple2]
            [scala.reflect ClassTag$]
            (java.util Comparator)
            (org.apache.spark.api.java JavaSparkContext StorageLevels)
-           org.apache.spark.api.java.JavaRDD
+           [org.apache.spark.api.java JavaRDD JavaPairRDD]
+           [org.apache.spark HashPartitioner]
            (org.apache.spark.rdd PartitionwiseSampledRDD)
            (flambo.function Function Function2 Function3 VoidFunction FlatMapFunction
                             PairFunction PairFlatMapFunction)))
@@ -206,10 +207,6 @@
   [rdd f]
   (.foreach rdd (void-function f)))
 
-(defn foreach-partition
-  "Applies the function `f` to each partition iterator of `rdd`."
-  [rdd f]
-  (.foreachPartition rdd (void-function f)))
 
 (defn aggregate
   "Aggregates the elements of each partition, and then the results for all the partitions,
@@ -420,3 +417,104 @@
   program computes all the elements)."
   [rdd cnt]
   (.take rdd cnt))
+
+
+;; TODO defsparkfn should accept docstring, keep meta information from defn like location etc.
+
+(defn comp
+  "Takes a set of functions and returns a fn that is the composition
+  of those fns.  The returned fn takes a variable number of args,
+  applies the rightmost of fns to the args, the next
+  fn (right-to-left) to the result, etc."
+  {:added  "1.0"
+   :static true}
+  ([] identity)
+  ([f] f)
+  ([f g]
+   (fn
+     ([] (f (g)))
+     ([x] (f (g x)))
+     ([x y] (f (g x y)))
+     ([x y z] (f (g x y z)))
+     ([x y z & args] (f (apply g x y z args)))))
+  ([f g h]
+   (fn
+     ([] (f (g (h))))
+     ([x] (f (g (h x))))
+     ([x y] (f (g (h x y))))
+     ([x y z] (f (g (h x y z))))
+     ([x y z & args] (f (g (apply h x y z args))))))
+  ([f1 f2 f3 & fs]
+   (let [fs (reverse (list* f1 f2 f3 fs))]
+     (fn [& args]
+           (loop [ret (apply (first fs) args) fs (next fs)]
+             (if fs
+               (recur ((first fs) ret) (next fs))
+               ret))))))
+
+(defn partitions
+  "Returns a vector of partitions for a given JavaRDD"
+  [^JavaRDD javaRdd]
+  (into [] (.partitions (.rdd javaRdd))))
+
+
+(defn hash-partitioner-fn [n]
+  (fn [rdd]
+      (HashPartitioner. n)))
+
+(defn partition-by
+  [^JavaRDD rdd partitioner-fn]
+  (-> rdd
+      (map-to-pair identity)
+      ^JavaPairRDD ((fn [^JavaPairRDD rdd] (.partitionBy rdd (partitioner-fn rdd))))
+      (.map (function untuple))))
+
+
+(defn foreach-partition
+  "Applies the function `f` to all elements of `rdd`."
+  [^JavaRDD rdd f]
+  (.foreachPartition rdd (void-function (comp f iterator-seq))))
+
+
+
+
+(defn key-by
+  "Creates tuples of the elements in this RDD by applying `f`."
+  [^JavaRDD rdd f]
+  (map rdd (fn [x] [(f x) x])))
+
+(defn keys
+  "Return an RDD with the keys of each tuple."
+  [^JavaRDD rdd]
+  (-> rdd
+      ^JavaPairRDD
+      (map-to-pair identity)
+      .keys))
+
+(defn union
+  "Return the union of two RDDs."
+  [^JavaRDD rdd1 ^JavaRDD rdd2]                             ;; todo: allow more than two RDDs to be 'union'ed.
+  (.union rdd1 rdd2))
+
+(defsparkfn seqify-untuple [^Tuple2 t]
+              (let [k (._1 t)
+                    v ^Tuple2 (._2 t)]
+                [k [(seq (._1 v)) (seq (._2 v))]]))
+
+(defn cogroup [^JavaPairRDD rdd ^JavaPairRDD other]
+  (-> rdd
+      ^JavaPairRDD
+      (map-to-pair identity)
+      (.cogroup (map-to-pair other identity))
+      (map seqify-untuple)))
+
+
+(defn checkpoint [^JavaRDD rdd]
+  (.checkpoint rdd))
+
+
+(defn rdd-name
+  ([^JavaRDD rdd name]
+   (.setName rdd name))
+  ([^JavaRDD rdd]
+   (.name rdd)))
