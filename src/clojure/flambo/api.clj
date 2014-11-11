@@ -420,3 +420,16 @@
   program computes all the elements)."
   [rdd cnt]
   (.take rdd cnt))
+
+(defmulti histogram "compute histogram of an RDD of doubles"
+  (fn [_ arg & _] (type arg)))
+
+(defmethod histogram Long [rdd bucket-count]
+  (let [[buckets counts] (-> (JavaDoubleRDD/fromRDD (.rdd rdd))
+                             (.histogram bucket-count)
+                             untuple)]
+    [(into [] buckets) (into [] counts)]))
+
+(defmethod histogram :default [rdd buckets]
+  (-> (JavaDoubleRDD/fromRDD (.rdd rdd))
+      (.histogram (double-array buckets))))
