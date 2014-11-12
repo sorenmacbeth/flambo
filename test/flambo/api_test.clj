@@ -209,7 +209,8 @@
         (-> (f/parallelize c [0 1 2 3 4])
             (f/repartition 4)
             (f/map-partition-with-index (f/fn [i it] (.iterator (map identity (iterator-seq it)))))
-            f/collect) => [0 1 2 3 4])
+            f/collect
+            vec) => (just [0 1 2 3 4] :in-any-order))
 
       (future-fact "repartition returns a new RDD with exactly n partitions")
 

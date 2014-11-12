@@ -27,8 +27,8 @@
   (:import (scala Tuple2)
            [scala.reflect ClassTag$]
            (java.util Comparator)
-           (org.apache.spark.api.java JavaSparkContext StorageLevels)
-           org.apache.spark.api.java.JavaRDD
+           (org.apache.spark.api.java JavaSparkContext StorageLevels
+                                      JavaRDD JavaDoubleRDD)
            (org.apache.spark.rdd PartitionwiseSampledRDD)
            (flambo.function Function Function2 Function3 VoidFunction FlatMapFunction
                             PairFunction PairFlatMapFunction)))
