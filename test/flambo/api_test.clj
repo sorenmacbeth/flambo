@@ -25,9 +25,10 @@
       "union concats two RDDs"
       (let [rdd1 (f/parallelize c [1 2 3 4])
             rdd2 (f/parallelize c [11 12 13])
-            rdd3 (f/parallelize c [21 22 23])
-            union-rdd (f/union c rdd1 rdd2 rdd3)]
-        (vec (f/collect union-rdd))) => (just [1 2 3 4 11 12 13 21 22 23])))))
+            rdd3 (f/parallelize c [21 22 23])]
+        (-> (f/union c rdd1 rdd2 rdd3)
+            f/collect
+            vec) => (just [1 2 3 4 11 12 13 21 22 23] :in-any-order))))))
 
 (facts
  "about serializable functions"
