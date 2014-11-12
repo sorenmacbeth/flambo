@@ -322,4 +322,14 @@
                         (f/cache))]
           (-> cache
               f/collect) => [1 2 3 4 5]))
+
+      (fact
+       "histogram uses bucketCount number of evenly-spaced buckets"
+       (-> (f/parallelize c [1.0 2.2 2.6 3.3 3.5 3.7 4.4 4.8 5.5 6.0])
+           (f/histogram 5)) => [[1.0 2.0 3.0 4.0 5.0 6.0] [1 2 3 2 2]])
+
+      (fact
+       "histogram uses the provided buckets"
+       (-> (f/parallelize c [1.0 2.2 2.6 3.3 3.5 3.7 4.4 4.8 5.5 6.0])
+           (f/histogram [1.0 4.0 6.0])) => [6 4])
       )))
