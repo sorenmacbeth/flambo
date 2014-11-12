@@ -29,6 +29,7 @@
            (java.util Comparator)
            (org.apache.spark.api.java JavaSparkContext StorageLevels)
            org.apache.spark.api.java.JavaRDD
+           org.apache.spark.api.java.JavaDoubleRDD
            (org.apache.spark.rdd PartitionwiseSampledRDD)
            (flambo.function Function Function2 Function3 VoidFunction FlatMapFunction
                             PairFunction PairFlatMapFunction)))
@@ -422,14 +423,15 @@
   (.take rdd cnt))
 
 (defmulti histogram "compute histogram of an RDD of doubles"
-  (fn [_ arg & _] (type arg)))
+  (fn [_ bucket-arg] (sequential? bucket-arg)))
 
-(defmethod histogram Long [rdd bucket-count]
+(defmethod histogram true [rdd buckets]
+  (let [counts (-> (JavaDoubleRDD/fromRDD (.rdd rdd))
+                   (.histogram (double-array buckets)))]
+       (into [] counts)))
+
+(defmethod histogram false [rdd bucket-count]
   (let [[buckets counts] (-> (JavaDoubleRDD/fromRDD (.rdd rdd))
                              (.histogram bucket-count)
                              untuple)]
     [(into [] buckets) (into [] counts)]))
-
-(defmethod histogram :default [rdd buckets]
-  (-> (JavaDoubleRDD/fromRDD (.rdd rdd))
-      (.histogram (double-array buckets))))
