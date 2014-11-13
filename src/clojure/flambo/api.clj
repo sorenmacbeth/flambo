@@ -132,6 +132,11 @@
   ([spark-context lst] (.parallelize spark-context lst))
   ([spark-context lst num-slices] (.parallelize spark-context lst num-slices)))
 
+(defn union
+  "Build the union of two or more RDDs"
+  [context rdd & rdds]
+  (.union context rdd (java.util.ArrayList. rdds)))
+
 (defn partitionwise-sampled-rdd [rdd sampler preserve-partitioning? seed]
   "Creates a PartitionwiseSampledRRD from existing RDD and a sampler object"
   (-> (PartitionwiseSampledRDD.
