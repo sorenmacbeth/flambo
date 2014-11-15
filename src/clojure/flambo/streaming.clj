@@ -53,10 +53,17 @@
   (.map dstream (function f)))
 
 (defn reduce-by-key [dstream f]
-  (-> dstream
+  "Call reduceByKey on dstream of type JavaDStream or JavaPairDStream"
+  (if (instance? org.apache.spark.streaming.api.java.JavaDStream dstream)
+    ;; JavaDStream doesn't have a .reduceByKey so cast to JavaPairDStream first
+    (-> dstream
       (.mapToPair (pair-function identity))
       (.reduceByKey (function2 f))
-      (.map (function f/untuple))))
+      (.map (function f/untuple)))
+    ;; if it's already JavaPairDStream, we're good
+    (-> dstream
+        (.reduceByKey (function2 f))
+        (.map (function f/untuple)))))
 
 (defn map-to-pair [dstream f]
   (.mapToPair dstream (pair-function f)))
