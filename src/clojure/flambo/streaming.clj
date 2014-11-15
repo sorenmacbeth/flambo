@@ -12,7 +12,7 @@
                                      function2
                                      pair-function
                                      void-function]])
-  (:import [org.apache.spark.streaming.api.java JavaStreamingContext]
+  (:import [org.apache.spark.streaming.api.java JavaStreamingContext JavaDStream]
            [org.apache.spark.streaming.kafka KafkaUtils]
            [org.apache.spark.streaming Duration Time]))
 
@@ -22,7 +22,7 @@
 (defn time [ms]
   (Time. ms))
 
-(defn streaming-context 
+(defn streaming-context
   "conf can be a SparkConf or JavaSparkContext"
   [conf batch-duration]
   (JavaStreamingContext. conf (duration batch-duration)))
@@ -34,8 +34,8 @@
     (streaming-context conf duration)))
 
 (defmulti checkpoint (fn [context arg] (class arg)))
-(defmethod checkpoint java.lang.String [streaming-context path] (.checkpoint streaming-context path))
-(defmethod checkpoint java.lang.Long [dstream interval] (.checkpoint dstream (duration interval)))
+(defmethod checkpoint String [streaming-context path] (.checkpoint streaming-context path))
+(defmethod checkpoint Long [dstream interval] (.checkpoint dstream (duration interval)))
 
 (defn text-file-stream [context file-path]
   (.textFileStream context file-path))
@@ -54,7 +54,7 @@
 
 (defn reduce-by-key [dstream f]
   "Call reduceByKey on dstream of type JavaDStream or JavaPairDStream"
-  (if (instance? org.apache.spark.streaming.api.java.JavaDStream dstream)
+  (if (instance? JavaDStream dstream)
     ;; JavaDStream doesn't have a .reduceByKey so cast to JavaPairDStream first
     (-> dstream
       (.mapToPair (pair-function identity))
