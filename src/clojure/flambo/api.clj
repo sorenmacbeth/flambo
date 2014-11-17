@@ -237,6 +237,12 @@
       (.reduceByKey (function2 f))
       (.map (function untuple))))
 
+(defn cartesian
+  "Creates the cartesian product of two RDDs returning an RDD of pairs"
+  [rdd1 rdd2]
+  (-> (.cartesian rdd1 rdd2)
+    (.map (function untuple))))
+
 (defn group-by
   "Returns an RDD of items grouped by the return value of function `f`."
   ([rdd f]
