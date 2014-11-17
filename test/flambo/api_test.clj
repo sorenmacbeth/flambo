@@ -221,6 +221,14 @@
             f/collect
             vec) => (just [0 1 2 3 4] :in-any-order))
 
+      (fact
+        "cartesian creates cartesian product of two RDDS"
+        (let [rdd1 (f/parallelize c [1 2])
+              rdd2 (f/parallelize c [5 6 7])]
+          (-> (f/cartesian rdd1 rdd2)
+            f/collect
+            vec) => (just [[1 5] [1 6] [1 7] [2 5] [2 6] [2 7]] :in-any-order)))
+
       (future-fact "repartition returns a new RDD with exactly n partitions")
 
       )))
