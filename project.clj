@@ -27,6 +27,8 @@
                [org.apache.spark/spark-streaming-kafka_2.10 "1.1.0"]
                [org.apache.spark/spark-streaming-flume_2.10 "1.1.0"]
                [org.apache.spark/spark-sql_2.10 "1.1.0"]]}
+             :clojure-1.7
+             {:dependencies [[org.clojure/clojure "1.7.0-alpha4"]]}
              :uberjar
              {:aot :all}}
   :source-paths ["src/clojure"]
