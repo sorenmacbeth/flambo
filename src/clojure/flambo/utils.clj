@@ -30,7 +30,7 @@
   (Double. s))
 
 (defn bernoulli-sampler [lower-bound upper-bound complement?]
-  (BernoulliSampler. lower-bound upper-bound complement? (XORShiftRandom.)))
+  (BernoulliSampler. lower-bound upper-bound complement?))
 
 (defn sampler-complement [sampler]
   (.cloneComplement sampler))

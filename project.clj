@@ -1,4 +1,4 @@
-(defproject yieldbot/flambo "0.3.3"
+(defproject yieldbot/flambo "0.4.0"
   :description "A Clojure DSL for Apache Spark"
   :url "https://github.com/yieldbot/flambo"
   :license {:name "Eclipse Public License"
@@ -15,17 +15,20 @@
              {:dependencies [[midje "1.6.3"]
                              [criterium "0.4.3"]]
               :plugins [[lein-midje "3.1.3"]
-                        [lein-marginalia "0.7.1"]
+                        [lein-marginalia "0.8.0"]
                         [codox "0.8.9"]]
               ;; so gen-class stuff works in the repl
               :aot [flambo.function
                     flambo.example.tfidf]}
              :provided
              {:dependencies
-              [[org.apache.spark/spark-core_2.10 "1.0.2"]
-               [org.apache.spark/spark-streaming_2.10 "1.0.2"]
-               [org.apache.spark/spark-streaming-kafka_2.10 "1.0.2"]
-               [org.apache.spark/spark-sql_2.10 "1.0.2"]]}
+              [[org.apache.spark/spark-core_2.10 "1.1.1"]
+               [org.apache.spark/spark-streaming_2.10 "1.1.1"]
+               [org.apache.spark/spark-streaming-kafka_2.10 "1.1.1"]
+               [org.apache.spark/spark-streaming-flume_2.10 "1.1.1"]
+               [org.apache.spark/spark-sql_2.10 "1.1.1"]]}
+             :clojure-1.7
+             {:dependencies [[org.clojure/clojure "1.7.0-alpha4"]]}
              :uberjar
              {:aot :all}}
   :source-paths ["src/clojure"]
@@ -35,6 +38,7 @@
           :output-dir "doc/codox"
           :src-dir-uri "http://github.com/yieldbot/flambo/blob/develop/"
           :src-linenum-anchor-prefix "L"}
-  :javac-options ["-source" "1.7" "-target" "1.7"]
+  :javac-options ["-source" "1.6" "-target" "1.6"]
   :jvm-opts ^:replace ["-server" "-Xmx1g"]
-  :global-vars {*warn-on-reflection* false})
+  :global-vars {*warn-on-reflection* false}
+  :min-lein-version "2.5.0")

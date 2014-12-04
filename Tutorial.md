@@ -106,7 +106,7 @@ Recall term-freqency is defined as a function of the document id and term, `tf(d
 user=> (def tf-by-doc (-> doc-term-seq
                           (f/map (f/fn [[doc-id term term-freq doc-terms-count]]
                                        [term [doc-id (double (/ term-freq doc-terms-count))]]))
-                          f/cache)
+                          f/cache))
 ```
 
 Notice, again how we were easily able to use Clojure's destructuring facilities on the arguments of our inline function to name parameters.
@@ -132,7 +132,7 @@ user=> (defn calc-idf [doc-count]
 user=> (def idf-by-term (-> doc-term-seq
                             (f/group-by (f/fn [[_ term _ _]] term))
                             (f/map (calc-idf num-docs))
-                            f/cache)
+                            f/cache))
 ```
 
 #### TF-IDF
@@ -143,7 +143,7 @@ Now that we have both a term-frequency RDD of `[term [doc-id tf]]` tuples and an
 user=> (def tfidf-by-term (-> (f/join tf-by-doc idf-by-term)
                               (f/map (f/fn [[term [[doc-id tf] idf]]]
                                            [doc-id term (* tf idf)]))
-                              f/cache)
+                              f/cache))
 ```
 
 We cache the RDD for future actions. 

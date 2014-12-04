@@ -10,7 +10,7 @@
 ;; happily accepted!
 ;;
 (ns flambo.api
-  (:refer-clojure :exclude [fn map reduce first count take distinct filter group-by])
+  (:refer-clojure :exclude [fn map reduce first count take distinct filter group-by values])
   (:require [serializable.fn :as sfn]
             [clojure.tools.logging :as log]
             [flambo.function :refer [flat-map-function
@@ -24,14 +24,11 @@
             [flambo.conf :as conf]
             [flambo.utils :as u]
             [flambo.kryo :as k])
-  (:import (scala Tuple2)
-           [scala.reflect ClassTag$]
-           (java.util Comparator)
-           (org.apache.spark.api.java JavaSparkContext StorageLevels)
-           org.apache.spark.api.java.JavaRDD
-           (org.apache.spark.rdd PartitionwiseSampledRDD)
-           (flambo.function Function Function2 Function3 VoidFunction FlatMapFunction
-                            PairFunction PairFlatMapFunction)))
+  (:import [scala Tuple2]
+           [java.util Comparator]
+           [org.apache.spark.api.java JavaSparkContext StorageLevels
+            JavaRDD JavaDoubleRDD]
+           [org.apache.spark.rdd PartitionwiseSampledRDD]))
 
 ;; flambo makes extensive use of kryo to serialize and deserialize clojure functions
 ;; and data structures. Here we ensure that these properties are set so they are inhereted
@@ -64,7 +61,7 @@
 
 (defn spark-context
   "Creates a spark context that loads settings from given configuration object
-   or system properties"
+  or system properties"
   ([conf]
      (log/debug "JavaSparkContext" (conf/to-string conf))
      (JavaSparkContext. conf))
@@ -114,6 +111,9 @@
   [f]
   (fn [x] (u/truthy? (f x))))
 
+;; TODO: accumulators
+;; http://spark.apache.org/docs/latest/programming-guide.html#accumulators
+
 ;; ## RDD construction
 ;;
 ;; Function for constructing new RDDs
@@ -129,9 +129,20 @@
   ([spark-context lst] (.parallelize spark-context lst))
   ([spark-context lst num-slices] (.parallelize spark-context lst num-slices)))
 
-(defn partitionwise-sampled-rdd [rdd sampler seed]
+(defn union
+  "Build the union of two or more RDDs"
+  [context rdd & rdds]
+  (.union context rdd (java.util.ArrayList. rdds)))
+
+(defn partitionwise-sampled-rdd [rdd sampler preserve-partitioning? seed]
   "Creates a PartitionwiseSampledRRD from existing RDD and a sampler object"
-  (-> (PartitionwiseSampledRDD. (.rdd rdd) sampler seed k/OBJECT-CLASS-TAG k/OBJECT-CLASS-TAG)
+  (-> (PartitionwiseSampledRDD.
+       (.rdd rdd)
+       sampler
+       preserve-partitioning?
+       seed
+       k/OBJECT-CLASS-TAG
+       k/OBJECT-CLASS-TAG)
       (JavaRDD/fromRDD k/OBJECT-CLASS-TAG)))
 
 ;; ## Transformations
@@ -155,9 +166,16 @@
   [rdd f]
   (.reduce rdd (function2 f)))
 
+(defn values
+  "Returns the values of a JavaPairRDD"
+  [rdd]
+  (-> rdd
+      (map-to-pair identity)
+      .values))
+
 (defn flat-map
   "Similar to `map`, but each input item can be mapped to 0 or more output items (so the
-   function `f` should return a collection rather than a single item)"
+  function `f` should return a collection rather than a single item)"
   [rdd f]
   (.flatMap rdd (flat-map-function f)))
 
@@ -166,6 +184,19 @@
   the results."
   [rdd f]
   (.flatMapToPair rdd (pair-flat-map-function f)))
+
+(defn map-partition
+  "Similar to `map`, but runs separately on each partition (block) of the `rdd`, so function `f`
+  must be of type Iterator<T> => Iterable<U>.
+  https://issues.apache.org/jira/browse/SPARK-3369"
+  [rdd f]
+  (.mapPartitions rdd (flat-map-function f)))
+
+(defn map-partition-with-index
+  "Similar to `map-partition` but function `f` is of type (Int, Iterator<T>) => Iterator<U> where
+  `i` represents the index of partition."
+  [rdd f]
+  (.mapPartitionsWithIndex rdd (function2 f) true))
 
 (defn filter
   "Returns a new RDD containing only the elements of `rdd` that satisfy a predicate `f`."
@@ -177,9 +208,14 @@
   [rdd f]
   (.foreach rdd (void-function f)))
 
+(defn foreach-partition
+  "Applies the function `f` to each partition iterator of `rdd`."
+  [rdd f]
+  (.foreachPartition rdd (void-function f)))
+
 (defn aggregate
   "Aggregates the elements of each partition, and then the results for all the partitions,
-   using a given combine function and a neutral 'zero value'."
+  using a given combine function and a neutral 'zero value'."
   [rdd zero-value seq-op comb-op]
   (.aggregate rdd zero-value (function2 seq-op) (function2 comb-op)))
 
@@ -196,6 +232,12 @@
   (-> rdd
       (map-to-pair identity)
       (.reduceByKey (function2 f))
+      (.map (function untuple))))
+
+(defn cartesian
+  "Creates the cartesian product of two RDDs returning an RDD of pairs"
+  [rdd1 rdd2]
+  (-> (.cartesian rdd1 rdd2)
       (.map (function untuple))))
 
 (defn group-by
@@ -250,7 +292,7 @@
 (defn sort-by-key
   "When called on `rdd` of (K, V) pairs where K implements ordered, returns a dataset of
    (K, V) pairs sorted by keys in ascending or descending order, as specified by the boolean
-   ascending argument."
+  ascending argument."
   ([rdd]
      (sort-by-key rdd compare true))
   ([rdd x]
@@ -281,16 +323,16 @@
 (defn left-outer-join
   "Performs a left outer join of `rdd` and `other`. For each element (K, V)
    in the RDD, the resulting RDD will either contain all pairs (K, (V, W)) for W in other,
-   or the pair (K, (V, nil)) if no elements in other have key K."
+  or the pair (K, (V, nil)) if no elements in other have key K."
   [rdd other]
   (-> rdd
       (map-to-pair identity)
       (.leftOuterJoin (map-to-pair other identity))
       (.map (function
              (fn [t]
-                      (let [[x t2] (untuple t)
-                            [a b] (untuple t2)]
-                        (vector x [a (.orNull b)])))))))
+               (let [[x t2] (untuple t)
+                     [a b] (untuple t2)]
+                 (vector x [a (.orNull b)])))))))
 
 (defn sample
   "Returns a `fraction` sample of `rdd`, with or without replacement,
@@ -340,9 +382,9 @@
 
 (defn save-as-sequence-file
   "Writes the elements of `rdd` as a Hadoop SequenceFile in a given `path`
-   in the local filesystem, HDFS or any other Hadoop-supported file system.
-   This is available on RDDs of key-value pairs that either implement Hadoop's
-   Writable interface."
+  in the local filesystem, HDFS or any other Hadoop-supported file system.
+  This is available on RDDs of key-value pairs that either implement Hadoop's
+  Writable interface."
   [rdd path]
   (.saveAsSequenceFile rdd path))
 
@@ -386,3 +428,17 @@
   program computes all the elements)."
   [rdd cnt]
   (.take rdd cnt))
+
+  (defmulti histogram "compute histogram of an RDD of doubles"
+    (fn [_ bucket-arg] (sequential? bucket-arg)))
+
+(defmethod histogram true [rdd buckets]
+  (let [counts (-> (JavaDoubleRDD/fromRDD (.rdd rdd))
+                   (.histogram (double-array buckets)))]
+    (into [] counts)))
+
+(defmethod histogram false [rdd bucket-count]
+  (let [[buckets counts] (-> (JavaDoubleRDD/fromRDD (.rdd rdd))
+                             (.histogram bucket-count)
+                             untuple)]
+    [(into [] buckets) (into [] counts)]))

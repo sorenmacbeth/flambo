@@ -31,6 +31,8 @@ Flambo is a Clojure DSL for Spark. It allows you to create and manipulate Spark 
 <a name="versions">
 ## Supported Spark Versions
 
+flambo 0.4.0 targets >= Spark 1.1.0
+
 flambo 0.3.3 targets >= Spark 1.0.0
 
 flambo 0.2.0 targets Spark 0.9.1
@@ -42,6 +44,8 @@ Flambo is available from clojars. Depending on the version of Spark you're using
 
 ### With Leiningen
 
+`[yieldbot/flambo "0.4.0"]` for Spark 1.1.0 or greater
+
 `[yieldbot/flambo "0.3.3"]` for Spark 1.0.0 or greater
 
 `[yieldbot/flambo "0.2.0"]` for Spark 0.9.1
@@ -51,7 +55,7 @@ Don't forget to add spark (and possibly your hadoop distribution's hadoop-client
 ```clojure
 {:profiles {:provided
              {:dependencies
-              [[org.apache.spark/spark-core_2.10 "1.0.2"]]}}}
+              [[org.apache.spark/spark-core_2.10 "1.1.1"]]}}}
 ```
 
 <a name="aot">
