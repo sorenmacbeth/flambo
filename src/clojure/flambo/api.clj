@@ -27,7 +27,7 @@
   (:import [scala Tuple2]
            [java.util Comparator]
            [org.apache.spark.api.java JavaSparkContext StorageLevels
-            JavaRDD JavaDoubleRDD]
+            JavaRDD JavaDoubleRDD JavaPairRDD]
            [org.apache.spark.rdd PartitionwiseSampledRDD]))
 
 ;; flambo makes extensive use of kryo to serialize and deserialize clojure functions
@@ -166,12 +166,16 @@
   [rdd f]
   (.reduce rdd (function2 f)))
 
-(defn values
-  "Returns the values of a JavaPairRDD"
+(defmulti values class)
+(defmethod values JavaRDD
   [rdd]
   (-> rdd
       (map-to-pair identity)
       .values))
+
+(defmethod values JavaPairRDD
+  [rdd]
+  (.values rdd))
 
 (defn flat-map
   "Similar to `map`, but each input item can be mapped to 0 or more output items (so the
