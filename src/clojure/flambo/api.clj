@@ -23,7 +23,8 @@
                                      void-function]]
             [flambo.conf :as conf]
             [flambo.utils :as u]
-            [flambo.kryo :as k])
+            [flambo.kryo :as k]
+            [flambo.scala-interop :as si])
   (:import [scala Tuple2]
            [java.util Comparator]
            [org.apache.spark.api.java JavaSparkContext StorageLevels
@@ -139,6 +140,12 @@
   ([spark-context lst] (.parallelizePairs spark-context lst))
   ([spark-context lst num-slices] (.parallelizePairs spark-context lst num-slices)))
 
+(defn rdd-name
+  ([rdd name]
+   (.setName rdd name))
+  ([rdd]
+   (.name rdd)))
+
 (defn union
   "Build the union of two or more RDDs"
   [context rdd & rdds]
@@ -176,17 +183,8 @@
   [rdd f]
   (.reduce rdd (function2 f)))
 
-(defmulti values
+(defn values
   "Get the values from a Pair RDD."
-  class)
-
-(defmethod values JavaRDD
-  [rdd]
-  (-> rdd
-      (map-to-pair identity)
-      .values))
-
-(defmethod values JavaPairRDD
   [rdd]
   (.values rdd))
 
@@ -242,18 +240,9 @@
   [rdd zero-value f]
   (.fold rdd zero-value (function2 f)))
 
-(defmulti reduce-by-key
+(defn reduce-by-key
   "When called on an `rdd` of (K, V) pairs, returns an RDD of (K, V) pairs
   where the values for each key are aggregated using the given reduce function `f`."
-  (fn [rdd _] (class rdd)))
-
-(defmethod reduce-by-key JavaRDD
-  [rdd f]
-  (-> rdd
-      (map-to-pair identity)
-      (.reduceByKey (function2 f))))
-
-(defmethod reduce-by-key JavaPairRDD
   [rdd f]
   (.reduceByKey rdd (function2 f)))
 
@@ -269,21 +258,8 @@
   ([rdd f n]
    (.groupBy rdd (function f) n)))
 
-(defmulti group-by-key
+(defn group-by-key
   "Groups the values for each key in `rdd` into a single sequence."
-  (fn [rdd & {:keys [n]}] (class rdd)))
-
-(defmethod group-by-key JavaRDD
-  [rdd & {:keys [n]}]
-  (if n
-    (-> rdd
-        (map-to-pair identity)
-        (.groupByKey n))
-    (-> rdd
-        (map-to-pair identity)
-        .groupByKey)))
-
-(defmethod group-by-key JavaPairRDD
   [rdd & {:keys [n]}]
   (if n
     (.groupByKey rdd n)
@@ -362,6 +338,20 @@
   "Returns a new `rdd` with exactly `n` partitions."
   [rdd n]
   (.repartition rdd n))
+
+(defn partition-count
+  "Returns the number of partitions for a given `rdd`."
+  [rdd]
+  (alength (.partitions (.rdd rdd))))
+
+(defn partitions
+  "Returns a vector of partitions for a given `rdd`."
+  [rdd]
+  (into [] (.partitions (.rdd rdd))))
+
+(defn partitioner
+  [rdd]
+  (si/some-or-nil (.partitioner (.rdd rdd))))
 
 ;; ## Actions
 ;;

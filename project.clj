@@ -30,7 +30,11 @@
              :clojure-1.7
              {:dependencies [[org.clojure/clojure "1.7.0-alpha4"]]}
              :uberjar
-             {:aot :all}}
+             {:aot :all}
+             :example
+             {:main flambo.example.tfidf
+              :source-paths ["test/flambo/example"]
+              :aot [flambo.example.tfidf]}}
   :source-paths ["src/clojure"]
   :java-source-paths ["src/java"]
   :codox {:defaults {:doc/format :markdown}

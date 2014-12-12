@@ -7,7 +7,7 @@
     (f (._1 t) (._2 t))))
 
 (defn tuple-value-fn [f]
-  (fn [^Tuple2 t]
+  (sfn/fn [^Tuple2 t]
     (let [k (._1 t)
           v ^Tuple2 (._2 t)]
       (f k (._1 v) (._2 v)))))

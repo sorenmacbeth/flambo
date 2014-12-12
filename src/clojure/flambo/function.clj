@@ -65,12 +65,12 @@
 (gen-function PairFunction pair-function)
 
 ;; Replaces the PairFunction-call and PairFlatMapFunction-call defined by the gen-function macro.
-(defn PairFunction-call [this x]
-  (let [[a b] (-call this x)]
-    (Tuple2. a b)))
+;; (defn PairFunction-call [this x]
+;;   (let [[a b] (-call this x)]
+;;     (Tuple2. a b)))
 
-(defn PairFlatMapFunction-call [this x]
-  (let [ret (-call this x)]
-    (for [v ret
-          :let [[a b] v]]
-      (Tuple2. a b))))
+;; (defn PairFlatMapFunction-call [this x]
+;;   (let [ret (-call this x)]
+;;     (for [v ret
+;;           :let [[a b] v]]
+;;       (Tuple2. a b))))
