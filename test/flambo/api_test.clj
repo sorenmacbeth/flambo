@@ -159,9 +159,9 @@
       "sample returns a fraction of the RDD, with/without replacement,
         using a given random number generator seed"
       (-> (f/parallelize c [0 1 2 3 4 5 6 7 8 9])
-          (f/sample false 0.1 2)
+          (f/sample false 0.2 666)
           f/collect
-          vec) => [6])
+          vec) => [1])
 
      (fact
       "combine-by-key returns an RDD by combining the elements for each key using a custom

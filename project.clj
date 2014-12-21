@@ -6,8 +6,6 @@
   :mailing-list {:name "flambo user mailing list"
                  :archive "https://groups.google.com/d/forum/flambo-user"
                  :post "flambo-user@googlegroups.com"}
-  :repositories [["spark-staging" {:url "https://repository.apache.org/content/repositories/orgapachespark-1055/"
-                                   :checksum :ignore}]]
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [org.clojure/tools.logging "0.2.6"]
                  [yieldbot/serializable-fn "0.0.6"
@@ -27,11 +25,11 @@
                     flambo.example.tfidf]}
              :provided
              {:dependencies
-              [[org.apache.spark/spark-core_2.10 "1.1.1"]
-               [org.apache.spark/spark-streaming_2.10 "1.1.1"]
-               [org.apache.spark/spark-streaming-kafka_2.10 "1.1.1"]
-               [org.apache.spark/spark-streaming-flume_2.10 "1.1.1"]
-               [org.apache.spark/spark-sql_2.10 "1.1.1"]]}
+              [[org.apache.spark/spark-core_2.10 "1.2.0"]
+               [org.apache.spark/spark-streaming_2.10 "1.2.0"]
+               [org.apache.spark/spark-streaming-kafka_2.10 "1.2.0"]
+               [org.apache.spark/spark-streaming-flume_2.10 "1.2.0"]
+               [org.apache.spark/spark-sql_2.10 "1.2.0"]]}
              :clojure-1.7
              {:dependencies [[org.clojure/clojure "1.7.0-alpha4"]]}
              :uberjar
