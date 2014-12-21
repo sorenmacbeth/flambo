@@ -1,8 +1,13 @@
-(defproject yieldbot/flambo "0.4.0"
+(defproject yieldbot/flambo "0.5.0-SNAPSHOT"
   :description "A Clojure DSL for Apache Spark"
   :url "https://github.com/yieldbot/flambo"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
+  :mailing-list {:name "flambo user mailing list"
+                 :archive "https://groups.google.com/d/forum/flambo-user"
+                 :post "flambo-user@googlegroups.com"}
+  :repositories [["spark-staging" {:url "https://repository.apache.org/content/repositories/orgapachespark-1055/"
+                                   :checksum :ignore}]]
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [org.clojure/tools.logging "0.2.6"]
                  [yieldbot/serializable-fn "0.0.6"
