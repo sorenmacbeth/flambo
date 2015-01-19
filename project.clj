@@ -38,6 +38,7 @@
              {:main flambo.example.tfidf
               :source-paths ["test/flambo/example"]
               :aot [flambo.example.tfidf]}}
+  :checksum :warn ;; https://issues.apache.org/jira/browse/SPARK-5308
   :source-paths ["src/clojure"]
   :java-source-paths ["src/java"]
   :codox {:defaults {:doc/format :markdown}
