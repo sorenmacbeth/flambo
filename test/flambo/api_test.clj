@@ -1,7 +1,7 @@
 (ns flambo.api-test
   (:use midje.sweet)
   (:require [flambo.api :as f]
-            [flambo.destructure :as fd]
+            [flambo.tuple :as ft]
             [flambo.conf :as conf]))
 
 (facts
