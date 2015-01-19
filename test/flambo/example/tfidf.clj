@@ -1,11 +1,11 @@
 (ns flambo.example.tfidf
   (:require [flambo.api :as f]
-            [flambo.destructure :as fd]
+            [flambo.tuple :as ft]
             [flambo.debug :refer [inspect] :as debug]
             [flambo.conf :as conf])
   (:gen-class))
 
-(def master "local")
+(def master "local[*]")
 (def conf {})
 (def env {})
 
@@ -48,14 +48,14 @@
 
           ;; stopword filtered RDD of [doc-id term term-freq doc-terms-count] tuples
           doc-term-seq (-> doc-data
-                           (f/flat-map-to-pair (fd/tuple-fn gen-docid-term-tuples))
+                           (f/flat-map-to-pair (ft/key-val-fn gen-docid-term-tuples))
                            (inspect "doc-term-seq")
                            f/cache)
 
           ;; RDD of term-frequency tuples: [term [doc-id tf]]
           ;; where tf is per document, that is, tf(term, document)
           tf-by-doc (-> doc-term-seq
-                        (f/map-to-pair (fd/tuple-fn (f/fn [doc-id [term term-freq doc-terms-count]]
+                        (f/map-to-pair (ft/key-val-fn (f/fn [doc-id [term term-freq doc-terms-count]]
                                                       (f/tuple term [doc-id (double (/ term-freq doc-terms-count))]))))
                         (inspect "tf-by-doc")
                         f/cache)
@@ -65,14 +65,14 @@
 
           ;; idf of terms, that is, idf(term)
           idf-by-term (-> doc-term-seq
-                          (f/group-by (fd/tuple-fn (f/fn [_ [term _ _]] term)))
-                          (f/map-to-pair (fd/tuple-fn (calc-idf num-docs)))
+                          (f/group-by (ft/key-val-fn (f/fn [_ [term _ _]] term)))
+                          (f/map-to-pair (ft/key-val-fn (calc-idf num-docs)))
                           (inspect "idf-by-term"))
 
           ;; tf-idf of terms, that is, tf(term, document) x idf(term)
           tfidf-by-term (-> (f/join tf-by-doc idf-by-term)
                             (inspect "tf-idf-by-term")
-                            (f/map (fd/tuple-value-fn (f/fn [term [doc-id tf] idf]
+                            (f/map (ft/key-val-val-fn (f/fn [term [doc-id tf] idf]
                                                         [doc-id term (* tf idf)])))
                             f/cache)
           ]
