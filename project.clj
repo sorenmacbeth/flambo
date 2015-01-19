@@ -22,15 +22,16 @@
                     flambo.example.tfidf]}
              :provided
              {:dependencies
-              [[org.apache.spark/spark-core_2.10 "1.1.1"]
-               [org.apache.spark/spark-streaming_2.10 "1.1.1"]
-               [org.apache.spark/spark-streaming-kafka_2.10 "1.1.1"]
-               [org.apache.spark/spark-streaming-flume_2.10 "1.1.1"]
-               [org.apache.spark/spark-sql_2.10 "1.1.1"]]}
+              [[org.apache.spark/spark-core_2.10 "1.2.0"]
+               [org.apache.spark/spark-streaming_2.10 "1.2.0"]
+               [org.apache.spark/spark-streaming-kafka_2.10 "1.2.0"]
+               [org.apache.spark/spark-streaming-flume_2.10 "1.2.0"]
+               [org.apache.spark/spark-sql_2.10 "1.2.0"]]}
              :clojure-1.7
              {:dependencies [[org.clojure/clojure "1.7.0-alpha4"]]}
              :uberjar
              {:aot :all}}
+  :checksum :warn ;https://issues.apache.org/jira/browse/SPARK-5308
   :source-paths ["src/clojure"]
   :java-source-paths ["src/java"]
   :codox {:defaults {:doc/format :markdown}
