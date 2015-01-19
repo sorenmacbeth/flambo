@@ -156,8 +156,9 @@
                             ["key2" [[3] nil]]] :in-any-order))
 
      (fact
-      "sample returns a fraction of the RDD, with/without replacement,
-        using a given random number generator seed"
+      "sample returns a fraction of the RDD, with/without replacement, Using a
+        given random number generator seed, Sampling does not guarantee size but
+        using same seed should return same result."
       (-> (f/parallelize c [0 1 2 3 4 5 6 7 8 9])
           (f/sample false 0.3 666)
           f/collect
