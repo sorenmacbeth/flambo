@@ -91,9 +91,6 @@
   (let [clazz (Class/forName (clojure.string/replace (str ns) #"-" "_"))]
     (JavaSparkContext/jarOfClass clazz)))
 
-(defsparkfn tuple [k v]
-  (Tuple2. k v))
-
 (defsparkfn untuple [^Tuple2 t]
   (let [v (transient [])]
     (conj! v (._1 t))

@@ -3,6 +3,9 @@
   (:require [serializable.fn :as sfn])
   (:import [scala Tuple2]))
 
+(defn tuple [k v]
+  (Tuple2. k v))
+
 (defprotocol ClojureTuple2
   (first [this])
   (second [this])

@@ -19,13 +19,13 @@
                       (clojure.string/split content #" "))
         doc-terms-count (count terms)
         term-frequencies (frequencies terms)]
-    (map (fn [term] (f/tuple doc-id [term (term-frequencies term) doc-terms-count]))
+    (map (fn [term] (ft/tuple doc-id [term (term-frequencies term) doc-terms-count]))
          (distinct terms))))
 
 (defn calc-idf [doc-count]
   (f/fn [term tuple-seq]
     (let [df (count tuple-seq)]
-      (f/tuple term (Math/log (/ doc-count (+ 1.0 df)))))))
+      (ft/tuple term (Math/log (/ doc-count (+ 1.0 df)))))))
 
 (defn -main [& args]
   (try
@@ -38,10 +38,10 @@
           sc (f/spark-context c)
 
           ;; sample docs and terms
-          documents [(f/tuple "doc1" "Four score and seven years ago our fathers brought forth on this continent a new nation")
-                     (f/tuple "doc2" "conceived in Liberty and dedicated to the proposition that all men are created equal")
-                     (f/tuple "doc3" "Now we are engaged in a great civil war testing whether that nation or any nation so")
-                     (f/tuple "doc4" "conceived and so dedicated can long endure We are met on a great battlefield of that war")]
+          documents [(ft/tuple "doc1" "Four score and seven years ago our fathers brought forth on this continent a new nation")
+                     (ft/tuple "doc2" "conceived in Liberty and dedicated to the proposition that all men are created equal")
+                     (ft/tuple "doc3" "Now we are engaged in a great civil war testing whether that nation or any nation so")
+                     (ft/tuple "doc4" "conceived and so dedicated can long endure We are met on a great battlefield of that war")]
 
           doc-data (f/parallelize-pairs sc documents)
           _ (inspect doc-data "doc-data")
@@ -56,7 +56,7 @@
           ;; where tf is per document, that is, tf(term, document)
           tf-by-doc (-> doc-term-seq
                         (f/map-to-pair (ft/key-val-fn (f/fn [doc-id [term term-freq doc-terms-count]]
-                                                      (f/tuple term [doc-id (double (/ term-freq doc-terms-count))]))))
+                                                      (ft/tuple term [doc-id (double (/ term-freq doc-terms-count))]))))
                         (inspect "tf-by-doc")
                         f/cache)
 
