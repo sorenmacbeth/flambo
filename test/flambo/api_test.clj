@@ -80,19 +80,18 @@
       "map-to-pair returns an RDD of (K, V) pairs formed by passing each element of the source
         RDD through a pair function"
       (-> (f/parallelize c ["a" "b" "c" "d"])
-          (f/map-to-pair (f/fn [x] [x 1]))
+          (f/map-to-pair (f/fn [x] (ft/tuple x 1)))
           (f/map f/untuple)
           f/collect
           vec) => [["a" 1] ["b" 1] ["c" 1] ["d" 1]])
 
      (fact
       "reduce-by-key returns an RDD of (K, V) when called on an RDD of (K, V) pairs"
-      (-> (f/parallelize c [["key1" 1]
-                            ["key1" 2]
-                            ["key2" 3]
-                            ["key2" 4]
-                            ["key3" 5]])
-          (f/map-to-pair identity)
+      (-> (f/parallelize-pairs c [(ft/tuple "key1" 1)
+                                  (ft/tuple "key1" 2)
+                                  (ft/tuple "key2" 3)
+                                  (ft/tuple "key2" 4)
+                                  (ft/tuple "key3" 5)])
           (f/reduce-by-key (f/fn [x y] (+ x y)))
           (f/map f/untuple)
           f/collect
@@ -116,16 +115,16 @@
 
      (fact
       "join returns an RDD of (K, (V, W)) pairs with all pairs of elements of each key when called on RDDs of type (K, V) and (K, W)"
-      (let [LDATA (f/parallelize c [["key1" [2]]
-                                    ["key2" [3]]
-                                    ["key3" [5]]
-                                    ["key4" [1]]
-                                    ["key5" [2]]])
-            RDATA (f/parallelize c [["key1" [22]]
-                                    ["key3" [33]]
-                                    ["key4" [44]]])
+      (let [LDATA (f/parallelize-pairs c [(ft/tuple "key1" [2])
+                                          (ft/tuple "key2" [3])
+                                          (ft/tuple "key3" [5])
+                                          (ft/tuple "key4" [1])
+                                          (ft/tuple "key5" [2])])
+            RDATA (f/parallelize-pairs c [(ft/tuple "key1" [22])
+                                          (ft/tuple "key3" [33])
+                                          (ft/tuple "key4" [44])])
             ]
-        (-> (f/join (f/map-to-pair LDATA identity) (f/map-to-pair RDATA identity))
+        (-> (f/join LDATA RDATA)
             (f/map f/double-untuple)
             f/collect
             vec)) => (just [["key3" [[5] [33]]]
@@ -134,15 +133,15 @@
 
      (fact
       "left-outer-join returns an RDD of (K, (V, W)) when called on RDDs of type (K, V) and (K, W)"
-      (let [LDATA (f/parallelize c [["key1" [2]]
-                                    ["key2" [3]]
-                                    ["key3" [5]]
-                                    ["key4" [1]]
-                                    ["key5" [2]]])
-            RDATA (f/parallelize c [["key1" [22]]
-                                    ["key3" [33]]
-                                    ["key4" [44]]])]
-        (-> (f/left-outer-join (f/map-to-pair LDATA identity) (f/map-to-pair RDATA identity))
+      (let [LDATA (f/parallelize-pairs c [(ft/tuple "key1" [2])
+                                          (ft/tuple "key2" [3])
+                                          (ft/tuple "key3" [5])
+                                          (ft/tuple "key4" [1])
+                                          (ft/tuple "key5" [2])])
+            RDATA (f/parallelize-pairs c [(ft/tuple "key1" [22])
+                                          (ft/tuple "key3" [33])
+                                          (ft/tuple "key4" [44])])]
+        (-> (f/left-outer-join LDATA RDATA)
             ;; how to unwrap a left-outer-join
             (f/map (f/fn [t]
                      (let [[x t2] (f/untuple t)
@@ -170,10 +169,9 @@
      (fact
       "combine-by-key returns an RDD by combining the elements for each key using a custom
         set of aggregation functions"
-      (-> (f/parallelize c [["key1" 1]
-                            ["key2" 1]
-                            ["key1" 1]])
-          (f/map-to-pair identity)
+      (-> (f/parallelize-pairs c [(ft/tuple "key1" 1)
+                                  (ft/tuple "key2" 1)
+                                  (ft/tuple "key1" 1)])
           (f/combine-by-key identity + +)
           (f/map f/untuple)
           f/collect
@@ -181,10 +179,10 @@
 
      (fact
       "sort-by-key returns an RDD of (K, V) pairs sorted by keys in asc or desc order"
-      (-> (f/parallelize c [[2 "aa"]
-                            [5 "bb"]
-                            [3 "cc"]
-                            [1 "dd"]])
+      (-> (f/parallelize-pairs c [(ft/tuple 2 "aa")
+                                  (ft/tuple 5 "bb")
+                                  (ft/tuple 3 "cc")
+                                  (ft/tuple 1 "dd")])
           (f/sort-by-key compare false)
           (f/map f/untuple)
           f/collect
@@ -207,12 +205,11 @@
 
      (fact
       "group-by-key"
-      (-> (f/parallelize c [["key1" 1]
-                            ["key1" 2]
-                            ["key2" 3]
-                            ["key2" 4]
-                            ["key3" 5]])
-          (f/map-to-pair identity)
+      (-> (f/parallelize-pairs c [(ft/tuple "key1" 1)
+                                  (ft/tuple "key1" 2)
+                                  (ft/tuple "key2" 3)
+                                  (ft/tuple "key2" 4)
+                                  (ft/tuple "key3" 5)])
           f/group-by-key
           (f/map f/group-untuple)
           f/collect
@@ -222,7 +219,7 @@
       "flat-map-to-pair"
       (-> (f/parallelize c [["Four score and seven"]
                             ["years ago"]])
-          (f/flat-map-to-pair (f/fn [x] (map (fn [y] [y 1])
+          (f/flat-map-to-pair (f/fn [x] (map (fn [y] (ft/tuple y 1))
                                              (clojure.string/split (first x) #" "))))
           (f/map f/untuple)
           f/collect
@@ -270,12 +267,11 @@
 
      (fact
       "count-by-key returns a hashmap of (K, int) pairs with the count of each key; only available on RDDs of type (K, V)"
-      (-> (f/parallelize c [["key1" 1]
-                            ["key1" 2]
-                            ["key2" 3]
-                            ["key2" 4]
-                            ["key3" 5]])
-          (f/map-to-pair identity)
+      (-> (f/parallelize-pairs c [(ft/tuple "key1" 1)
+                                  (ft/tuple "key1" 2)
+                                  (ft/tuple "key2" 3)
+                                  (ft/tuple "key2" 4)
+                                  (ft/tuple "key3" 5)])
           (f/count-by-key)) => {"key1" 2 "key2" 2 "key3" 1})
 
      (fact
@@ -289,12 +285,11 @@
 
      (fact
       "values returns the values (V) of a hashmap of (K, V) pairs from a JavaPairRDD"
-      (-> (f/parallelize c [["key1" 11]
-                            ["key1" 11]
-                            ["key2" 12]
-                            ["key2" 12]
-                            ["key3" 13]])
-          (f/map-to-pair identity)
+      (-> (f/parallelize-pairs c [(ft/tuple "key1" 11)
+                                  (ft/tuple "key1" 11)
+                                  (ft/tuple "key2" 12)
+                                  (ft/tuple "key2" 12)
+                                  (ft/tuple "key3" 13)])
           (f/values)
           (f/collect)
           vec) => [11 11 12 12 13])
