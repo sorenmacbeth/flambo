@@ -3,9 +3,6 @@
   (:require [serializable.fn :as sfn])
   (:import [scala Tuple2]))
 
-(defn tuple [k v]
-  (Tuple2. k v))
-
 (defprotocol ClojureTuple2
   (first [this])
   (second [this])
@@ -25,6 +22,9 @@
       (persistent! v)))
   (seq [this]
     (clojure.core/seq (vec this))))
+
+(defn tuple [k v]
+  (Tuple2. k v))
 
 (defn key-val-fn [f]
   (sfn/fn [^Tuple2 t]
