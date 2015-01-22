@@ -1,4 +1,4 @@
-(defproject yieldbot/flambo "0.4.0"
+(defproject yieldbot/flambo "0.4.1-SNAPSHOT"
   :description "A Clojure DSL for Apache Spark"
   :url "https://github.com/yieldbot/flambo"
   :license {:name "Eclipse Public License"
@@ -9,7 +9,7 @@
                   :exclusions [com.twitter/chill-java]]
                  [com.twitter/carbonite "1.4.0"
                   :exclusions [com.twitter/chill-java]]
-                 [com.twitter/chill_2.10 "0.3.6"
+                 [com.twitter/chill_2.10 "0.5.0"
                   :exclusions [org.scala-lang/scala-library]]]
   :profiles {:dev
              {:dependencies [[midje "1.6.3"]
