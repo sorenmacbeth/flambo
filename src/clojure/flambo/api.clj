@@ -31,8 +31,6 @@
             JavaRDD JavaDoubleRDD JavaPairRDD]
            [org.apache.spark.rdd PartitionwiseSampledRDD]))
 
-(set! *warn-on-reflection* true)
-
 ;; flambo makes extensive use of kryo to serialize and deserialize clojure functions
 ;; and data structures. Here we ensure that these properties are set so they are inhereted
 ;; into any `SparkConf` objects that are created.

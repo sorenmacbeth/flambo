@@ -65,26 +65,28 @@
 (gen-function PairFunction pair-function)
 
 ;; Replaces the PairFunction-call and PairFlatMapFunction-call defined by the gen-function macro.
-(defmulti PairFunction-call (fn [_ x] (class x)))
+;; (defmulti PairFunction-call (fn [_ x] (class x)))
 
-(defmethod PairFunction-call Tuple2
-  [this x]
-  (-call this x))
+;; (defmethod PairFunction-call Tuple2
+;;   [this x]
+;;   (log/trace "PAIRFUNCTION-CALL TUPLE2")
+;;   (-call this x))
 
-(defmethod PairFunction-call :default
-  [this x]
-  (let [[a b] (-call this x)]
-    (Tuple2. a b)))
+;; (defmethod PairFunction-call :default
+;;   [this x]
+;;   (log/trace "PAIRFUNCTION-CALL DEFAULT")
+;;   (let [[a b] (-call this x)]
+;;     (Tuple2. a b)))
 
-(defmulti PairFlatMapFunction-call (fn [_ x] (class x)))
+;; (defmulti PairFlatMapFunction-call (fn [_ x] (class x)))
 
-(defmethod PairFlatMapFunction-call Tuple2
-  [this x]
-  (-call this x))
+;; (defmethod PairFlatMapFunction-call Tuple2
+;;   [this x]
+;;   (-call this x))
 
-(defmethod PairFlatMapFunction-call :default
-  [this x]
-  (let [ret (-call this x)]
-    (for [v ret
-          :let [[a b] v]]
-      (Tuple2. a b))))
+;; (defmethod PairFlatMapFunction-call :default
+;;   [this x]
+;;   (let [ret (-call this x)]
+;;     (for [v ret
+;;           :let [[a b] v]]
+;;       (Tuple2. a b))))
