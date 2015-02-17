@@ -7,6 +7,8 @@
            [java.nio ByteBuffer]
            [scala.reflect ClassTag$]))
 
+(set! *warn-on-reflection* true)
+
 ;; lol scala
 (def ^:no-doc OBJECT-CLASS-TAG (.apply ClassTag$/MODULE$ java.lang.Object))
 

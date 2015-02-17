@@ -23,7 +23,8 @@
                                      void-function]]
             [flambo.conf :as conf]
             [flambo.utils :as u]
-            [flambo.kryo :as k])
+            [flambo.kryo :as k]
+            [flambo.scala-interop :as si])
   (:import [scala Tuple2]
            [java.util Comparator]
            [org.apache.spark.api.java JavaSparkContext StorageLevels
@@ -63,11 +64,11 @@
   "Creates a spark context that loads settings from given configuration object
   or system properties"
   ([conf]
-     (log/debug "JavaSparkContext" (conf/to-string conf))
-     (JavaSparkContext. conf))
+   (log/debug "JavaSparkContext" (conf/to-string conf))
+   (JavaSparkContext. conf))
   ([master app-name]
-     (log/debug "JavaSparkContext" master app-name)
-     (JavaSparkContext. master app-name)))
+   (log/debug "JavaSparkContext" master app-name)
+   (JavaSparkContext. master app-name)))
 
 (defn local-spark-context
   [app-name]
@@ -129,6 +130,17 @@
   ([spark-context lst] (.parallelize spark-context lst))
   ([spark-context lst num-slices] (.parallelize spark-context lst num-slices)))
 
+(defn parallelize-pairs
+  "Distributes a local collection to form/return a Pair RDD"
+  ([spark-context lst] (.parallelizePairs spark-context lst))
+  ([spark-context lst num-slices] (.parallelizePairs spark-context lst num-slices)))
+
+(defn rdd-name
+  ([rdd name]
+   (.setName rdd name))
+  ([rdd]
+   (.name rdd)))
+
 (defn union
   "Build the union of two or more RDDs"
   [context rdd & rdds]
@@ -166,14 +178,8 @@
   [rdd f]
   (.reduce rdd (function2 f)))
 
-(defmulti values class)
-(defmethod values JavaRDD
-  [rdd]
-  (-> rdd
-      (map-to-pair identity)
-      .values))
-
-(defmethod values JavaPairRDD
+(defn values
+  "Get the values from a Pair RDD."
   [rdd]
   (.values rdd))
 
@@ -195,6 +201,13 @@
   https://issues.apache.org/jira/browse/SPARK-3369"
   [rdd f]
   (.mapPartitions rdd (flat-map-function f)))
+
+(defn map-partitions-to-pair
+  "Similar to `map`, but runs separately on each partition (block) of the `rdd`, so function `f`
+  must be of type Iterator<T> => Iterable<U>.
+  https://issues.apache.org/jira/browse/SPARK-3369"
+  [rdd f & {:keys [preserves-partitioning]}]
+  (.mapPartitionsToPair rdd (pair-flat-map-function f) (u/truthy? preserves-partitioning)))
 
 (defn map-partition-with-index
   "Similar to `map-partition` but function `f` is of type (Int, Iterator<T>) => Iterator<U> where
@@ -233,40 +246,26 @@
   "When called on an `rdd` of (K, V) pairs, returns an RDD of (K, V) pairs
   where the values for each key are aggregated using the given reduce function `f`."
   [rdd f]
-  (-> rdd
-      (map-to-pair identity)
-      (.reduceByKey (function2 f))
-      (.map (function untuple))))
+  (.reduceByKey rdd (function2 f)))
 
 (defn cartesian
   "Creates the cartesian product of two RDDs returning an RDD of pairs"
   [rdd1 rdd2]
-  (-> (.cartesian rdd1 rdd2)
-      (.map (function untuple))))
+  (.cartesian rdd1 rdd2))
 
 (defn group-by
   "Returns an RDD of items grouped by the return value of function `f`."
   ([rdd f]
-     (-> rdd
-         (.groupBy (function f))
-         (.map (function group-untuple))))
+   (.groupBy rdd (function f)))
   ([rdd f n]
-     (-> rdd
-         (.groupBy (function f) n)
-         (.map (function group-untuple)))))
+   (.groupBy rdd (function f) n)))
 
 (defn group-by-key
   "Groups the values for each key in `rdd` into a single sequence."
-  ([rdd]
-     (-> rdd
-         (map-to-pair identity)
-         .groupByKey
-         (.map (function group-untuple))))
-  ([rdd n]
-     (-> rdd
-         (map-to-pair identity)
-         (.groupByKey n)
-         (.map (function group-untuple)))))
+  [rdd & {:keys [n]}]
+  (if n
+    (.groupByKey rdd n)
+    (.groupByKey rdd)))
 
 (defn combine-by-key
   "Combines the elements for each key using a custom set of aggregation functions.
@@ -277,66 +276,51 @@
   -- createCombiner, which turns a V into a C (e.g., creates a one-element list)
   -- mergeValue, to merge a V into a C (e.g., adds it to the end of a list)
   -- mergeCombiners, to combine two C's into a single one."
-  ([rdd create-combiner merge-value merge-combiners]
-     (-> rdd
-         (map-to-pair identity)
-         (.combineByKey (function create-combiner)
-                        (function2 merge-value)
-                        (function2 merge-combiners))
-         (.map (function untuple))))
-  ([rdd create-combiner merge-value merge-combiners n]
-     (-> rdd
-         (map-to-pair identity)
-         (.combineByKey (function create-combiner)
-                        (function2 merge-value)
-                        (function2 merge-combiners)
-                        n)
-         (.map (function untuple)))))
+  [rdd create-combiner merge-value merge-combiners & {:keys [n]}]
+  (if n
+    (.combineByKey rdd
+                   (function create-combiner)
+                   (function2 merge-value)
+                   (function2 merge-combiners)
+                   n)
+    (.combineByKey rdd
+                   (function create-combiner)
+                   (function2 merge-value)
+                   (function2 merge-combiners))))
 
 (defn sort-by-key
   "When called on `rdd` of (K, V) pairs where K implements ordered, returns a dataset of
    (K, V) pairs sorted by keys in ascending or descending order, as specified by the boolean
   ascending argument."
   ([rdd]
-     (sort-by-key rdd compare true))
+   (sort-by-key rdd compare true))
   ([rdd x]
-     ;; RDD has a .sortByKey signature with just a Boolean arg, but it doesn't
-     ;; seem to work when I try it, bool is ignored.
-     (if (instance? Boolean x)
-       (sort-by-key rdd compare x)
-       (sort-by-key rdd x true)))
+   ;; RDD has a .sortByKey signature with just a Boolean arg, but it doesn't
+   ;; seem to work when I try it, bool is ignored.
+   (if (instance? Boolean x)
+     (sort-by-key rdd compare x)
+     (sort-by-key rdd x true)))
   ([rdd compare-fn asc?]
-     (-> rdd
-         (map-to-pair identity)
-         (.sortByKey
-          (if (instance? Comparator compare-fn)
-            compare-fn
-            (comparator compare-fn))
-          (u/truthy? asc?))
-         (.map (function untuple)))))
+   (-> rdd
+       (map-to-pair identity)
+       (.sortByKey
+        (if (instance? Comparator compare-fn)
+          compare-fn
+          (comparator compare-fn))
+        (u/truthy? asc?)))))
 
 (defn join
   "When called on `rdd` of type (K, V) and (K, W), returns a dataset of
   (K, (V, W)) pairs with all pairs of elements for each key."
   [rdd other]
-  (-> rdd
-      (map-to-pair identity)
-      (.join (map-to-pair other identity))
-      (.map (function double-untuple))))
+  (.join rdd other))
 
 (defn left-outer-join
   "Performs a left outer join of `rdd` and `other`. For each element (K, V)
    in the RDD, the resulting RDD will either contain all pairs (K, (V, W)) for W in other,
   or the pair (K, (V, nil)) if no elements in other have key K."
   [rdd other]
-  (-> rdd
-      (map-to-pair identity)
-      (.leftOuterJoin (map-to-pair other identity))
-      (.map (function
-             (fn [t]
-               (let [[x t2] (untuple t)
-                     [a b] (untuple t2)]
-                 (vector x [a (.orNull b)])))))))
+  (.leftOuterJoin rdd other))
 
 (defn sample
   "Returns a `fraction` sample of `rdd`, with or without replacement,
@@ -348,14 +332,28 @@
   "Decrease the number of partitions in `rdd` to `n`.
   Useful for running operations more efficiently after filtering down a large dataset."
   ([rdd n]
-     (.coalesce rdd n))
+   (.coalesce rdd n))
   ([rdd n shuffle?]
-     (.coalesce rdd n shuffle?)))
+   (.coalesce rdd n shuffle?)))
 
 (defn repartition
   "Returns a new `rdd` with exactly `n` partitions."
   [rdd n]
   (.repartition rdd n))
+
+(defn partition-count
+  "Returns the number of partitions for a given `rdd`."
+  [rdd]
+  (alength (.partitions (.rdd rdd))))
+
+(defn partitions
+  "Returns a vector of partitions for a given `rdd`."
+  [rdd]
+  (into [] (.partitions (.rdd rdd))))
+
+(defn partitioner
+  [rdd]
+  (si/some-or-nil (.partitioner (.rdd rdd))))
 
 ;; ## Actions
 ;;
@@ -366,9 +364,7 @@
   Returns a map of (K, Int) pairs with the count of each key."
   [rdd]
   (into {}
-        (-> rdd
-            (map-to-pair identity)
-            .countByKey)))
+        (.countByKey rdd)))
 
 (defn count-by-value
   "Return the count of each unique value in `rdd` as a map of (value, count)
@@ -422,9 +418,9 @@
 (defn distinct
   "Return a new RDD that contains the distinct elements of the source `rdd`."
   ([rdd]
-     (.distinct rdd))
+   (.distinct rdd))
   ([rdd n]
-     (.distinct rdd n)))
+   (.distinct rdd n)))
 
 (defn take
   "Return an array with the first n elements of `rdd`.
@@ -433,8 +429,8 @@
   [rdd cnt]
   (.take rdd cnt))
 
-  (defmulti histogram "compute histogram of an RDD of doubles"
-    (fn [_ bucket-arg] (sequential? bucket-arg)))
+(defmulti histogram "compute histogram of an RDD of doubles"
+  (fn [_ bucket-arg] (sequential? bucket-arg)))
 
 (defmethod histogram true [rdd buckets]
   (let [counts (-> (JavaDoubleRDD/fromRDD (.rdd rdd))
