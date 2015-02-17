@@ -60,17 +60,8 @@
   (.map dstream (function f)))
 
 (defn reduce-by-key [dstream f]
-  "Call reduceByKey on dstream of type JavaDStream or JavaPairDStream"
-  (if (instance? JavaDStream dstream)
-    ;; JavaDStream doesn't have a .reduceByKey so cast to JavaPairDStream first
-    (-> dstream
-      (.mapToPair (pair-function identity))
-      (.reduceByKey (function2 f))
-      (.map (function f/untuple)))
-    ;; if it's already JavaPairDStream, we're good
-    (-> dstream
-        (.reduceByKey (function2 f))
-        (.map (function f/untuple)))))
+  "Call reduceByKey on dstream of type JavaPairDStream"
+  (.reduceByKey dstream (function2 f)))
 
 (defn map-to-pair [dstream f]
   (.mapToPair dstream (pair-function f)))
@@ -100,19 +91,13 @@
   (.countByWindow dstream (duration window-length) (duration slide-interval)))
 
 (defn group-by-key-and-window [dstream window-length slide-interval]
-  (-> dstream
-      (.mapToPair (pair-function identity))
-      (.groupByKeyAndWindow (duration window-length) (duration slide-interval))
-      (.map (function f/untuple))))
+  (.groupByKeyAndWindow dstream (duration window-length) (duration slide-interval)))
 
 (defn reduce-by-window [dstream f f-inv window-length slide-interval]
   (.reduceByWindow dstream (function2 f) (function2 f-inv) (duration window-length) (duration slide-interval)))
 
 (defn reduce-by-key-and-window [dstream f window-length slide-interval]
-  (-> dstream
-      (.mapToPair (pair-function identity))
-      (.reduceByKeyAndWindow (function2 f) (duration window-length) (duration slide-interval))
-      (.map (function f/untuple))))
+  (.reduceByKeyAndWindow dstream (function2 f) (duration window-length) (duration slide-interval)))
 
 
 ;; ## Actions
