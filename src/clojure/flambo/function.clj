@@ -5,7 +5,7 @@
             [clojure.tools.logging :as log])
   (:import [scala Tuple2]))
 
-(set! *warn-on-reflection* true)
+(set! *warn-on-reflection* false)
 
 (defn- serfn? [f]
   (= (type f) :serializable.fn/serializable-fn))
