@@ -31,6 +31,8 @@ Flambo is a Clojure DSL for Spark. It allows you to create and manipulate Spark 
 <a name="versions">
 ## Supported Spark Versions
 
+flambo 0.5.0 targets >= Spark 1.2.0
+
 flambo 0.4.0 targets >= Spark 1.1.0
 
 flambo 0.3.3 targets >= Spark 1.0.0
@@ -44,6 +46,8 @@ Flambo is available from clojars. Depending on the version of Spark you're using
 
 ### With Leiningen
 
+`[yieldbot/flambo "0.5.0"]` for Spark 1.2.0 or greater
+
 `[yieldbot/flambo "0.4.0"]` for Spark 1.1.0 or greater
 
 `[yieldbot/flambo "0.3.3"]` for Spark 1.0.0 or greater
@@ -55,7 +59,7 @@ Don't forget to add spark (and possibly your hadoop distribution's hadoop-client
 ```clojure
 {:profiles {:provided
              {:dependencies
-              [[org.apache.spark/spark-core_2.10 "1.1.1"]]}}}
+              [[org.apache.spark/spark-core_2.10 "1.2.0"]]}}}
 ```
 
 <a name="aot">
@@ -231,11 +235,12 @@ The following code uses the `reduce-by-key` operation on key-value pairs to coun
 ```clojure
 (ns com.fire.kingdom.flambit
   (:require [flambo.api :as f]
+            [flambo.tuple :as ft]
             [clojure.string :as s]))
 
 (-> (f/text-file sc "data.txt")
     (f/flat-map (f/fn [l] (s/split l #" ")))
-    (f/map (f/fn [w] [w 1]))
+    (f/map-to-pair (f/fn [w] (ft/tuple w 1)))
     (f/reduce-by-key (f/fn [x y] (+ x y))))
 ```
 
@@ -244,11 +249,12 @@ After the `reduce-by-key` operation, we can sort the pairs alphabetically using 
 ```clojure
 (ns com.fire.kingdom.flambit
   (:require [flambo.api :as f]
+            [flambo.tuple :as ft]
             [clojure.string :as s]))
 
 (-> (f/text-file sc "data.txt")
     (f/flat-map (f/fn [l] (s/split l #" ")))
-    (f/map (f/fn [w] [w 1]))
+    (f/map-to-pair (f/fn [w] (ft/tuple w 1)))
     (f/reduce-by-key (f/fn [x y] (+ x y)))
     f/sort-by-key
     f/collect
