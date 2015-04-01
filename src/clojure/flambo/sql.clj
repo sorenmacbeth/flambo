@@ -20,16 +20,16 @@
 (defn json-file [sql-context path]
   (.jsonFile sql-context path))
 
-(defn register-rdd-as-table [sql-context rdd table-name]
-  (.registerRDDAsTable sql-context rdd table-name))
+(defn register-data-frame-as-table [sql-context df table-name]
+  (.registerDataFrameAsTable sql-context df table-name))
 
 (defn cache-table [sql-context table-name]
   (.cacheTable sql-context table-name))
 
-;; ## JavaSchemaRDD
+;; ## DataFrame
 ;;
-(defn register-as-table [rdd table-name]
-  (.registerAsTable rdd table-name))
+(defn register-temp-table [df table-name]
+  (.registerTempTable df table-name))
 
 (def print-schema (memfn printSchema))
 
