@@ -4,13 +4,12 @@
 ;;
 (ns flambo.sql
   (:require [flambo.api :as f :refer [defsparkfn]])
-  (:import [org.apache.spark.sql.api.java JavaSQLContext Row]
-           [org.apache.spark.sql SQLContext]))
+  (:import [org.apache.spark.sql SQLContext Row]))
 
 ;; ## JavaSQLContext
 ;;
 (defn sql-context [spark-context]
-  (JavaSQLContext. spark-context))
+  (SQLContext. spark-context))
 
 (defn sql [sql-context query]
   (.sql sql-context query))
@@ -25,8 +24,7 @@
   (.registerRDDAsTable sql-context rdd table-name))
 
 (defn cache-table [sql-context table-name]
-  (let [scala-sql-context (.sqlContext sql-context)]
-    (.cacheTable scala-sql-context table-name)))
+  (.cacheTable sql-context table-name))
 
 ;; ## JavaSchemaRDD
 ;;
