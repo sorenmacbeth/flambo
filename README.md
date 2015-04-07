@@ -230,7 +230,7 @@ While most Spark operations work on RDDs containing any type of objects, a few s
 
 In flambo, these operations are available on RDDs of (key, value) tuples. Flambo handles all of the transformations/serializations to/from `Tuple`, `Tuple2`, `JavaRDD`, `JavaPairRDD`, etc., so you only need to define the sequence of operations you'd like to perform on your data.
 
-The following code uses the `reduce-by-key` operation on key-value pairs to count how many times each word occurs in a file:
+The following code generates pairs of `word` and `count` using `ft/tuple`. We can then use the `reduce-by-key` operation on the pairs to count how many times each word occurs in a file:
 
 ```clojure
 (ns com.fire.kingdom.flambit
@@ -300,6 +300,14 @@ Flambo supports the following RDD actions:
 * `take`: returns an array with the first n elements of the RDD.
 * `glom`: returns an RDD created by coalescing all elements of the source RDD within each partition into a list.
 * `cache`: persists an RDD with the default storage level ('MEMORY_ONLY').
+
+<a name="tuple-functions">
+#### Tuple functions
+
+Flambo supports the following tuple functions:
+
+* `key-val-fn`: When dealing with functions that produce tuples, `key-val-fn` will destrucure tuples into (K, V) and call the supplied function with those arguments.
+* `key-val-val-fn`: When dealing with tuples of the structure (K, (Tuple2(V1, V2)), calls the supplied function with `K`, `V1` and `V2`.
 
 <a name="rdd-persistence">
 ### RDD Persistence
@@ -371,7 +379,7 @@ Thanks to [Ben Black](https://github.com/b) for doing the work on the streaming 
 
 ## License
 
-Copyright © 2014 Yieldbot, Inc.
+Copyright © 2014,2015 Yieldbot, Inc.
 
 Distributed under the Eclipse Public License either version 1.0 or (at
 your option) any later version.
