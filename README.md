@@ -309,6 +309,8 @@ Flambo supports the following tuple functions:
 * `key-val-fn`: When dealing with functions that produce tuples, `key-val-fn` will destrucure tuples into (K, V) and call the supplied function with those arguments.
 * `key-val-val-fn`: When dealing with tuples of the structure (K, (Tuple2(V1, V2)), calls the supplied function with `K`, `V1` and `V2`.
 
+To see an example of these functions in use, check out the [tf-idf example](test/flambo/example/tfidf.clj).
+
 <a name="rdd-persistence">
 ### RDD Persistence
 
