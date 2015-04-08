@@ -4,13 +4,12 @@
 ;;
 (ns flambo.sql
   (:require [flambo.api :as f :refer [defsparkfn]])
-  (:import [org.apache.spark.sql.api.java JavaSQLContext Row]
-           [org.apache.spark.sql SQLContext]))
+  (:import [org.apache.spark.sql SQLContext Row]))
 
 ;; ## JavaSQLContext
 ;;
 (defn sql-context [spark-context]
-  (JavaSQLContext. spark-context))
+  (SQLContext. spark-context))
 
 (defn sql [sql-context query]
   (.sql sql-context query))
@@ -21,17 +20,16 @@
 (defn json-file [sql-context path]
   (.jsonFile sql-context path))
 
-(defn register-rdd-as-table [sql-context rdd table-name]
-  (.registerRDDAsTable sql-context rdd table-name))
+(defn register-data-frame-as-table [sql-context df table-name]
+  (.registerDataFrameAsTable sql-context df table-name))
 
 (defn cache-table [sql-context table-name]
-  (let [scala-sql-context (.sqlContext sql-context)]
-    (.cacheTable scala-sql-context table-name)))
+  (.cacheTable sql-context table-name))
 
-;; ## JavaSchemaRDD
+;; ## DataFrame
 ;;
-(defn register-as-table [rdd table-name]
-  (.registerAsTable rdd table-name))
+(defn register-temp-table [df table-name]
+  (.registerTempTable df table-name))
 
 (def print-schema (memfn printSchema))
 
