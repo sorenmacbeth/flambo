@@ -16,7 +16,12 @@ and its `idf` weight:
 
 ## Example Application Walkthrough
 
-First, let's start the REPL and load the namespaces we'll need to implement our app:
+First, let's start the REPL and load the namespaces we'll need to implement our app. Before we do, we need to ensure that some of the functions compiled AOT. Add the following to your project.clj :dev profile:
+
+```clojure
+:aot [flambo.function]
+```
+Now we can add the namespaces:
 
 ```clojure
 lein repl
@@ -28,9 +33,22 @@ The flambo `api` and `conf` namespaces contain functions to access Spark's API a
 
 ### Initializing Spark
 
-flambo applications require a `SparkContext` object which tells Spark how to access a cluster. The `SparkContext` object requires a `SparkConf` object that encapsulates information about the application. We first build a spark configuration, `c`, then pass it to the flambo `spark-context` function which returns the requisite context object, `sc`:
+flambo applications require a `SparkContext` object which tells Spark how to access a cluster. The `SparkContext` object requires a `SparkConf` object that encapsulates information about the application, as well as a runtime environment, both described below.
+
+As with most distributed computing systems, Spark has a [myriad of properties](http://spark.apache.org/docs/latest/configuration.html) that control most application settings. With flambo you can either `set` these properties directly on a _SparkConf_ object, e.g., `(conf/set "spark.akka.timeout" "300")`, or via a Clojure map, `(conf/set conf)`. We set an empty map, `(def conf {})`, for illustration.
 
 ```clojure
+user=> (def conf {})
+```
+
+Similarly, we set the executor runtime enviroment properties either directly via key/value strings or by passing a Clojure map of key/value strings. `conf/set-executor-env` handles both. Again our environment will be empty for this tutorial.
+
+```clojure
+user=> (def env {})
+```
+Now we can build a spark configuration, `c`, then pass it to the flambo `spark-context` function which returns the requisite context object, `sc`:
+
+``` clojure
 user=> (def c (-> (conf/spark-conf)
                   (conf/master master)
                   (conf/app-name "tfidf")
@@ -44,9 +62,6 @@ user=> (def sc (f/spark-context c))
 
 The `app-name` flambo function is used to set the name of our application. 
 
-As with most distributed computing systems, Spark has a [myriad of properties](http://spark.apache.org/docs/latest/configuration.html) that control most application settings. With flambo you can either `set` these properties directly on a _SparkConf_ object, e.g., `(conf/set "spark.akka.timeout" "300")`, or via a Clojure map, `(conf/set conf)`. We set an empty map, `(def conf {})`, for illustration.
-
-Similarly, we set the executor runtime enviroment properties either directly via key/value strings or by passing a Clojure map of key/value strings. `conf/set-executor-env` handles both.
 
 ### Computing TF-IDF
 
@@ -70,15 +85,21 @@ We use the corpus and spark context to create a Spark [_resilient distributed da
 user=> (def doc-data (f/parallelize sc documents))
 ```
 
-* [reading](https://github.com/yieldbot/flambo/blob/develop/README.md#external-datasets) a dataset from an external storage system
+You can also [read external data](https://github.com/yieldbot/flambo/blob/develop/README.md#external-datasets), such as from files, HDFS or S3.
+
 
 We are now ready to start applying [_actions_](https://github.com/yieldbot/flambo/blob/develop/README.md#rdd-actions) and [_transformations_](https://github.com/yieldbot/flambo/blob/develop/README.md#rdd-transformations) to our RDD; this is where flambo truly shines (or rather burns bright). It utilizes the powerful abstractions available in Clojure to reason about data. You can use Clojure constructs such as the threading macro `->` to chain sequences of operations and transformations.  
 
 #### Term Frequency
 
-To compute the term freqencies, we need a dictionary of the terms in each document filtered by a set of [_stopwords_](https://github.com/yieldbot/flambo/blob/develop/test/flambo/example/tfidf.clj#L10). We pass the RDD, `doc-data`, of `[doc-id content]` tuples to the flambo `flat-map` transformation to get a new stopword filtered RDD of `[doc-id term term-frequency doc-terms-count]` tuples. This is the dictionary for our corpus.
+To compute the term freqencies, we need a dictionary of the terms in each document filtered by a set of stopwords. We will define a short list of them here:
 
-`flat-map` transforms the source RDD by passing each tuple through a function. It is similar to `map`, but the output is a collection of 0 or more items which is then flattened. We use the flambo named function macro `flambo.api/defsparkfn` to define our Clojure function `gen-docid-term-tuples`: 
+```clojure
+user=> (def stopwords #{"a" "all" "and" "any" "are" "is" "in" "of" "on" "or" "our" "so" "this" "the" "that" "to" "we"})
+```
+ We pass the RDD, `doc-data`, of `[doc-id content]` tuples to the flambo `flat-map` transformation to get a new stopword filtered RDD of `[doc-id term term-frequency doc-terms-count]` tuples. This is the dictionary for our corpus.
+
+`flat-map` transforms the source RDD by passing each tuple through a function. It is similar to `map`, but the output is a collection of 0 or more items which is then flattened. We use the flambo named function macro [flambo.api/defsparkfn](https://github.com/yieldbot/flambo/blob/develop/src/clojure/flambo/api.clj#L58) to define our Clojure function `gen-docid-term-tuples`: 
 
 ```clojure
 user=> (f/defsparkfn gen-docid-term-tuples [doc-tuple]
