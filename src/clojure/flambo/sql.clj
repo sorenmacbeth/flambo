@@ -31,12 +31,12 @@
   (.jsonFile sql-context path))
 
 ;; Since 1.3 the SparkSQL data sources API is recommended for load & save operations.
-;; (defn load
-;;   "Returns the dataset stored at path as a DataFrame."
-;;   ([sql-context path]                   ; data source type configured by spark.sql.sources.default
-;;    (.load sql-context path))            
-;;   ([sql-context path source-type]       ; specify data source type
-;;    (.load sql-context path source-type)))
+(defn load
+  "Returns the dataset stored at path as a DataFrame."
+  ([sql-context path]                   ; data source type configured by spark.sql.sources.default
+   (.load sql-context path))            
+  ([sql-context path source-type]       ; specify data source type
+   (.load sql-context path source-type)))
 
 (defn read-csv
   "Reads a file in table format and creates a data frame from it, with cases corresponding to
