@@ -2,6 +2,7 @@
 ;; SparkSQL & DataFrame wrapper
 ;;
 (ns flambo.sql
+  (:refer-clojure :exclude [load])
   (:require [flambo.api :as f :refer [defsparkfn]])
   (:import [org.apache.spark.sql SQLContext Row]))
 
@@ -31,16 +32,16 @@
   (.jsonFile sql-context path))
 
 ;; Since 1.3 the SparkSQL data sources API is recommended for load & save operations.
-(defn load
-  "Returns the dataset stored at path as a DataFrame."
-  ([sql-context path]                   ; data source type configured by spark.sql.sources.default
-   (.load sql-context path))            
-  ([sql-context path source-type]       ; specify data source type
-   (.load sql-context path source-type)))
+;; (defn load
+;;   "Returns the dataset stored at path as a DataFrame."
+;;   ([sql-context path]                   ; data source type configured by spark.sql.sources.default
+;;    (.load sql-context path))            
+;;   ([sql-context path source-type]       ; specify data source type
+;;    (.load sql-context path source-type)))
 
 (defn read-csv
   "Reads a file in table format and creates a data frame from it, with cases corresponding to
-  lines and variables to fields in the file. A clone of R's read.csv. "
+  lines and variables to fields in the file. A clone of R's read.csv."
   [sql-context path &{:keys [header separator quote]
                       :or   {header false separator "," quote "'"}}]
   (let [options (new java.util.HashMap)]
