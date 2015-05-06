@@ -4,13 +4,24 @@
 (ns flambo.sql
   (:refer-clojure :exclude [load])
   (:require [flambo.api :as f :refer [defsparkfn]])
-  (:import [org.apache.spark.sql SQLContext Row]))
+  (:import [org.apache.spark.api.java JavaSparkContext]
+           [org.apache.spark.sql SQLContext Row DataFrame]))
 
-;; JavaSQLContext
-(defn sql-context [spark-context]
+;; ## SQLContext
+;;
+(defn ^SQLContext sql-context
+  "Build a SQLContext from a JavaSparkContext"
+  [^JavaSparkContext spark-context]
   (SQLContext. spark-context))
 
-(defn sql [sql-context query]
+(defn ^JavaSparkContext spark-context
+  "Get reference to the SparkContext out of a SQLContext"
+  [^SQLContext sql-context]
+  (JavaSparkContext/fromSparkContext (.sparkContext sql-context)))
+
+(defn sql
+  "Execute a query. The dialect that is used for SQL parsing can be configured with 'spark.sql.dialect'."
+  [sql-context query]
   (.sql sql-context query))
 
 (defmacro with-sql-context
@@ -62,6 +73,38 @@
   "Caches the specified table in memory."
   [sql-context table-name]
   (.cacheTable sql-context table-name))
+
+(defn json-rdd
+  "Load an RDD of JSON strings (one object per line), inferring the schema, and returning a DataFrame"
+  [sql-context json-rdd]
+  (.jsonRDD sql-context json-rdd))
+
+(defn uncache-table
+  "Removes the specified table from the in-memory cache."
+  [sql-context table-name]
+  (.uncacheTable sql-context table-name))
+
+(defn clear-cache
+  "Remove all tables from cache"
+  [sql-context]
+  (.clearCache sql-context))
+
+(defn is-cached?
+  "Is the given table cached"
+  [sql-context table-name]
+  (.isCached sql-context table-name))
+
+(defn ^DataFrame table
+  "Return a table as a DataFrame"
+  [sql-context table-name]
+  (.table sql-context table-name))
+
+(defn table-names
+  "Return a seq of strings of table names, optionally within a specific database"
+  ([sql-context]
+   (seq (.tableNames sql-context)))
+  ([sql-context database-name]
+   (seq (.tableNames sql-context database-name))))
 
 ;; DataFrame
 (defn register-temp-table
