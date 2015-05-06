@@ -12,7 +12,7 @@
                                      function2
                                      pair-function
                                      void-function]])
-  (:import [org.apache.spark.streaming.api.java JavaStreamingContext JavaDStream]
+  (:import [org.apache.spark.streaming.api.java JavaStreamingContext]
            [org.apache.spark.streaming.kafka KafkaUtils]
            [org.apache.spark.streaming.flume FlumeUtils]
            [org.apache.spark.streaming Duration Time]))

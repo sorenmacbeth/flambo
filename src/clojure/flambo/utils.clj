@@ -1,7 +1,6 @@
 (ns flambo.utils
   (:require [clojure.tools.logging :as log])
-  (:import [scala Tuple2]
-           [org.apache.spark.util.random BernoulliCellSampler XORShiftRandom]
+  (:import [org.apache.spark.util.random BernoulliCellSampler]
            [java.io PrintStream]
            [flambo WriterOutputStream]
            [org.apache.log4j Logger WriterAppender SimpleLayout]))

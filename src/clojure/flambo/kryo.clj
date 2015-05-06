@@ -1,8 +1,7 @@
 ;; ## Utilities and macros for dealing with kryo
 ;;
 (ns flambo.kryo
-  (:import [org.apache.spark.serializer KryoRegistrator]
-           [org.apache.spark SparkEnv]
+  (:import [org.apache.spark SparkEnv]
            [org.apache.spark.serializer SerializerInstance]
            [java.nio ByteBuffer]
            [scala.reflect ClassTag$]))
