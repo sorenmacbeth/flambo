@@ -32,12 +32,12 @@
   (.jsonFile sql-context path))
 
 ;; Since 1.3 the SparkSQL data sources API is recommended for load & save operations.
-;; (defn load
-;;   "Returns the dataset stored at path as a DataFrame."
-;;   ([sql-context path]                   ; data source type configured by spark.sql.sources.default
-;;    (.load sql-context path))            
-;;   ([sql-context path source-type]       ; specify data source type
-;;    (.load sql-context path source-type)))
+(defn load
+  "Returns the dataset stored at path as a DataFrame."
+  ([sql-context path]                   ; data source type configured by spark.sql.sources.default
+   (.load sql-context path))            
+  ([sql-context path source-type]       ; specify data source type
+   (.load sql-context path source-type)))
 
 (defn read-csv
   "Reads a file in table format and creates a data frame from it, with cases corresponding to
@@ -51,14 +51,22 @@
     (.put options "quote" quote)
     (.load sql-context "com.databricks.spark.csv" options)))
 
-(defn register-data-frame-as-table [sql-context df table-name]
+(defn register-data-frame-as-table
+  "Registers the given DataFrame as a temporary table in the
+  catalog. Temporary tables exist only during the lifetime of this
+  instance of SQLContex."
+  [sql-context df table-name]
   (.registerDataFrameAsTable sql-context df table-name))
 
-(defn cache-table [sql-context table-name]
+(defn cache-table
+  "Caches the specified table in memory."
+  [sql-context table-name]
   (.cacheTable sql-context table-name))
 
 ;; DataFrame
-(defn register-temp-table [df table-name]
+(defn register-temp-table
+  "Registers this dataframe as a temporary table using the given name."
+  [df table-name]
   (.registerTempTable df table-name))
 
 (defn columns
