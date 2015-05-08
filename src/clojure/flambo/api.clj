@@ -26,9 +26,9 @@
             [flambo.kryo :as k]
             [flambo.scala-interop :as si])
   (:import [scala Tuple2]
-           [java.util Comparator]
+           [java.util Comparator ArrayList]
            [org.apache.spark.api.java JavaSparkContext StorageLevels
-            JavaRDD JavaDoubleRDD JavaPairRDD]
+            JavaRDD JavaDoubleRDD]
            [org.apache.spark.rdd PartitionwiseSampledRDD]))
 
 ;; flambo makes extensive use of kryo to serialize and deserialize clojure functions
@@ -144,7 +144,7 @@
 (defn union
   "Build the union of two or more RDDs"
   [context rdd & rdds]
-  (.union context rdd (java.util.ArrayList. rdds)))
+  (.union context rdd (ArrayList. rdds)))
 
 (defn partitionwise-sampled-rdd [rdd sampler preserve-partitioning? seed]
   "Creates a PartitionwiseSampledRRD from existing RDD and a sampler object"

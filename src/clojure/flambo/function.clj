@@ -1,9 +1,7 @@
 (ns flambo.function
   (:require [serializable.fn :as sfn]
-            [flambo.utils :as u]
             [flambo.kryo :as kryo]
-            [clojure.tools.logging :as log])
-  (:import [scala Tuple2]))
+            [clojure.tools.logging :as log]))
 
 (set! *warn-on-reflection* false)
 
