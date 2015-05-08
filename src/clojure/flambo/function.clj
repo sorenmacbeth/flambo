@@ -9,7 +9,11 @@
   (= (type f) :serializable.fn/serializable-fn))
 
 (def serialize-fn sfn/serialize)
-(def deserialize-fn (memoize sfn/deserialize))
+(def deserialize-serfn (memoize sfn/deserialize))
+(def deserialize-fn (memoize #(let [f (kryo/deserialize (first %))]
+                                (->> f class .getName (re-matches #"(.*?)\$.*")
+                                     second symbol require)
+                                f)))
 (def array-of-bytes-type (Class/forName "[B"))
 
 ;; ## Generic
@@ -22,8 +26,8 @@
   (let [fn-or-serfn (.state this)
         f (if (instance? array-of-bytes-type fn-or-serfn)
             (binding [sfn/*deserialize* kryo/deserialize]
-              (deserialize-fn fn-or-serfn))
-            fn-or-serfn)]
+              (deserialize-serfn fn-or-serfn))
+            (deserialize-fn fn-or-serfn))]
     (log/trace "CLASS" (type this))
     (log/trace "META" (meta f))
     (log/trace "XS" xs)
@@ -50,8 +54,10 @@
         :constructors {[Object] []})
        (defn ~wrapper-name [f#]
          (new ~new-class-sym
-              (if (serfn? f#) (binding [sfn/*serialize* kryo/serialize]
-                                (serialize-fn f#)) f#))))))
+              (if (serfn? f#)
+                (binding [sfn/*serialize* kryo/serialize]
+                  (serialize-fn f#))
+                [(kryo/serialize f#)]))))))
 
 (gen-function Function function)
 (gen-function Function2 function2)
