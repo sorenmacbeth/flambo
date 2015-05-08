@@ -25,11 +25,12 @@
                     flambo.example.tfidf]}
              :provided
              {:dependencies
-              [[org.apache.spark/spark-core_2.10 "1.3.0"]
-               [org.apache.spark/spark-streaming_2.10 "1.3.0"]
-               [org.apache.spark/spark-streaming-kafka_2.10 "1.3.0"]
-               [org.apache.spark/spark-streaming-flume_2.10 "1.3.0"]
-               [org.apache.spark/spark-sql_2.10 "1.3.0"]]}
+              [[org.apache.spark/spark-core_2.10 "1.3.1"]
+               [org.apache.spark/spark-streaming_2.10 "1.3.1"]
+               [org.apache.spark/spark-streaming-kafka_2.10 "1.3.1"]
+               [org.apache.spark/spark-streaming-flume_2.10 "1.3.1"]
+               [org.apache.spark/spark-sql_2.10 "1.3.1"]
+               [com.databricks/spark-csv_2.10 "1.0.1"]]}
              :clojure-1.7
              {:dependencies [[org.clojure/clojure "1.7.0-alpha4"]]}
              :uberjar
@@ -42,7 +43,7 @@
   :source-paths ["src/clojure"]
   :java-source-paths ["src/java"]
   :codox {:defaults {:doc/format :markdown}
-          :include [flambo.api flambo.conf flambo.kryo]
+          :include [flambo.api flambo.conf flambo.kryo flambo.sql]
           :output-dir "doc/codox"
           :src-dir-uri "http://github.com/yieldbot/flambo/blob/develop/"
           :src-linenum-anchor-prefix "L"}
