@@ -32,7 +32,7 @@
                [org.apache.spark/spark-sql_2.10 "1.3.1"]
                [com.databricks/spark-csv_2.10 "1.0.1"]]}
              :clojure-1.7
-             {:dependencies [[org.clojure/clojure "1.7.0-alpha4"]]}
+             {:dependencies [[org.clojure/clojure "1.7.0-beta2"]]}
              :uberjar
              {:aot :all}
              :example

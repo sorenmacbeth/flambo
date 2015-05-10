@@ -50,8 +50,9 @@
         :constructors {[Object] []})
        (defn ~wrapper-name [f#]
          (new ~new-class-sym
-              (if (serfn? f#) (binding [sfn/*serialize* kryo/serialize]
-                                (serialize-fn f#)) f#)) assoc :tag ~new-class-sym))))
+              (if (serfn? f#)
+                (binding [sfn/*serialize* kryo/serialize]
+                  (serialize-fn f#)) f#))))))
 
 (gen-function Function function)
 (gen-function Function2 function2)
