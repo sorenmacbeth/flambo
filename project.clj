@@ -49,5 +49,5 @@
           :src-linenum-anchor-prefix "L"}
   :javac-options ["-source" "1.6" "-target" "1.6"]
   :jvm-opts ^:replace ["-server" "-Xmx1g"]
-  :global-vars {*warn-on-reflection* true}
+  :global-vars {*warn-on-reflection* false}
   :min-lein-version "2.5.0")
