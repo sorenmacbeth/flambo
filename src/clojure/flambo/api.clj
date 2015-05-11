@@ -172,6 +172,11 @@
   [rdd f]
   (.mapToPair rdd (pair-function f)))
 
+(defn map-values
+  "Apply function `f` over the values of JavaPairRDD `rdd` returning a new JavaPairRDD."
+  [rdd f]
+  (.mapValues rdd (function f)))
+
 (defn reduce
   "Aggregates the elements of `rdd` using the function `f` (which takes two arguments
   and returns one). The function should be commutative and associative so that it can be
