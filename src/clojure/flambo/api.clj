@@ -201,6 +201,11 @@
   [rdd f]
   (.flatMapToPair rdd (pair-flat-map-function f)))
 
+(defn flat-map-values
+  "Apply function `f` to the values of JavaPairRDD `rdd` returning at iterator of new values."
+  [rdd f]
+  (.flatMapValues rdd (function f)))
+
 (defn map-partition
   "Similar to `map`, but runs separately on each partition (block) of the `rdd`, so function `f`
   must be of type Iterator<T> => Iterable<U>.
