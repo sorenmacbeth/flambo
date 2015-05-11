@@ -10,7 +10,7 @@
 ;; happily accepted!
 ;;
 (ns flambo.api
-  (:refer-clojure :exclude [fn map reduce first count take distinct filter group-by values])
+  (:refer-clojure :exclude [fn map reduce first count take distinct filter group-by values partition-by])
   (:require [serializable.fn :as sfn]
             [clojure.tools.logging :as log]
             [flambo.function :refer [flat-map-function
@@ -29,7 +29,8 @@
            [java.util Comparator ArrayList]
            [org.apache.spark.api.java JavaSparkContext StorageLevels
             JavaRDD JavaDoubleRDD]
-           [org.apache.spark.rdd PartitionwiseSampledRDD]))
+           [org.apache.spark.rdd PartitionwiseSampledRDD]
+           [org.apache.spark HashPartitioner Partitioner]))
 
 ;; flambo makes extensive use of kryo to serialize and deserialize clojure functions
 ;; and data structures. Here we ensure that these properties are set so they are inhereted
@@ -335,6 +336,20 @@
    (.coalesce rdd n))
   ([rdd n shuffle?]
    (.coalesce rdd n shuffle?)))
+
+(defn hash-partitioner
+  ([n]
+   (HashPartitioner. n))
+  ([subkey-fn n]
+   (proxy [HashPartitioner] [n]
+     (getPartition [key]
+       (let [subkey (subkey-fn key)]
+         (mod (hash subkey) n))))))
+
+(defn partition-by
+  "Partition `rdd` by `partitioner`."
+  [rdd partitioner]
+  (.partitionBy rdd partitioner))
 
 (defn repartition
   "Returns a new `rdd` with exactly `n` partitions."
