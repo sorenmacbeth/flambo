@@ -24,8 +24,8 @@ This will create a new Clojure project skelton to work with. This tutorial uses 
 
 ```clojure
   :profiles {:dev
-              ;; so gen-class stuff works in the repl
-              :aot [flambo.function]}
+             ;; so gen-class stuff works in the repl
+             {:aot [flambo.function]}
              :provided
              {:dependencies
               [[org.apache.spark/spark-core_2.10 "1.3.0"]
