@@ -20,7 +20,9 @@
                                      function3
                                      pair-function
                                      pair-flat-map-function
-                                     void-function]]
+                                     void-function
+                                     double-function
+                                     double-flat-map-function]]
             [flambo.conf :as conf]
             [flambo.utils :as u]
             [flambo.kryo :as k]
