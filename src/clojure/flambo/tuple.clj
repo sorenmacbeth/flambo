@@ -1,9 +1,10 @@
 (ns flambo.tuple
-  (:refer-clojure :exclude [first second seq vec])
   (:require [serializable.fn :as sfn])
   (:import [scala Tuple2]))
 
-(defn tuple [k v]
+(set! *warn-on-reflection* true)
+
+(defn ^Tuple2 tuple [k v]
   (Tuple2. k v))
 
 (defn key-val-fn [f]
