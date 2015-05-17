@@ -8,6 +8,7 @@
                  :post "flambo-user@googlegroups.com"}
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [org.clojure/tools.logging "0.2.6"]
+                 [org.clojure/core.memoize "0.5.7"]
                  [yieldbot/serializable-fn "0.0.7"
                   :exclusions [com.twitter/chill-java]]
                  [com.twitter/carbonite "1.4.0"
