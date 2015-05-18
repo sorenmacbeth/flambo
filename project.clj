@@ -9,7 +9,7 @@
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [org.clojure/tools.logging "0.3.1"]
                  [org.clojure/core.memoize "0.5.7"]
-                 [yieldbot/serializable-fn "0.0.8"
+                 [yieldbot/serializable-fn "0.0.9"
                   :exclusions [com.twitter/chill-java]]
                  [com.twitter/carbonite "1.4.0"
                   :exclusions [com.twitter/chill-java]]
