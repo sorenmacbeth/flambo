@@ -13,8 +13,8 @@
 (def serialize-fn sfn/serialize)
 (def deserialize-serfn (memoize sfn/deserialize))
 (def deserialize-fn (memoize #(let [f (kryo/deserialize (first %))]
-                                (->> f class .getName (re-matches #"(.*?)\$.*")
-                                     second symbol require)
+                                (when (instance? clojure.lang.Var$Unbound f)
+                                  (require (.. f v ns getName)))
                                 f)))
 (def array-of-bytes-type (Class/forName "[B"))
 
