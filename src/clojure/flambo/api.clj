@@ -92,20 +92,20 @@
   (let [clazz (Class/forName (clojure.string/replace (str ns) #"-" "_"))]
     (JavaSparkContext/jarOfClass clazz)))
 
-(defsparkfn untuple [^Tuple2 t]
+(defn untuple [^Tuple2 t]
   (let [v (transient [])]
     (conj! v (._1 t))
     (conj! v (._2 t))
     (persistent! v)))
 
-(defsparkfn double-untuple [^Tuple2 t]
+(defn double-untuple [^Tuple2 t]
   (let [[x ^Tuple2 t2] (untuple t)
         v (transient [])]
     (conj! v x)
     (conj! v (untuple t2))
     (persistent! v)))
 
-(defsparkfn group-untuple [^Tuple2 t]
+(defn group-untuple [^Tuple2 t]
   (let [v (transient [])]
     (conj! v (._1 t))
     (conj! v (into [] (._2 t)))
@@ -208,7 +208,7 @@
   [rdd f]
   (.flatMapValues rdd (function f)))
 
-(defn map-partition
+(defn map-partitions
   "Similar to `map`, but runs separately on each partition (block) of the `rdd`, so function `f`
   must be of type Iterator<T> => Iterable<U>.
   https://issues.apache.org/jira/browse/SPARK-3369"
@@ -216,14 +216,14 @@
   (.mapPartitions rdd (flat-map-function f)))
 
 (defn map-partitions-to-pair
-  "Similar to `map`, but runs separately on each partition (block) of the `rdd`, so function `f`
-  must be of type Iterator<T> => Iterable<U>.
-  https://issues.apache.org/jira/browse/SPARK-3369"
-  [rdd f & {:keys [preserves-partitioning]}]
+  "Similar to `map-partitions`, but runs separately on each partition (block) of the `rdd`, so function `f`
+  must be of type Iterator<T> => Iterable<scala.Tuple2<K,V>>."
+  [rdd f & {:keys [preserves-partitioning]
+            :or {:preserves-partitioning false}}]
   (.mapPartitionsToPair rdd (pair-flat-map-function f) (u/truthy? preserves-partitioning)))
 
-(defn map-partition-with-index
-  "Similar to `map-partition` but function `f` is of type (Int, Iterator<T>) => Iterator<U> where
+(defn map-partitions-with-index
+  "Similar to `map-partitions` but function `f` is of type (Int, Iterator<T>) => Iterator<U> where
   `i` represents the index of partition."
   [rdd f]
   (.mapPartitionsWithIndex rdd (function2 f) true))

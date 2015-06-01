@@ -228,18 +228,20 @@
           vec) => [["Four" 1] ["score" 1] ["and" 1] ["seven" 1] ["years" 1] ["ago" 1]])
 
      (fact
-      "map-partition"
+      "map-partitions"
       (-> (f/parallelize c [0 1 2 3 4])
-          (f/map-partition (f/fn [it] (map identity (iterator-seq it))))
+          (f/map-partitions (f/fn [it] (map identity (iterator-seq it))))
           f/collect) => [0 1 2 3 4])
 
      (fact
-      "map-partition-with-index"
+      "map-partitions-with-index"
       (-> (f/parallelize c [0 1 2 3 4])
           (f/repartition 4)
-          (f/map-partition-with-index (f/fn [i it] (.iterator (map identity (iterator-seq it)))))
+          (f/map-partitions-with-index (f/fn [i it] (.iterator (map identity (iterator-seq it)))))
           f/collect
           vec) => (just [0 1 2 3 4] :in-any-order))
+
+     (future-fact "map-partitions-to-pair")
 
      (fact
       "cartesian creates cartesian product of two RDDS"
