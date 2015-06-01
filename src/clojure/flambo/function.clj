@@ -50,6 +50,7 @@
        (def ~(mk-sym "%s-call" clazz) -call)
        (gen-class
         :name ~new-class-sym
+        :extends flambo.function.AbstractFlamboFunction
         :implements [~(mk-sym "org.apache.spark.api.java.function.%s" clazz)]
         :prefix ~prefix-sym
         :init ~'init
