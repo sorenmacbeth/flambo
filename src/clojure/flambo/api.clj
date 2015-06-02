@@ -230,7 +230,7 @@
 
 (defn union
   "Union `rdd` and `other`. duplicate keys are kept."
-  [context rdd & rdds]
+  [rdd other]
   (.union rdd other))
 
 (defn foreach

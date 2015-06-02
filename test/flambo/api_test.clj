@@ -27,7 +27,7 @@
      (fact
       "union concats two RDDs"
       (let [rdd1 (f/parallelize c [1 2 3 4])
-            rdd3 (f/parallelize c [21 22 23])]
+            rdd2 (f/parallelize c [21 22 23])]
         (-> (f/union rdd1 rdd2)
             f/collect
             vec) => (just [1 2 3 4 21 22 23] :in-any-order))))))
