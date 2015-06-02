@@ -144,11 +144,6 @@
   ([rdd]
    (.name rdd)))
 
-(defn union
-  "Build the union of two or more RDDs"
-  [context rdd & rdds]
-  (.union context rdd (ArrayList. rdds)))
-
 (defn partitionwise-sampled-rdd [rdd sampler preserve-partitioning? seed]
   "Creates a PartitionwiseSampledRRD from existing RDD and a sampler object"
   (-> (PartitionwiseSampledRDD.
@@ -233,6 +228,11 @@
   [rdd f]
   (.filter rdd (function (ftruthy? f))))
 
+(defn union
+  "Union `rdd` and `other`. duplicate keys are kept."
+  [context rdd & rdds]
+  (.union rdd other))
+
 (defn foreach
   "Applies the function `f` to all elements of `rdd`."
   [rdd f]
@@ -254,6 +254,11 @@
   using a given associative function and a neutral 'zero value'"
   [rdd zero-value f]
   (.fold rdd zero-value (function2 f)))
+
+(defn subtract
+  "returns an `rdd` with elements from `other` removed."
+  [rdd other]
+  (.subtract rdd other))
 
 (defn reduce-by-key
   "When called on an `rdd` of (K, V) pairs, returns an RDD of (K, V) pairs
@@ -421,6 +426,10 @@
   This can only be used to assign a new storage level if the RDD does not have a storage level set already."
   [rdd storage-level]
   (.persist rdd storage-level))
+
+(defn unpersist
+  [rdd]
+  (.unpersist rdd))
 
 (def first
   "Returns the first element of `rdd`."
