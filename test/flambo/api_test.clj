@@ -254,6 +254,8 @@
 
      (future-fact "repartition returns a new RDD with exactly n partitions")
 
+     (future-fact "subtract")
+
      )))
 
 (facts
