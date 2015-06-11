@@ -44,8 +44,11 @@
 (defn socket-text-stream [context ip port]
   (.socketTextStream context ip port))
 
-(defn kafka-stream [& {:keys [streaming-context zk-connect group-id topic-map]}]
-  (KafkaUtils/createStream streaming-context zk-connect group-id (into {} (for [[k, v] topic-map] [k (Integer. v)]))))
+(defn kafka-stream [streaming-context zk-connect group-id topic-map]
+  (KafkaUtils/createStream streaming-context zk-connect group-id (into {} (for [[k v] topic-map] [k (Integer. v)]))))
+
+(defn kafka-direct-stream [streaming-context key-class value-class key-decoder-class value-decoder-class kafka-params topic-set]
+  (KafkaUtils/createDirectStream streaming-context key-class value-class key-decoder-class value-decoder-class kafka-params topic-set))
 
 (defn flume-stream [streaming-context host port]
   (FlumeUtils/createStream streaming-context host port))
