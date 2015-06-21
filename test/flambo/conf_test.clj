@@ -1,13 +1,14 @@
 (ns flambo.conf-test
   (:use midje.sweet)
-  (:require [flambo.conf :as conf]))
+  (:require [flambo.conf :as conf])
+  (:import (org.apache.spark SparkConf)))
 
 (facts
  "about setting k/v into spark-conf"
  (let [c (conf/spark-conf)]
    (fact
     "spark-conf returns a SparkConf object"
-    (class c) => org.apache.spark.SparkConf)
+    (class c) => SparkConf)
 
    (fact
     "setting master works"

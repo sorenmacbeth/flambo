@@ -18,6 +18,8 @@ Flambo is a Clojure DSL for [Apache Spark](http://spark.apache.org/docs/latest/)
 * [Standalone Applications](#running-flambo)
 * [Kryo](#kryo)
 * [Acknowledgements](#acknowledgements)
+* [Support](#support)
+* [License](#license)
 
 <a name="overview">
 ## Overview
@@ -30,6 +32,8 @@ Flambo is a Clojure DSL for Spark. It allows you to create and manipulate Spark 
 
 <a name="versions">
 ## Supported Spark Versions
+
+flambo 0.6.0 targets >= Spark 1.3.0
 
 flambo 0.5.0 targets >= Spark 1.2.0
 
@@ -46,6 +50,8 @@ Flambo is available from clojars. Depending on the version of Spark you're using
 
 ### With Leiningen
 
+`[yieldbot/flambo "0.6.0"]` for Spark 1.3.0 or greater
+
 `[yieldbot/flambo "0.5.0"]` for Spark 1.2.0 or greater
 
 `[yieldbot/flambo "0.4.0"]` for Spark 1.1.0 or greater
@@ -59,7 +65,7 @@ Don't forget to add spark (and possibly your hadoop distribution's hadoop-client
 ```clojure
 {:profiles {:provided
              {:dependencies
-              [[org.apache.spark/spark-core_2.10 "1.2.0"]]}}}
+              [[org.apache.spark/spark-core_2.10 "1.3.0"]]}}}
 ```
 
 <a name="aot">
@@ -378,7 +384,25 @@ Thanks to The Climate Corporation and their open source project [clj-spark](http
 
 Thanks to [Ben Black](https://github.com/b) for doing the work on the streaming api.
 
+<a name="support">
+## Support
 
+YourKit
+
+<img src="http://www.yourkit.com/images/yklogo.png"></img>
+
+YourKit has generously supplied an open source license for their profiler
+to improve the performance of Flambo.
+
+YourKit supports open source projects with its full-featured Java
+Profiler.  YourKit, LLC is the creator of <a
+href="http://www.yourkit.com/java/profiler/index.jsp">YourKit Java
+Profiler</a> and <a
+href="http://www.yourkit.com/.net/profiler/index.jsp">YourKit .NET
+Profiler</a>, innovative and intelligent tools for profiling Java and
+.NET applications.
+
+<a name="license">
 ## License
 
 Copyright © 2014,2015 Yieldbot, Inc.

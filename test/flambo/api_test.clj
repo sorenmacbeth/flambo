@@ -2,7 +2,9 @@
   (:use midje.sweet)
   (:require [flambo.api :as f]
             [flambo.tuple :as ft]
-            [flambo.conf :as conf]))
+            [flambo.conf :as conf])
+  (:import (org.apache.spark.api.java JavaSparkContext JavaRDD)
+           (scala Tuple2)))
 
 (facts
  "about spark-context"
@@ -12,11 +14,11 @@
    (f/with-context c conf
      (fact
       "gives us a JavaSparkContext"
-      (class c) => org.apache.spark.api.java.JavaSparkContext)
+      (class c) => JavaSparkContext)
 
      (fact
       "creates a JavaRDD"
-      (class (f/parallelize c [1 2 3 4 5])) => org.apache.spark.api.java.JavaRDD)
+      (class (f/parallelize c [1 2 3 4 5])) => JavaRDD)
 
      (fact
       "round-trips a clojure vector"
@@ -25,11 +27,10 @@
      (fact
       "union concats two RDDs"
       (let [rdd1 (f/parallelize c [1 2 3 4])
-            rdd2 (f/parallelize c [11 12 13])
-            rdd3 (f/parallelize c [21 22 23])]
-        (-> (f/union c rdd1 rdd2 rdd3)
+            rdd2 (f/parallelize c [21 22 23])]
+        (-> (f/union rdd1 rdd2)
             f/collect
-            vec) => (just [1 2 3 4 11 12 13 21 22 23] :in-any-order))))))
+            vec) => (just [1 2 3 4 21 22 23] :in-any-order))))))
 
 (facts
  "about serializable functions"
@@ -52,12 +53,12 @@
 
  (fact
   "untuple returns a 2 vector"
-  (let [tuple2 (scala.Tuple2. 1 "hi")]
+  (let [tuple2 (Tuple2. 1 "hi")]
     (f/untuple tuple2) => [1 "hi"]))
 
  (fact
   "double untuple returns a vector with a key and a 2 vector value"
-  (let [double-tuple2 (scala.Tuple2. 1 (scala.Tuple2. 2 "hi"))]
+  (let [double-tuple2 (Tuple2. 1 (Tuple2. 2 "hi"))]
     (f/double-untuple double-tuple2) => [1 [2 "hi"]]))
 
  (future-fact "group-untuple"))
@@ -226,18 +227,20 @@
           vec) => [["Four" 1] ["score" 1] ["and" 1] ["seven" 1] ["years" 1] ["ago" 1]])
 
      (fact
-      "map-partition"
+      "map-partitions"
       (-> (f/parallelize c [0 1 2 3 4])
-          (f/map-partition (f/fn [it] (map identity (iterator-seq it))))
+          (f/map-partitions (f/fn [it] (map identity (iterator-seq it))))
           f/collect) => [0 1 2 3 4])
 
      (fact
-      "map-partition-with-index"
+      "map-partitions-with-index"
       (-> (f/parallelize c [0 1 2 3 4])
           (f/repartition 4)
-          (f/map-partition-with-index (f/fn [i it] (.iterator (map identity (iterator-seq it)))))
+          (f/map-partitions-with-index (f/fn [i it] (.iterator (map identity (iterator-seq it)))))
           f/collect
           vec) => (just [0 1 2 3 4] :in-any-order))
+
+     (future-fact "map-partitions-to-pair")
 
      (fact
       "cartesian creates cartesian product of two RDDS"
@@ -249,6 +252,8 @@
             vec) => (just [[1 5] [1 6] [1 7] [2 5] [2 6] [2 7]] :in-any-order)))
 
      (future-fact "repartition returns a new RDD with exactly n partitions")
+
+     (future-fact "subtract")
 
      )))
 

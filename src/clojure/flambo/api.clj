@@ -10,7 +10,7 @@
 ;; happily accepted!
 ;;
 (ns flambo.api
-  (:refer-clojure :exclude [fn map reduce first count take distinct filter group-by values])
+  (:refer-clojure :exclude [fn map reduce first count take distinct filter group-by values partition-by])
   (:require [serializable.fn :as sfn]
             [clojure.tools.logging :as log]
             [flambo.function :refer [flat-map-function
@@ -20,16 +20,19 @@
                                      function3
                                      pair-function
                                      pair-flat-map-function
-                                     void-function]]
+                                     void-function
+                                     double-function
+                                     double-flat-map-function]]
             [flambo.conf :as conf]
             [flambo.utils :as u]
             [flambo.kryo :as k]
             [flambo.scala-interop :as si])
   (:import [scala Tuple2]
-           [java.util Comparator]
+           [java.util Comparator ArrayList]
            [org.apache.spark.api.java JavaSparkContext StorageLevels
-            JavaRDD JavaDoubleRDD JavaPairRDD]
-           [org.apache.spark.rdd PartitionwiseSampledRDD]))
+            JavaRDD JavaDoubleRDD]
+           [org.apache.spark.rdd PartitionwiseSampledRDD]
+           [org.apache.spark HashPartitioner Partitioner]))
 
 ;; flambo makes extensive use of kryo to serialize and deserialize clojure functions
 ;; and data structures. Here we ensure that these properties are set so they are inhereted
@@ -89,20 +92,20 @@
   (let [clazz (Class/forName (clojure.string/replace (str ns) #"-" "_"))]
     (JavaSparkContext/jarOfClass clazz)))
 
-(defsparkfn untuple [^Tuple2 t]
+(defn untuple [^Tuple2 t]
   (let [v (transient [])]
     (conj! v (._1 t))
     (conj! v (._2 t))
     (persistent! v)))
 
-(defsparkfn double-untuple [^Tuple2 t]
+(defn double-untuple [^Tuple2 t]
   (let [[x ^Tuple2 t2] (untuple t)
         v (transient [])]
     (conj! v x)
     (conj! v (untuple t2))
     (persistent! v)))
 
-(defsparkfn group-untuple [^Tuple2 t]
+(defn group-untuple [^Tuple2 t]
   (let [v (transient [])]
     (conj! v (._1 t))
     (conj! v (into [] (._2 t)))
@@ -141,11 +144,6 @@
   ([rdd]
    (.name rdd)))
 
-(defn union
-  "Build the union of two or more RDDs"
-  [context rdd & rdds]
-  (.union context rdd (java.util.ArrayList. rdds)))
-
 (defn partitionwise-sampled-rdd [rdd sampler preserve-partitioning? seed]
   "Creates a PartitionwiseSampledRRD from existing RDD and a sampler object"
   (-> (PartitionwiseSampledRDD.
@@ -171,6 +169,11 @@
   [rdd f]
   (.mapToPair rdd (pair-function f)))
 
+(defn map-values
+  "Apply function `f` over the values of JavaPairRDD `rdd` returning a new JavaPairRDD."
+  [rdd f]
+  (.mapValues rdd (function f)))
+
 (defn reduce
   "Aggregates the elements of `rdd` using the function `f` (which takes two arguments
   and returns one). The function should be commutative and associative so that it can be
@@ -195,7 +198,12 @@
   [rdd f]
   (.flatMapToPair rdd (pair-flat-map-function f)))
 
-(defn map-partition
+(defn flat-map-values
+  "Apply function `f` to the values of JavaPairRDD `rdd` returning at iterator of new values."
+  [rdd f]
+  (.flatMapValues rdd (function f)))
+
+(defn map-partitions
   "Similar to `map`, but runs separately on each partition (block) of the `rdd`, so function `f`
   must be of type Iterator<T> => Iterable<U>.
   https://issues.apache.org/jira/browse/SPARK-3369"
@@ -203,14 +211,14 @@
   (.mapPartitions rdd (flat-map-function f)))
 
 (defn map-partitions-to-pair
-  "Similar to `map`, but runs separately on each partition (block) of the `rdd`, so function `f`
-  must be of type Iterator<T> => Iterable<U>.
-  https://issues.apache.org/jira/browse/SPARK-3369"
-  [rdd f & {:keys [preserves-partitioning]}]
+  "Similar to `map-partitions`, but runs separately on each partition (block) of the `rdd`, so function `f`
+  must be of type Iterator<T> => Iterable<scala.Tuple2<K,V>>."
+  [rdd f & {:keys [preserves-partitioning]
+            :or {:preserves-partitioning false}}]
   (.mapPartitionsToPair rdd (pair-flat-map-function f) (u/truthy? preserves-partitioning)))
 
-(defn map-partition-with-index
-  "Similar to `map-partition` but function `f` is of type (Int, Iterator<T>) => Iterator<U> where
+(defn map-partitions-with-index
+  "Similar to `map-partitions` but function `f` is of type (Int, Iterator<T>) => Iterator<U> where
   `i` represents the index of partition."
   [rdd f]
   (.mapPartitionsWithIndex rdd (function2 f) true))
@@ -219,6 +227,11 @@
   "Returns a new RDD containing only the elements of `rdd` that satisfy a predicate `f`."
   [rdd f]
   (.filter rdd (function (ftruthy? f))))
+
+(defn union
+  "Union `rdd` and `other`. duplicate keys are kept."
+  [rdd other]
+  (.union rdd other))
 
 (defn foreach
   "Applies the function `f` to all elements of `rdd`."
@@ -241,6 +254,11 @@
   using a given associative function and a neutral 'zero value'"
   [rdd zero-value f]
   (.fold rdd zero-value (function2 f)))
+
+(defn subtract
+  "returns an `rdd` with elements from `other` removed."
+  [rdd other]
+  (.subtract rdd other))
 
 (defn reduce-by-key
   "When called on an `rdd` of (K, V) pairs, returns an RDD of (K, V) pairs
@@ -336,6 +354,20 @@
   ([rdd n shuffle?]
    (.coalesce rdd n shuffle?)))
 
+(defn hash-partitioner
+  ([n]
+   (HashPartitioner. n))
+  ([subkey-fn n]
+   (proxy [HashPartitioner] [n]
+     (getPartition [key]
+       (let [subkey (subkey-fn key)]
+         (mod (hash subkey) n))))))
+
+(defn partition-by
+  "Partition `rdd` by `partitioner`."
+  [rdd partitioner]
+  (.partitionBy rdd partitioner))
+
 (defn repartition
   "Returns a new `rdd` with exactly `n` partitions."
   [rdd n]
@@ -394,6 +426,10 @@
   This can only be used to assign a new storage level if the RDD does not have a storage level set already."
   [rdd storage-level]
   (.persist rdd storage-level))
+
+(defn unpersist
+  [rdd]
+  (.unpersist rdd))
 
 (def first
   "Returns the first element of `rdd`."
