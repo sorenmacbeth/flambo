@@ -2865,8 +2865,23 @@ net.brehaut.ClojureTools = (function (SH) {
     build_tree: build_tree
   };
 })(SyntaxHighlighter);
-</script><title>yieldbot/flambo -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name"><a href="https://github.com/yieldbot/flambo">yieldbot/flambo</a></h1><h2 class="project-version">0.4.0</h2><br /><p>A Clojure DSL for Apache Spark</p>
-</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.6.0</td></tr><tr><td class="dep-name">org.clojure/tools.logging</td><td class="dotted"><hr /></td><td class="dep-version">0.2.6</td></tr><tr><td class="dep-name">yieldbot/serializable-fn</td><td class="dotted"><hr /></td><td class="dep-version">0.0.6</td></tr><tr><td class="dep-name">com.twitter/carbonite</td><td class="dotted"><hr /></td><td class="dep-version">1.4.0</td></tr><tr><td class="dep-name">com.twitter/chill_2.10</td><td class="dotted"><hr /></td><td class="dep-version">0.3.6</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#flambo.api">flambo.api</a></li><li><a href="#flambo.conf">flambo.conf</a></li><li><a href="#flambo.function">flambo.function</a></li><li><a href="#flambo.kryo">flambo.kryo</a></li><li><a href="#flambo.sql">flambo.sql</a></li><li><a href="#flambo.streaming">flambo.streaming</a></li><li><a href="#flambo.utils">flambo.utils</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#flambo.api" name="flambo.api"><h1 class="project-name">flambo.api</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><p>This is the main entry point to flambo, typically required like <code>[flambo.api :as f]</code>.</p>
+</script><title>yieldbot/flambo -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name"><a href="https://github.com/yieldbot/flambo">yieldbot/flambo</a></h1><h2 class="project-version">0.6.0</h2><br /><p>A Clojure DSL for Apache Spark</p>
+</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.6.0</td></tr><tr><td class="dep-name">org.clojure/tools.logging</td><td class="dotted"><hr /></td><td class="dep-version">0.3.1</td></tr><tr><td class="dep-name">org.clojure/core.memoize</td><td class="dotted"><hr /></td><td class="dep-version">0.5.7</td></tr><tr><td class="dep-name">yieldbot/serializable-fn</td><td class="dotted"><hr /></td><td class="dep-version">0.0.9</td></tr><tr><td class="dep-name">com.twitter/carbonite</td><td class="dotted"><hr /></td><td class="dep-version">1.4.0</td></tr><tr><td class="dep-name">com.twitter/chill_2.10</td><td class="dotted"><hr /></td><td class="dep-version">0.5.0</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#flambo.accumulator">flambo.accumulator</a></li><li><a href="#flambo.api">flambo.api</a></li><li><a href="#flambo.broadcast">flambo.broadcast</a></li><li><a href="#flambo.conf">flambo.conf</a></li><li><a href="#flambo.debug">flambo.debug</a></li><li><a href="#flambo.function">flambo.function</a></li><li><a href="#flambo.kryo">flambo.kryo</a></li><li><a href="#flambo.scala-interop">flambo.scala-interop</a></li><li><a href="#flambo.sql">flambo.sql</a></li><li><a href="#flambo.streaming">flambo.streaming</a></li><li><a href="#flambo.tuple">flambo.tuple</a></li><li><a href="#flambo.utils">flambo.utils</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#flambo.accumulator" name="flambo.accumulator"><h1 class="project-name">flambo.accumulator</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(ns flambo.accumulator
+  (:import [org.apache.spark Accumulator]
+           [scala.Option])
+  (:refer-clojure :exclude [name]))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn accumulator
+  ([sc value]
+   (.accumulator sc value))
+  ([sc value name]
+   (.accumulator sc value name )))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn value [^Accumulator accumulator-var]
+  (.value accumulator-var))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn name [^Accumulator accumulator-var]
+  (let [name-var (.name accumulator-var)]
+    (if (= scala.Some (class name-var))
+      (.x name-var))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#flambo.api" name="flambo.api"><h1 class="project-name">flambo.api</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><p>This is the main entry point to flambo, typically required like <code>[flambo.api :as f]</code>.</p>
 </td><td class="codes"></td></tr><tr><td class="docs"><p>By design, most operations in flambo are built up via the threading macro <code>-&gt;</code>.</p>
 </td><td class="codes"></td></tr><tr><td class="docs"><p>The main objective is to provide an idiomatic clojure experience, hiding most of the typing
 of RDDs and outputs such as dealing with <code>scala.Tuple2</code> objects behind the curtains of
@@ -2874,7 +2889,7 @@ the api.</p>
 </td><td class="codes"></td></tr><tr><td class="docs"><p>If you find an RDD operation missing from the api that you'd like to use, pull requests are
 happily accepted!</p>
 </td><td class="codes"><pre class="brush: clojure">(ns flambo.api
-  (:refer-clojure :exclude [fn map reduce first count take distinct filter group-by values])
+  (:refer-clojure :exclude [fn map reduce first count take distinct filter group-by values partition-by])
   (:require [serializable.fn :as sfn]
             [clojure.tools.logging :as log]
             [flambo.function :refer [flat-map-function
@@ -2884,15 +2899,19 @@ happily accepted!</p>
                                      function3
                                      pair-function
                                      pair-flat-map-function
-                                     void-function]]
+                                     void-function
+                                     double-function
+                                     double-flat-map-function]]
             [flambo.conf :as conf]
             [flambo.utils :as u]
-            [flambo.kryo :as k])
+            [flambo.kryo :as k]
+            [flambo.scala-interop :as si])
   (:import [scala Tuple2]
-           [java.util Comparator]
+           [java.util Comparator ArrayList]
            [org.apache.spark.api.java JavaSparkContext StorageLevels
             JavaRDD JavaDoubleRDD]
-           [org.apache.spark.rdd PartitionwiseSampledRDD]))</pre></td></tr><tr><td class="docs"><p>flambo makes extensive use of kryo to serialize and deserialize clojure functions
+           [org.apache.spark.rdd PartitionwiseSampledRDD]
+           [org.apache.spark HashPartitioner Partitioner]))</pre></td></tr><tr><td class="docs"><p>flambo makes extensive use of kryo to serialize and deserialize clojure functions
 and data structures. Here we ensure that these properties are set so they are inhereted
 into any <code>SparkConf</code> objects that are created.</p>
 
@@ -2919,11 +2938,11 @@ into any <code>SparkConf</code> objects that are created.</p>
   or system properties</p>
 </td><td class="codes"><pre class="brush: clojure">(defn spark-context
   ([conf]
-     (log/debug &quot;JavaSparkContext&quot; (conf/to-string conf))
-     (JavaSparkContext. conf))
+   (log/debug &quot;JavaSparkContext&quot; (conf/to-string conf))
+   (JavaSparkContext. conf))
   ([master app-name]
-     (log/debug &quot;JavaSparkContext&quot; master app-name)
-     (JavaSparkContext. master app-name)))</pre></td></tr><tr><td class="docs">
+   (log/debug &quot;JavaSparkContext&quot; master app-name)
+   (JavaSparkContext. master app-name)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn local-spark-context
   [app-name]
   (let [conf (-&gt; (conf/spark-conf)
@@ -2940,18 +2959,18 @@ into any <code>SparkConf</code> objects that are created.</p>
   [ns]
   (let [clazz (Class/forName (clojure.string/replace (str ns) #&quot;-&quot; &quot;_&quot;))]
     (JavaSparkContext/jarOfClass clazz)))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defsparkfn untuple [^Tuple2 t]
+</td><td class="codes"><pre class="brush: clojure">(defn untuple [^Tuple2 t]
   (let [v (transient [])]
     (conj! v (._1 t))
     (conj! v (._2 t))
     (persistent! v)))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defsparkfn double-untuple [^Tuple2 t]
+</td><td class="codes"><pre class="brush: clojure">(defn double-untuple [^Tuple2 t]
   (let [[x ^Tuple2 t2] (untuple t)
         v (transient [])]
     (conj! v x)
     (conj! v (untuple t2))
     (persistent! v)))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defsparkfn group-untuple [^Tuple2 t]
+</td><td class="codes"><pre class="brush: clojure">(defn group-untuple [^Tuple2 t]
   (let [v (transient [])]
     (conj! v (._1 t))
     (conj! v (into [] (._2 t)))
@@ -2971,10 +2990,15 @@ http://spark.apache.org/docs/latest/programming-guide.html#accumulators</p>
   (.textFile spark-context filename))</pre></td></tr><tr><td class="docs"><p>Distributes a local collection to form/return an RDD</p>
 </td><td class="codes"><pre class="brush: clojure">(defn parallelize
   ([spark-context lst] (.parallelize spark-context lst))
-  ([spark-context lst num-slices] (.parallelize spark-context lst num-slices)))</pre></td></tr><tr><td class="docs"><p>Build the union of two or more RDDs</p>
-</td><td class="codes"><pre class="brush: clojure">(defn union
-  [context rdd &amp; rdds]
-  (.union context rdd (java.util.ArrayList. rdds)))</pre></td></tr><tr><td class="docs">
+  ([spark-context lst num-slices] (.parallelize spark-context lst num-slices)))</pre></td></tr><tr><td class="docs"><p>Distributes a local collection to form/return a Pair RDD</p>
+</td><td class="codes"><pre class="brush: clojure">(defn parallelize-pairs
+  ([spark-context lst] (.parallelizePairs spark-context lst))
+  ([spark-context lst num-slices] (.parallelizePairs spark-context lst num-slices)))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn rdd-name
+  ([rdd name]
+   (.setName rdd name))
+  ([rdd]
+   (.name rdd)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn partitionwise-sampled-rdd [rdd sampler preserve-partitioning? seed]
   &quot;Creates a PartitionwiseSampledRRD from existing RDD and a sampler object&quot;
   (-&gt; (PartitionwiseSampledRDD.
@@ -2994,17 +3018,18 @@ http://spark.apache.org/docs/latest/programming-guide.html#accumulators</p>
   (.map rdd (function f)))</pre></td></tr><tr><td class="docs"><p>Returns a new <code>JavaPairRDD</code> of (K, V) pairs by applying <code>f</code> to all elements of <code>rdd</code>.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn map-to-pair
   [rdd f]
-  (.mapToPair rdd (pair-function f)))</pre></td></tr><tr><td class="docs"><p>Aggregates the elements of <code>rdd</code> using the function <code>f</code> (which takes two arguments
+  (.mapToPair rdd (pair-function f)))</pre></td></tr><tr><td class="docs"><p>Apply function <code>f</code> over the values of JavaPairRDD <code>rdd</code> returning a new JavaPairRDD.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn map-values
+  [rdd f]
+  (.mapValues rdd (function f)))</pre></td></tr><tr><td class="docs"><p>Aggregates the elements of <code>rdd</code> using the function <code>f</code> (which takes two arguments
   and returns one). The function should be commutative and associative so that it can be
   computed correctly in parallel.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn reduce
   [rdd f]
-  (.reduce rdd (function2 f)))</pre></td></tr><tr><td class="docs"><p>Returns the values of a JavaPairRDD</p>
+  (.reduce rdd (function2 f)))</pre></td></tr><tr><td class="docs"><p>Get the values from a Pair RDD.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn values
   [rdd]
-  (-&gt; rdd
-      (map-to-pair identity)
-      .values))</pre></td></tr><tr><td class="docs"><p>Similar to <code>map</code>, but each input item can be mapped to 0 or more output items (so the
+  (.values rdd))</pre></td></tr><tr><td class="docs"><p>Similar to <code>map</code>, but each input item can be mapped to 0 or more output items (so the
   function <code>f</code> should return a collection rather than a single item)</p>
 </td><td class="codes"><pre class="brush: clojure">(defn flat-map
   [rdd f]
@@ -3012,19 +3037,30 @@ http://spark.apache.org/docs/latest/programming-guide.html#accumulators</p>
   the results.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn flat-map-to-pair
   [rdd f]
-  (.flatMapToPair rdd (pair-flat-map-function f)))</pre></td></tr><tr><td class="docs"><p>Similar to <code>map</code>, but runs separately on each partition (block) of the <code>rdd</code>, so function <code>f</code>
+  (.flatMapToPair rdd (pair-flat-map-function f)))</pre></td></tr><tr><td class="docs"><p>Apply function <code>f</code> to the values of JavaPairRDD <code>rdd</code> returning at iterator of new values.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn flat-map-values
+  [rdd f]
+  (.flatMapValues rdd (function f)))</pre></td></tr><tr><td class="docs"><p>Similar to <code>map</code>, but runs separately on each partition (block) of the <code>rdd</code>, so function <code>f</code>
   must be of type Iterator&lt;T> => Iterable&lt;U>.
   https://issues.apache.org/jira/browse/SPARK-3369</p>
-</td><td class="codes"><pre class="brush: clojure">(defn map-partition
+</td><td class="codes"><pre class="brush: clojure">(defn map-partitions
   [rdd f]
-  (.mapPartitions rdd (flat-map-function f)))</pre></td></tr><tr><td class="docs"><p>Similar to <code>map-partition</code> but function <code>f</code> is of type (Int, Iterator&lt;T>) => Iterator&lt;U> where
+  (.mapPartitions rdd (flat-map-function f)))</pre></td></tr><tr><td class="docs"><p>Similar to <code>map-partitions</code>, but runs separately on each partition (block) of the <code>rdd</code>, so function <code>f</code>
+  must be of type Iterator&lt;T> => Iterable<scala.Tuple2&lt;K,V>>.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn map-partitions-to-pair
+  [rdd f &amp; {:keys [preserves-partitioning]
+            :or {:preserves-partitioning false}}]
+  (.mapPartitionsToPair rdd (pair-flat-map-function f) (u/truthy? preserves-partitioning)))</pre></td></tr><tr><td class="docs"><p>Similar to <code>map-partitions</code> but function <code>f</code> is of type (Int, Iterator&lt;T>) => Iterator&lt;U> where
   <code>i</code> represents the index of partition.</p>
-</td><td class="codes"><pre class="brush: clojure">(defn map-partition-with-index
+</td><td class="codes"><pre class="brush: clojure">(defn map-partitions-with-index
   [rdd f]
   (.mapPartitionsWithIndex rdd (function2 f) true))</pre></td></tr><tr><td class="docs"><p>Returns a new RDD containing only the elements of <code>rdd</code> that satisfy a predicate <code>f</code>.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn filter
   [rdd f]
-  (.filter rdd (function (ftruthy? f))))</pre></td></tr><tr><td class="docs"><p>Applies the function <code>f</code> to all elements of <code>rdd</code>.</p>
+  (.filter rdd (function (ftruthy? f))))</pre></td></tr><tr><td class="docs"><p>Union <code>rdd</code> and <code>other</code>. duplicate keys are kept.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn union
+  [rdd other]
+  (.union rdd other))</pre></td></tr><tr><td class="docs"><p>Applies the function <code>f</code> to all elements of <code>rdd</code>.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn foreach
   [rdd f]
   (.foreach rdd (void-function f)))</pre></td></tr><tr><td class="docs"><p>Applies the function <code>f</code> to each partition iterator of <code>rdd</code>.</p>
@@ -3038,38 +3074,27 @@ http://spark.apache.org/docs/latest/programming-guide.html#accumulators</p>
   using a given associative function and a neutral 'zero value'</p>
 </td><td class="codes"><pre class="brush: clojure">(defn fold
   [rdd zero-value f]
-  (.fold rdd zero-value (function2 f)))</pre></td></tr><tr><td class="docs"><p>When called on an <code>rdd</code> of (K, V) pairs, returns an RDD of (K, V) pairs
+  (.fold rdd zero-value (function2 f)))</pre></td></tr><tr><td class="docs"><p>returns an <code>rdd</code> with elements from <code>other</code> removed.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn subtract
+  [rdd other]
+  (.subtract rdd other))</pre></td></tr><tr><td class="docs"><p>When called on an <code>rdd</code> of (K, V) pairs, returns an RDD of (K, V) pairs
   where the values for each key are aggregated using the given reduce function <code>f</code>.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn reduce-by-key
   [rdd f]
-  (-&gt; rdd
-      (map-to-pair identity)
-      (.reduceByKey (function2 f))
-      (.map (function untuple))))</pre></td></tr><tr><td class="docs"><p>Creates the cartesian product of two RDDs returning an RDD of pairs</p>
+  (.reduceByKey rdd (function2 f)))</pre></td></tr><tr><td class="docs"><p>Creates the cartesian product of two RDDs returning an RDD of pairs</p>
 </td><td class="codes"><pre class="brush: clojure">(defn cartesian
   [rdd1 rdd2]
-  (-&gt; (.cartesian rdd1 rdd2)
-      (.map (function untuple))))</pre></td></tr><tr><td class="docs"><p>Returns an RDD of items grouped by the return value of function <code>f</code>.</p>
+  (.cartesian rdd1 rdd2))</pre></td></tr><tr><td class="docs"><p>Returns an RDD of items grouped by the return value of function <code>f</code>.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn group-by
   ([rdd f]
-     (-&gt; rdd
-         (.groupBy (function f))
-         (.map (function group-untuple))))
+   (.groupBy rdd (function f)))
   ([rdd f n]
-     (-&gt; rdd
-         (.groupBy (function f) n)
-         (.map (function group-untuple)))))</pre></td></tr><tr><td class="docs"><p>Groups the values for each key in <code>rdd</code> into a single sequence.</p>
+   (.groupBy rdd (function f) n)))</pre></td></tr><tr><td class="docs"><p>Groups the values for each key in <code>rdd</code> into a single sequence.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn group-by-key
-  ([rdd]
-     (-&gt; rdd
-         (map-to-pair identity)
-         .groupByKey
-         (.map (function group-untuple))))
-  ([rdd n]
-     (-&gt; rdd
-         (map-to-pair identity)
-         (.groupByKey n)
-         (.map (function group-untuple)))))</pre></td></tr><tr><td class="docs"><p>Combines the elements for each key using a custom set of aggregation functions.
+  [rdd &amp; {:keys [n]}]
+  (if n
+    (.groupByKey rdd n)
+    (.groupByKey rdd)))</pre></td></tr><tr><td class="docs"><p>Combines the elements for each key using a custom set of aggregation functions.
   Turns an RDD of (K, V) pairs into a result of type (K, C), for a 'combined type' C.
   Note that V and C can be different -- for example, one might group an RDD of type
   (Int, Int) into an RDD of type (Int, List[Int]).
@@ -3078,60 +3103,45 @@ http://spark.apache.org/docs/latest/programming-guide.html#accumulators</p>
   -- mergeValue, to merge a V into a C (e.g., adds it to the end of a list)
   -- mergeCombiners, to combine two C's into a single one.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn combine-by-key
-  ([rdd create-combiner merge-value merge-combiners]
-     (-&gt; rdd
-         (map-to-pair identity)
-         (.combineByKey (function create-combiner)
-                        (function2 merge-value)
-                        (function2 merge-combiners))
-         (.map (function untuple))))
-  ([rdd create-combiner merge-value merge-combiners n]
-     (-&gt; rdd
-         (map-to-pair identity)
-         (.combineByKey (function create-combiner)
-                        (function2 merge-value)
-                        (function2 merge-combiners)
-                        n)
-         (.map (function untuple)))))</pre></td></tr><tr><td class="docs"><p>When called on <code>rdd</code> of (K, V) pairs where K implements ordered, returns a dataset of
+  [rdd create-combiner merge-value merge-combiners &amp; {:keys [n]}]
+  (if n
+    (.combineByKey rdd
+                   (function create-combiner)
+                   (function2 merge-value)
+                   (function2 merge-combiners)
+                   n)
+    (.combineByKey rdd
+                   (function create-combiner)
+                   (function2 merge-value)
+                   (function2 merge-combiners))))</pre></td></tr><tr><td class="docs"><p>When called on <code>rdd</code> of (K, V) pairs where K implements ordered, returns a dataset of
    (K, V) pairs sorted by keys in ascending or descending order, as specified by the boolean
   ascending argument.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn sort-by-key
   ([rdd]
-     (sort-by-key rdd compare true))
+   (sort-by-key rdd compare true))
   ([rdd x]
-     ;; RDD has a .sortByKey signature with just a Boolean arg, but it doesn't
-     ;; seem to work when I try it, bool is ignored.
-     (if (instance? Boolean x)
-       (sort-by-key rdd compare x)
-       (sort-by-key rdd x true)))
+   ;; RDD has a .sortByKey signature with just a Boolean arg, but it doesn't
+   ;; seem to work when I try it, bool is ignored.
+   (if (instance? Boolean x)
+     (sort-by-key rdd compare x)
+     (sort-by-key rdd x true)))
   ([rdd compare-fn asc?]
-     (-&gt; rdd
-         (map-to-pair identity)
-         (.sortByKey
-          (if (instance? Comparator compare-fn)
-            compare-fn
-            (comparator compare-fn))
-          (u/truthy? asc?))
-         (.map (function untuple)))))</pre></td></tr><tr><td class="docs"><p>When called on <code>rdd</code> of type (K, V) and (K, W), returns a dataset of
+   (-&gt; rdd
+       (map-to-pair identity)
+       (.sortByKey
+        (if (instance? Comparator compare-fn)
+          compare-fn
+          (comparator compare-fn))
+        (u/truthy? asc?)))))</pre></td></tr><tr><td class="docs"><p>When called on <code>rdd</code> of type (K, V) and (K, W), returns a dataset of
   (K, (V, W)) pairs with all pairs of elements for each key.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn join
   [rdd other]
-  (-&gt; rdd
-      (map-to-pair identity)
-      (.join (map-to-pair other identity))
-      (.map (function double-untuple))))</pre></td></tr><tr><td class="docs"><p>Performs a left outer join of <code>rdd</code> and <code>other</code>. For each element (K, V)
+  (.join rdd other))</pre></td></tr><tr><td class="docs"><p>Performs a left outer join of <code>rdd</code> and <code>other</code>. For each element (K, V)
    in the RDD, the resulting RDD will either contain all pairs (K, (V, W)) for W in other,
   or the pair (K, (V, nil)) if no elements in other have key K.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn left-outer-join
   [rdd other]
-  (-&gt; rdd
-      (map-to-pair identity)
-      (.leftOuterJoin (map-to-pair other identity))
-      (.map (function
-             (fn [t]
-               (let [[x t2] (untuple t)
-                     [a b] (untuple t2)]
-                 (vector x [a (.orNull b)])))))))</pre></td></tr><tr><td class="docs"><p>Returns a <code>fraction</code> sample of <code>rdd</code>, with or without replacement,
+  (.leftOuterJoin rdd other))</pre></td></tr><tr><td class="docs"><p>Returns a <code>fraction</code> sample of <code>rdd</code>, with or without replacement,
   using a given random number generator <code>seed</code>.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn sample
   [rdd with-replacement? fraction seed]
@@ -3139,12 +3149,32 @@ http://spark.apache.org/docs/latest/programming-guide.html#accumulators</p>
   Useful for running operations more efficiently after filtering down a large dataset.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn coalesce
   ([rdd n]
-     (.coalesce rdd n))
+   (.coalesce rdd n))
   ([rdd n shuffle?]
-     (.coalesce rdd n shuffle?)))</pre></td></tr><tr><td class="docs"><p>Returns a new <code>rdd</code> with exactly <code>n</code> partitions.</p>
+   (.coalesce rdd n shuffle?)))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn hash-partitioner
+  ([n]
+   (HashPartitioner. n))
+  ([subkey-fn n]
+   (proxy [HashPartitioner] [n]
+     (getPartition [key]
+       (let [subkey (subkey-fn key)]
+         (mod (hash subkey) n))))))</pre></td></tr><tr><td class="docs"><p>Partition <code>rdd</code> by <code>partitioner</code>.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn partition-by
+  [rdd partitioner]
+  (.partitionBy rdd partitioner))</pre></td></tr><tr><td class="docs"><p>Returns a new <code>rdd</code> with exactly <code>n</code> partitions.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn repartition
   [rdd n]
-  (.repartition rdd n))</pre></td></tr><tr><td class="docs"><p>Only available on RDDs of type (K, V).
+  (.repartition rdd n))</pre></td></tr><tr><td class="docs"><p>Returns the number of partitions for a given <code>rdd</code>.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn partition-count
+  [rdd]
+  (alength (.partitions (.rdd rdd))))</pre></td></tr><tr><td class="docs"><p>Returns a vector of partitions for a given <code>rdd</code>.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn partitions
+  [rdd]
+  (into [] (.partitions (.rdd rdd))))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn partitioner
+  [rdd]
+  (si/some-or-nil (.partitioner (.rdd rdd))))</pre></td></tr><tr><td class="docs"><p>Only available on RDDs of type (K, V).
   Returns a map of (K, Int) pairs with the count of each key.</p>
 
 <h2>Actions</h2>
@@ -3153,9 +3183,7 @@ http://spark.apache.org/docs/latest/programming-guide.html#accumulators</p>
 </td><td class="codes"><pre class="brush: clojure">(defn count-by-key
   [rdd]
   (into {}
-        (-&gt; rdd
-            (map-to-pair identity)
-            .countByKey)))</pre></td></tr><tr><td class="docs"><p>Return the count of each unique value in <code>rdd</code> as a map of (value, count)
+        (.countByKey rdd)))</pre></td></tr><tr><td class="docs"><p>Return the count of each unique value in <code>rdd</code> as a map of (value, count)
   pairs.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn count-by-value
   [rdd]
@@ -3176,7 +3204,10 @@ http://spark.apache.org/docs/latest/programming-guide.html#accumulators</p>
   This can only be used to assign a new storage level if the RDD does not have a storage level set already.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn persist
   [rdd storage-level]
-  (.persist rdd storage-level))</pre></td></tr><tr><td class="docs"><p>Returns the first element of <code>rdd</code>.</p>
+  (.persist rdd storage-level))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn unpersist
+  [rdd]
+  (.unpersist rdd))</pre></td></tr><tr><td class="docs"><p>Returns the first element of <code>rdd</code>.</p>
 </td><td class="codes"><pre class="brush: clojure">(def first
   (memfn first))</pre></td></tr><tr><td class="docs"><p>Return the number of elements in <code>rdd</code>.</p>
 </td><td class="codes"><pre class="brush: clojure">(def count
@@ -3189,16 +3220,16 @@ http://spark.apache.org/docs/latest/programming-guide.html#accumulators</p>
   (memfn collect))</pre></td></tr><tr><td class="docs"><p>Return a new RDD that contains the distinct elements of the source <code>rdd</code>.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn distinct
   ([rdd]
-     (.distinct rdd))
+   (.distinct rdd))
   ([rdd n]
-     (.distinct rdd n)))</pre></td></tr><tr><td class="docs"><p>Return an array with the first n elements of <code>rdd</code>.
+   (.distinct rdd n)))</pre></td></tr><tr><td class="docs"><p>Return an array with the first n elements of <code>rdd</code>.
   (Note: this is currently not executed in parallel. Instead, the driver
   program computes all the elements).</p>
 </td><td class="codes"><pre class="brush: clojure">(defn take
   [rdd cnt]
   (.take rdd cnt))</pre></td></tr><tr><td class="docs"><p>compute histogram of an RDD of doubles</p>
-</td><td class="codes"><pre class="brush: clojure">  (defmulti histogram 
-    (fn [_ bucket-arg] (sequential? bucket-arg)))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defmulti histogram 
+  (fn [_ bucket-arg] (sequential? bucket-arg)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defmethod histogram true [rdd buckets]
   (let [counts (-&gt; (JavaDoubleRDD/fromRDD (.rdd rdd))
                    (.histogram (double-array buckets)))]
@@ -3207,7 +3238,13 @@ http://spark.apache.org/docs/latest/programming-guide.html#accumulators</p>
   (let [[buckets counts] (-&gt; (JavaDoubleRDD/fromRDD (.rdd rdd))
                              (.histogram bucket-count)
                              untuple)]
-    [(into [] buckets) (into [] counts)]))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#flambo.conf" name="flambo.conf"><h1 class="project-name">flambo.conf</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><p>Functions for creating and modifying <code>SparkConf</code> objects</p>
+    [(into [] buckets) (into [] counts)]))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#flambo.broadcast" name="flambo.broadcast"><h1 class="project-name">flambo.broadcast</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(ns flambo.broadcast
+  (:import [org.apache.spark.broadcast Broadcast]))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn broadcast [sc value]
+  (.broadcast sc value))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn value [^Broadcast broadcast-var]
+  (.value broadcast-var))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#flambo.conf" name="flambo.conf"><h1 class="project-name">flambo.conf</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><p>Functions for creating and modifying <code>SparkConf</code> objects</p>
 
 <p>The functions are designed to be used with the threading macro <code>-&gt;</code> for building
 objects to pass into <code>spark-context</code>.</p>
@@ -3274,17 +3311,39 @@ objects to pass into <code>spark-context</code>.</p>
   (.setSparkHome conf home))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn to-string
   [conf]
-  (.toDebugString conf))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#flambo.function" name="flambo.function"><h1 class="project-name">flambo.function</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+  (.toDebugString conf))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#flambo.debug" name="flambo.debug"><h1 class="project-name">flambo.debug</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(ns flambo.debug
+  (:require [flambo.api :as f]
+            [clojure.tools.logging :as log]))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn inspect [rdd name &amp; {:keys [count? cache?]
+                           :or {:count? false
+                                :cache? false}}]
+  (let [rdd (if cache?
+              (-&gt; rdd
+                  (f/cache)
+                  (f/rdd-name name))
+              rdd)]
+    (try
+      (log/info name &quot;partition count:&quot; (f/partition-count rdd))
+      (log/info name &quot;partitioner:&quot; (f/partitioner rdd))
+      (catch Exception e))
+    (when count?
+      (let [c (f/count rdd)]
+        (log/info name &quot;item count:&quot; c)))
+    (log/info name &quot;first item:&quot; (f/first rdd))
+    rdd))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#flambo.function" name="flambo.function"><h1 class="project-name">flambo.function</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(ns flambo.function
   (:require [serializable.fn :as sfn]
-            [flambo.utils :as u]
             [flambo.kryo :as kryo]
-            [clojure.tools.logging :as log])
-  (:import [scala Tuple2]))</pre></td></tr><tr><td class="docs">
+            [clojure.tools.logging :as log]
+            [clojure.core.memoize :as memo]))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(set! *warn-on-reflection* true)</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn- serfn? [f]
   (= (type f) :serializable.fn/serializable-fn))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(def serialize-fn sfn/serialize)
-(def deserialize-fn (memoize sfn/deserialize))
+</td><td class="codes"><pre class="brush: clojure">(def serialize-fn sfn/serialize)</pre></td></tr><tr><td class="docs"><p>XXX: memoizing here is weird because all functions in a JVM now share a single
+     cache lookup. Maybe we could memoize in the constructor or something instead?
+TODO: what is a good cache size here???</p>
+</td><td class="codes"><pre class="brush: clojure">(def deserialize-fn (memo/lru sfn/deserialize :lru/threshold 1000))
 (def array-of-bytes-type (Class/forName &quot;[B&quot;))</pre></td></tr><tr><td class="docs"><p>Save the function f in state</p>
 
 <h2>Generic</h2>
@@ -3300,6 +3359,7 @@ objects to pass into <code>spark-context</code>.</p>
     (log/trace &quot;CLASS&quot; (type this))
     (log/trace &quot;META&quot; (meta f))
     (log/trace &quot;XS&quot; xs)
+    (log/trace (memo/snapshot deserialize-fn))
     (apply f xs)))</pre></td></tr><tr><td class="docs"><h2>Functions</h2>
 </td><td class="codes"><pre class="brush: clojure">(defn mk-sym
   [fmt sym-name]
@@ -3313,6 +3373,7 @@ objects to pass into <code>spark-context</code>.</p>
        (def ~(mk-sym &quot;%s-call&quot; clazz) -call)
        (gen-class
         :name ~new-class-sym
+        :extends flambo.function.AbstractFlamboFunction
         :implements [~(mk-sym &quot;org.apache.spark.api.java.function.%s&quot; clazz)]
         :prefix ~prefix-sym
         :init ~'init
@@ -3320,8 +3381,9 @@ objects to pass into <code>spark-context</code>.</p>
         :constructors {[Object] []})
        (defn ~wrapper-name [f#]
          (new ~new-class-sym
-              (if (serfn? f#) (binding [sfn/*serialize* kryo/serialize]
-                                (serialize-fn f#)) f#))))))</pre></td></tr><tr><td class="docs">
+              (if (serfn? f#)
+                (binding [sfn/*serialize* kryo/serialize]
+                  (serialize-fn f#)) f#))))))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(gen-function Function function)
 (gen-function Function2 function2)
 (gen-function Function3 function3)
@@ -3329,21 +3391,127 @@ objects to pass into <code>spark-context</code>.</p>
 (gen-function FlatMapFunction flat-map-function)
 (gen-function FlatMapFunction2 flat-map-function2)
 (gen-function PairFlatMapFunction pair-flat-map-function)
-(gen-function PairFunction pair-function)</pre></td></tr><tr><td class="docs"><p>Replaces the PairFunction-call and PairFlatMapFunction-call defined by the gen-function macro.</p>
-</td><td class="codes"><pre class="brush: clojure">(defn PairFunction-call [this x]
-  (let [[a b] (-call this x)]
-    (Tuple2. a b)))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn PairFlatMapFunction-call [this x]
-  (let [ret (-call this x)]
-    (for [v ret
-          :let [[a b] v]]
-      (Tuple2. a b))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#flambo.kryo" name="flambo.kryo"><h1 class="project-name">flambo.kryo</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>Utilities and macros for dealing with kryo</h2>
+(gen-function PairFunction pair-function)
+(gen-function DoubleFunction double-function)
+(gen-function DoubleFlatMapFunction double-flat-map-function)</pre></td></tr><tr><td class="docs"><p>This sucks, but I need to do it to type hint the call to .state
+and I don't think I can do that from the generic -call I used above.</p>
+</td><td class="codes"></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn Function-call [^flambo.function.Function this &amp; xs]
+  (let [fn-or-serfn (.state this)
+        f (if (instance? array-of-bytes-type fn-or-serfn)
+            (binding [sfn/*deserialize* kryo/deserialize]
+              (deserialize-fn fn-or-serfn))
+            fn-or-serfn)]
+    (log/trace &quot;CLASS&quot; (type this))
+    (log/trace &quot;META&quot; (meta f))
+    (log/trace &quot;XS&quot; xs)
+    (log/trace (memo/snapshot deserialize-fn))
+    (apply f xs)))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn Function2-call [^flambo.function.Function2 this &amp; xs]
+  (let [fn-or-serfn (.state this)
+        f (if (instance? array-of-bytes-type fn-or-serfn)
+            (binding [sfn/*deserialize* kryo/deserialize]
+              (deserialize-fn fn-or-serfn))
+            fn-or-serfn)]
+    (log/trace &quot;CLASS&quot; (type this))
+    (log/trace &quot;META&quot; (meta f))
+    (log/trace &quot;XS&quot; xs)
+    (log/trace &quot;MEMO&quot; (memo/snapshot deserialize-fn))
+    (apply f xs)))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn Function3-call [^flambo.function.Function2 this &amp; xs]
+  (let [fn-or-serfn (.state this)
+        f (if (instance? array-of-bytes-type fn-or-serfn)
+            (binding [sfn/*deserialize* kryo/deserialize]
+              (deserialize-fn fn-or-serfn))
+            fn-or-serfn)]
+    (log/trace &quot;CLASS&quot; (type this))
+    (log/trace &quot;META&quot; (meta f))
+    (log/trace &quot;XS&quot; xs)
+    (log/trace &quot;MEMO&quot; (memo/snapshot deserialize-fn))
+    (apply f xs)))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn VoidFunction-call [^flambo.function.VoidFunction this &amp; xs]
+  (let [fn-or-serfn (.state this)
+        f (if (instance? array-of-bytes-type fn-or-serfn)
+            (binding [sfn/*deserialize* kryo/deserialize]
+              (deserialize-fn fn-or-serfn))
+            fn-or-serfn)]
+    (log/trace &quot;CLASS&quot; (type this))
+    (log/trace &quot;META&quot; (meta f))
+    (log/trace &quot;XS&quot; xs)
+    (log/trace &quot;MEMO&quot; (memo/snapshot deserialize-fn))
+    (apply f xs)))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn FlatMapFunction-call [^flambo.function.FlatMapFunction this &amp; xs]
+  (let [fn-or-serfn (.state this)
+        f (if (instance? array-of-bytes-type fn-or-serfn)
+            (binding [sfn/*deserialize* kryo/deserialize]
+              (deserialize-fn fn-or-serfn))
+            fn-or-serfn)]
+    (log/trace &quot;CLASS&quot; (type this))
+    (log/trace &quot;META&quot; (meta f))
+    (log/trace &quot;XS&quot; xs)
+    (log/trace &quot;MEMO&quot; (memo/snapshot deserialize-fn))
+    (apply f xs)))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn FlatMapFunction2-call [^flambo.function.FlatMapFunction2 this &amp; xs]
+  (let [fn-or-serfn (.state this)
+        f (if (instance? array-of-bytes-type fn-or-serfn)
+            (binding [sfn/*deserialize* kryo/deserialize]
+              (deserialize-fn fn-or-serfn))
+            fn-or-serfn)]
+    (log/trace &quot;CLASS&quot; (type this))
+    (log/trace &quot;META&quot; (meta f))
+    (log/trace &quot;XS&quot; xs)
+    (log/trace &quot;MEMO&quot; (memo/snapshot deserialize-fn))
+    (apply f xs)))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn PairFlatMapFunction-call [^flambo.function.PairFlatMapFunction this &amp; xs]
+  (let [fn-or-serfn (.state this)
+        f (if (instance? array-of-bytes-type fn-or-serfn)
+            (binding [sfn/*deserialize* kryo/deserialize]
+              (deserialize-fn fn-or-serfn))
+            fn-or-serfn)]
+    (log/trace &quot;CLASS&quot; (type this))
+    (log/trace &quot;META&quot; (meta f))
+    (log/trace &quot;XS&quot; xs)
+    (log/trace &quot;MEMO&quot; (memo/snapshot deserialize-fn))
+    (apply f xs)))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn PairFunction-call [^flambo.function.PairFunction this &amp; xs]
+  (let [fn-or-serfn (.state this)
+        f (if (instance? array-of-bytes-type fn-or-serfn)
+            (binding [sfn/*deserialize* kryo/deserialize]
+              (deserialize-fn fn-or-serfn))
+            fn-or-serfn)]
+    (log/trace &quot;CLASS&quot; (type this))
+    (log/trace &quot;META&quot; (meta f))
+    (log/trace &quot;XS&quot; xs)
+    (log/trace &quot;MEMO&quot; (memo/snapshot deserialize-fn))
+    (apply f xs)))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn DoubleFunction-call [^flambo.function.DoubleFunction this &amp; xs]
+  (let [fn-or-serfn (.state this)
+        f (if (instance? array-of-bytes-type fn-or-serfn)
+            (binding [sfn/*deserialize* kryo/deserialize]
+              (deserialize-fn fn-or-serfn))
+            fn-or-serfn)]
+    (log/trace &quot;CLASS&quot; (type this))
+    (log/trace &quot;META&quot; (meta f))
+    (log/trace &quot;XS&quot; xs)
+    (log/trace &quot;MEMO&quot; (memo/snapshot deserialize-fn))
+    (apply f xs)))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn DoubleFlatMapFunction-call [^flambo.function.DoubleFlatMapFunction this &amp; xs]
+  (let [fn-or-serfn (.state this)
+        f (if (instance? array-of-bytes-type fn-or-serfn)
+            (binding [sfn/*deserialize* kryo/deserialize]
+              (deserialize-fn fn-or-serfn))
+            fn-or-serfn)]
+    (log/trace &quot;CLASS&quot; (type this))
+    (log/trace &quot;META&quot; (meta f))
+    (log/trace &quot;XS&quot; xs)
+    (log/trace &quot;MEMO&quot; (memo/snapshot deserialize-fn))
+    (apply f xs)))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#flambo.kryo" name="flambo.kryo"><h1 class="project-name">flambo.kryo</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>Utilities and macros for dealing with kryo</h2>
 </td><td class="codes"><pre class="brush: clojure">(ns flambo.kryo
-  (:import [org.apache.spark.serializer KryoRegistrator]
-           [org.apache.spark SparkEnv]
+  (:import [org.apache.spark SparkEnv]
            [org.apache.spark.serializer SerializerInstance]
            [java.nio ByteBuffer]
-           [scala.reflect ClassTag$]))</pre></td></tr><tr><td class="docs"><p>lol scala</p>
+           [scala.reflect ClassTag$]))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(set! *warn-on-reflection* true)</pre></td></tr><tr><td class="docs"><p>lol scala</p>
 </td><td class="codes"><pre class="brush: clojure">(def ^:no-doc OBJECT-CLASS-TAG (.apply ClassTag$/MODULE$ java.lang.Object))</pre></td></tr><tr><td class="docs"><p>We piggy back off of spark's kryo instance from <code>SparkEnv</code> since it already
   has all of our custom serializers and other things we need to serialize our functions.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn ^bytes serialize
@@ -3373,29 +3541,96 @@ objects to pass into <code>spark-context</code>.</p>
                   :prefix ~prefix)
        (defn ~(symbol (str prefix &quot;register&quot;))
          ~@register-impl)
-       (def ~name ~classname))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#flambo.sql" name="flambo.sql"><h1 class="project-name">flambo.sql</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>EXPERIMENTAL</h2>
-
-<p>This code as well as SparkSQL itself are considered experimental.</p>
+       (def ~name ~classname))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#flambo.scala-interop" name="flambo.scala-interop"><h1 class="project-name">flambo.scala-interop</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(ns flambo.scala-interop
+  (:require [serializable.fn :as sfn])
+  (:import [scala Tuple2 Some]))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn some-or-nil [option]
+  (when (instance? Some option)
+    (.get option)))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#flambo.sql" name="flambo.sql"><h1 class="project-name">flambo.sql</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><p>SparkSQL &amp; DataFrame wrapper</p>
 </td><td class="codes"><pre class="brush: clojure">(ns flambo.sql
+  (:refer-clojure :exclude [load])
   (:require [flambo.api :as f :refer [defsparkfn]])
-  (:import [org.apache.spark.sql.api.java JavaSQLContext Row]
-           [org.apache.spark.sql SQLContext]))</pre></td></tr><tr><td class="docs"><h2>JavaSQLContext</h2>
-</td><td class="codes"><pre class="brush: clojure">(defn sql-context [spark-context]
-  (JavaSQLContext. spark-context))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn sql [sql-context query]
+  (:import [org.apache.spark.api.java JavaSparkContext]
+           [org.apache.spark.sql SQLContext Row DataFrame]))</pre></td></tr><tr><td class="docs"><p>Build a SQLContext from a JavaSparkContext</p>
+
+<h2>SQLContext</h2>
+</td><td class="codes"><pre class="brush: clojure">(defn ^SQLContext sql-context
+  [^JavaSparkContext spark-context]
+  (SQLContext. spark-context))</pre></td></tr><tr><td class="docs"><p>Get reference to the SparkContext out of a SQLContext</p>
+</td><td class="codes"><pre class="brush: clojure">(defn ^JavaSparkContext spark-context
+  [^SQLContext sql-context]
+  (JavaSparkContext/fromSparkContext (.sparkContext sql-context)))</pre></td></tr><tr><td class="docs"><p>Execute a query. The dialect that is used for SQL parsing can be configured with 'spark.sql.dialect'.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn sql
+  [sql-context query]
   (.sql sql-context query))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn parquet-file [sql-context path]
-  (.parquetFile sql-context path))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn json-file [sql-context path]
-  (.jsonFile sql-context path))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn register-rdd-as-table [sql-context rdd table-name]
-  (.registerRDDAsTable sql-context rdd table-name))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn cache-table [sql-context table-name]
-  (let [scala-sql-context (.sqlContext sql-context)]
-    (.cacheTable scala-sql-context table-name)))</pre></td></tr><tr><td class="docs"><h2>JavaSchemaRDD</h2>
-</td><td class="codes"><pre class="brush: clojure">(defn register-as-table [rdd table-name]
-  (.registerAsTable rdd table-name))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(def print-schema (memfn printSchema))</pre></td></tr><tr><td class="docs"><h2>Row</h2>
+</td><td class="codes"><pre class="brush: clojure">(defmacro with-sql-context
+  [context-sym conf &amp; body]
+  `(let [~'x (f/spark-context ~conf)
+         ~context-sym (sql-context ~'x)]
+     (try
+       ~@body
+       (finally (.stop ~'x)))))</pre></td></tr><tr><td class="docs"><p>Loads a Parquet file, returning the result as a DataFrame.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn parquet-file
+  [sql-context path]
+  (.parquetFile sql-context path))</pre></td></tr><tr><td class="docs"><p>Loads a JSON file (one object per line), returning the result as a DataFrame.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn json-file
+  [sql-context path]
+  (.jsonFile sql-context path))</pre></td></tr><tr><td class="docs"><p>Returns the dataset stored at path as a DataFrame.</p>
+
+<p>Since 1.3 the SparkSQL data sources API is recommended for load &amp; save operations.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn load
+  ([sql-context path]                   ; data source type configured by spark.sql.sources.default
+   (.load sql-context path))            
+  ([sql-context path source-type]       ; specify data source type
+   (.load sql-context path source-type)))</pre></td></tr><tr><td class="docs"><p>Reads a file in table format and creates a data frame from it, with cases corresponding to
+  lines and variables to fields in the file. A clone of R's read.csv.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn read-csv
+  [sql-context path &amp;{:keys [header separator quote]
+                      :or   {header false separator &quot;,&quot; quote &quot;'&quot;}}]
+  (let [options (new java.util.HashMap)]
+    (.put options &quot;path&quot; path)
+    (.put options &quot;header&quot; (if header &quot;true&quot; &quot;false&quot;))
+    (.put options &quot;separator&quot; separator)
+    (.put options &quot;quote&quot; quote)
+    (.load sql-context &quot;com.databricks.spark.csv&quot; options)))</pre></td></tr><tr><td class="docs"><p>Registers the given DataFrame as a temporary table in the
+  catalog. Temporary tables exist only during the lifetime of this
+  instance of SQLContex.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn register-data-frame-as-table
+  [sql-context df table-name]
+  (.registerDataFrameAsTable sql-context df table-name))</pre></td></tr><tr><td class="docs"><p>Caches the specified table in memory.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn cache-table
+  [sql-context table-name]
+  (.cacheTable sql-context table-name))</pre></td></tr><tr><td class="docs"><p>Load an RDD of JSON strings (one object per line), inferring the schema, and returning a DataFrame</p>
+</td><td class="codes"><pre class="brush: clojure">(defn json-rdd
+  [sql-context json-rdd]
+  (.jsonRDD sql-context json-rdd))</pre></td></tr><tr><td class="docs"><p>Removes the specified table from the in-memory cache.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn uncache-table
+  [sql-context table-name]
+  (.uncacheTable sql-context table-name))</pre></td></tr><tr><td class="docs"><p>Remove all tables from cache</p>
+</td><td class="codes"><pre class="brush: clojure">(defn clear-cache
+  [sql-context]
+  (.clearCache sql-context))</pre></td></tr><tr><td class="docs"><p>Is the given table cached</p>
+</td><td class="codes"><pre class="brush: clojure">(defn is-cached?
+  [sql-context table-name]
+  (.isCached sql-context table-name))</pre></td></tr><tr><td class="docs"><p>Return a table as a DataFrame</p>
+</td><td class="codes"><pre class="brush: clojure">(defn ^DataFrame table
+  [sql-context table-name]
+  (.table sql-context table-name))</pre></td></tr><tr><td class="docs"><p>Return a seq of strings of table names, optionally within a specific database</p>
+</td><td class="codes"><pre class="brush: clojure">(defn table-names
+  ([sql-context]
+   (seq (.tableNames sql-context)))
+  ([sql-context database-name]
+   (seq (.tableNames sql-context database-name))))</pre></td></tr><tr><td class="docs"><p>Registers this dataframe as a temporary table using the given name.</p>
+
+<p>DataFrame</p>
+</td><td class="codes"><pre class="brush: clojure">(defn register-temp-table
+  [df table-name]
+  (.registerTempTable df table-name))</pre></td></tr><tr><td class="docs"><p>Returns all column names as a sequence.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn columns
+  [df]
+  (seq (.columns df)))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(def print-schema (memfn printSchema))</pre></td></tr><tr><td class="docs"><p>Row</p>
 </td><td class="codes"><pre class="brush: clojure">(defsparkfn row-&gt;vec [^Row row]
   (let [n (.length row)]
     (loop [i 0 v (transient [])]
@@ -3414,7 +3649,7 @@ Spark Streaming; consider it a work in progress.</p>
                                      function2
                                      pair-function
                                      void-function]])
-  (:import [org.apache.spark.streaming.api.java JavaStreamingContext JavaDStream]
+  (:import [org.apache.spark.streaming.api.java JavaStreamingContext]
            [org.apache.spark.streaming.kafka KafkaUtils]
            [org.apache.spark.streaming.flume FlumeUtils]
            [org.apache.spark.streaming Duration Time]))</pre></td></tr><tr><td class="docs">
@@ -3437,8 +3672,10 @@ Spark Streaming; consider it a work in progress.</p>
   (.textFileStream context file-path))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn socket-text-stream [context ip port]
   (.socketTextStream context ip port))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn kafka-stream [&amp; {:keys [streaming-context zk-connect group-id topic-map]}]
-  (KafkaUtils/createStream streaming-context zk-connect group-id (into {} (for [[k, v] topic-map] [k (Integer. v)]))))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn kafka-stream [streaming-context zk-connect group-id topic-map]
+  (KafkaUtils/createStream streaming-context zk-connect group-id (into {} (for [[k v] topic-map] [k (Integer. v)]))))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn kafka-direct-stream [streaming-context key-class value-class key-decoder-class value-decoder-class kafka-params topic-set]
+  (KafkaUtils/createDirectStream streaming-context key-class value-class key-decoder-class value-decoder-class kafka-params topic-set))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn flume-stream [streaming-context host port]
   (FlumeUtils/createStream streaming-context host port))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn flume-polling-stream [streaming-context host port]
@@ -3448,17 +3685,8 @@ Spark Streaming; consider it a work in progress.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn map [dstream f]
   (.map dstream (function f)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn reduce-by-key [dstream f]
-  &quot;Call reduceByKey on dstream of type JavaDStream or JavaPairDStream&quot;
-  (if (instance? JavaDStream dstream)
-    ;; JavaDStream doesn't have a .reduceByKey so cast to JavaPairDStream first
-    (-&gt; dstream
-      (.mapToPair (pair-function identity))
-      (.reduceByKey (function2 f))
-      (.map (function f/untuple)))
-    ;; if it's already JavaPairDStream, we're good
-    (-&gt; dstream
-        (.reduceByKey (function2 f))
-        (.map (function f/untuple)))))</pre></td></tr><tr><td class="docs">
+  &quot;Call reduceByKey on dstream of type JavaPairDStream&quot;
+  (.reduceByKey dstream (function2 f)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn map-to-pair [dstream f]
   (.mapToPair dstream (pair-function f)))</pre></td></tr><tr><td class="docs"><h2>Transformations</h2>
 </td><td class="codes"><pre class="brush: clojure">(defn transform [dstream f]
@@ -3474,17 +3702,11 @@ Spark Streaming; consider it a work in progress.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn count-by-window [dstream window-length slide-interval]
   (.countByWindow dstream (duration window-length) (duration slide-interval)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn group-by-key-and-window [dstream window-length slide-interval]
-  (-&gt; dstream
-      (.mapToPair (pair-function identity))
-      (.groupByKeyAndWindow (duration window-length) (duration slide-interval))
-      (.map (function f/untuple))))</pre></td></tr><tr><td class="docs">
+  (.groupByKeyAndWindow dstream (duration window-length) (duration slide-interval)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn reduce-by-window [dstream f f-inv window-length slide-interval]
   (.reduceByWindow dstream (function2 f) (function2 f-inv) (duration window-length) (duration slide-interval)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn reduce-by-key-and-window [dstream f window-length slide-interval]
-  (-&gt; dstream
-      (.mapToPair (pair-function identity))
-      (.reduceByKeyAndWindow (function2 f) (duration window-length) (duration slide-interval))
-      (.map (function f/untuple))))</pre></td></tr><tr><td class="docs"><h2>Actions</h2>
+  (.reduceByKeyAndWindow dstream (function2 f) (duration window-length) (duration slide-interval)))</pre></td></tr><tr><td class="docs"><h2>Actions</h2>
 </td><td class="codes"><pre class="brush: clojure">(def print (memfn print))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn foreach-rdd [dstream f]
   (.foreachRDD dstream (function2 f)))</pre></td></tr><tr><td class="docs"><h2>Output</h2>
@@ -3494,11 +3716,30 @@ Spark Streaming; consider it a work in progress.</p>
   ([dstream prefix suffix]
     (.saveAsTextFiles dstream prefix suffix))
   ([dstream prefix]
-   (.saveAsTextFiles dstream prefix)))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#flambo.utils" name="flambo.utils"><h1 class="project-name">flambo.utils</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+   (.saveAsTextFiles dstream prefix)))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#flambo.tuple" name="flambo.tuple"><h1 class="project-name">flambo.tuple</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(ns flambo.tuple
+  (:require [serializable.fn :as sfn])
+  (:import [scala Tuple2]
+           [flambo.function AbstractFlamboFunction]
+           [java.io Writer]))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(set! *warn-on-reflection* true)</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn ^Tuple2 tuple [k v]
+  (Tuple2. k v))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn key-val-fn [^AbstractFlamboFunction f]
+  (sfn/fn [^Tuple2 t]
+    (f (._1 t) (._2 t))))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn key-val-val-fn [^AbstractFlamboFunction f]
+  (sfn/fn [^Tuple2 t]
+    (let [k (._1 t)
+          v ^Tuple2 (._2 t)]
+      (f k (._1 v) (._2 v)))))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defmethod print-method Tuple2 [^Tuple2 o ^Writer w]
+  (.write w (str &quot;#flambo/tuple &quot; (pr-str [(._1 o) (._2 o)]))))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defmethod print-dup Tuple2 [o w]
+  (print-method o w))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#flambo.utils" name="flambo.utils"><h1 class="project-name">flambo.utils</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(ns flambo.utils
   (:require [clojure.tools.logging :as log])
-  (:import [scala Tuple2]
-           [org.apache.spark.util.random BernoulliSampler XORShiftRandom]
+  (:import [org.apache.spark.util.random BernoulliCellSampler]
            [java.io PrintStream]
            [flambo WriterOutputStream]
            [org.apache.log4j Logger WriterAppender SimpleLayout]))</pre></td></tr><tr><td class="docs">
@@ -3520,7 +3761,7 @@ Spark Streaming; consider it a work in progress.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn as-double [s]
   (Double. s))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn bernoulli-sampler [lower-bound upper-bound complement?]
-  (BernoulliSampler. lower-bound upper-bound complement?))</pre></td></tr><tr><td class="docs">
+  (BernoulliCellSampler. lower-bound upper-bound complement?))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn sampler-complement [sampler]
   (.cloneComplement sampler))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn bootstrap-emacs []
@@ -3570,7 +3811,7 @@ Spark Streaming; consider it a work in progress.</p>
    &quot;111111111111111111111111111111111111 11111111111111 111111111111111111111111111&quot;])</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn hail-flambo []
   (doseq [hs flambo]
-    (println hs)))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr></table><div class="footer">Generated by <a href="https://github.com/gdeer81/marginalia">Marginalia</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a><div id="floating-toc"><ul><li class="floating-toc-li" id="floating-toc_flambo.api">flambo.api</li><li class="floating-toc-li" id="floating-toc_flambo.conf">flambo.conf</li><li class="floating-toc-li" id="floating-toc_flambo.function">flambo.function</li><li class="floating-toc-li" id="floating-toc_flambo.kryo">flambo.kryo</li><li class="floating-toc-li" id="floating-toc_flambo.sql">flambo.sql</li><li class="floating-toc-li" id="floating-toc_flambo.streaming">flambo.streaming</li><li class="floating-toc-li" id="floating-toc_flambo.utils">flambo.utils</li></ul></div></div><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
+    (println hs)))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr></table><div class="footer">Generated by <a href="https://github.com/gdeer81/marginalia">Marginalia</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a><div id="floating-toc"><ul><li class="floating-toc-li" id="floating-toc_flambo.accumulator">flambo.accumulator</li><li class="floating-toc-li" id="floating-toc_flambo.api">flambo.api</li><li class="floating-toc-li" id="floating-toc_flambo.broadcast">flambo.broadcast</li><li class="floating-toc-li" id="floating-toc_flambo.conf">flambo.conf</li><li class="floating-toc-li" id="floating-toc_flambo.debug">flambo.debug</li><li class="floating-toc-li" id="floating-toc_flambo.function">flambo.function</li><li class="floating-toc-li" id="floating-toc_flambo.kryo">flambo.kryo</li><li class="floating-toc-li" id="floating-toc_flambo.scala-interop">flambo.scala-interop</li><li class="floating-toc-li" id="floating-toc_flambo.sql">flambo.sql</li><li class="floating-toc-li" id="floating-toc_flambo.streaming">flambo.streaming</li><li class="floating-toc-li" id="floating-toc_flambo.tuple">flambo.tuple</li><li class="floating-toc-li" id="floating-toc_flambo.utils">flambo.utils</li></ul></div></div><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
 SyntaxHighlighter.all();
 
 // hackity hack
