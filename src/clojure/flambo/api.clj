@@ -229,9 +229,11 @@
   (.filter rdd (function (ftruthy? f))))
 
 (defn union
-  "Union `rdd` and `other`. duplicate keys are kept."
-  [rdd other]
-  (.union rdd other))
+  "Union `rdd` and `other`, or multiple RDDs. Duplicate keys are kept."
+  ([rdd other]
+   (.union rdd other))
+  ([context rdd & rdds]
+   (.union context rdd (ArrayList. rdds))))
 
 (defn foreach
   "Applies the function `f` to all elements of `rdd`."
