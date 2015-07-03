@@ -441,6 +441,26 @@
   "Return the number of elements in `rdd`."
   (memfn count))
 
+(defn min
+  "Return the minimum value `rdd` using a comparator."
+  ([rdd]
+    (.min rdd compare))
+  ([rdd compare-fn]
+    (.min rdd
+      (if (instance? Comparator compare-fn)
+        compare-fn
+        (comparator compare-fn)))))
+
+(defn max
+  "Return the maximum value in `rdd` using a comparator."
+  ([rdd]
+    (.max rdd compare))
+  ([rdd compare-fn]
+    (.max rdd
+      (if (instance? Comparator compare-fn)
+        compare-fn
+        (comparator compare-fn)))))
+
 (def glom
   "Returns an RDD created by coalescing all elements of `rdd` within each partition into a list."
   (memfn glom))
@@ -466,6 +486,16 @@
   program computes all the elements)."
   [rdd cnt]
   (.take rdd cnt))
+  
+(defn take-ordered
+  "Return an array with the first n elements of `rdd`.
+  (Note: this is currently not executed in parallel. Instead, the driver
+  program computes all the elements)."
+  [rdd cnt compare-fn]
+  (.takeOrdered rdd cnt 
+    (if (instance? Comparator compare-fn)
+      compare-fn
+      (comparator compare-fn))))  
 
 (defmulti histogram "compute histogram of an RDD of doubles"
   (fn [_ bucket-arg] (sequential? bucket-arg)))
