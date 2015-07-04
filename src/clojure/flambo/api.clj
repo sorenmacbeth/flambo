@@ -10,7 +10,7 @@
 ;; happily accepted!
 ;;
 (ns flambo.api
-  (:refer-clojure :exclude [fn map reduce first count take distinct filter group-by values partition-by])
+  (:refer-clojure :exclude [fn map reduce first count take distinct filter group-by values partition-by min max])
   (:require [serializable.fn :as sfn]
             [clojure.tools.logging :as log]
             [flambo.function :refer [flat-map-function
@@ -486,16 +486,16 @@
   program computes all the elements)."
   [rdd cnt]
   (.take rdd cnt))
-  
+
 (defn take-ordered
   "Return an array with the first n elements of `rdd`.
   (Note: this is currently not executed in parallel. Instead, the driver
   program computes all the elements)."
   [rdd cnt compare-fn]
-  (.takeOrdered rdd cnt 
+  (.takeOrdered rdd cnt
     (if (instance? Comparator compare-fn)
       compare-fn
-      (comparator compare-fn))))  
+      (comparator compare-fn))))
 
 (defmulti histogram "compute histogram of an RDD of doubles"
   (fn [_ bucket-arg] (sequential? bucket-arg)))
