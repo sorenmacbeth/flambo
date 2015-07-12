@@ -491,11 +491,13 @@
   "Return an array with the first n elements of `rdd`.
   (Note: this is currently not executed in parallel. Instead, the driver
   program computes all the elements)."
-  [rdd cnt compare-fn]
-  (.takeOrdered rdd cnt 
-    (if (instance? Comparator compare-fn)
-      compare-fn
-      (comparator compare-fn))))  
+  ([rdd cnt]
+    (.takeOrdered rdd cnt))  
+  ([rdd cnt compare-fn]
+    (.takeOrdered rdd cnt 
+      (if (instance? Comparator compare-fn)
+        compare-fn
+        (comparator compare-fn)))))  
 
 (defmulti histogram "compute histogram of an RDD of doubles"
   (fn [_ bucket-arg] (sequential? bucket-arg)))
