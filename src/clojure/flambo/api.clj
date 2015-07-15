@@ -144,8 +144,9 @@
   ([rdd]
    (.name rdd)))
 
-(defn partitionwise-sampled-rdd [rdd sampler preserve-partitioning? seed]
+(defn partitionwise-sampled-rdd
   "Creates a PartitionwiseSampledRRD from existing RDD and a sampler object"
+  [rdd sampler preserve-partitioning? seed]
   (-> (PartitionwiseSampledRDD.
        (.rdd rdd)
        sampler
