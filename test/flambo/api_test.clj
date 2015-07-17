@@ -380,6 +380,11 @@
           (f/take 3)) => [1 2 3])
 
      (fact
+      "take returns an array with the first n elements of an RDD with default comparator"
+      (-> (f/parallelize c [9 3 8 1 2 4])
+          (f/take-ordered 3)) => [1 2 3])
+          
+     (fact
       "take returns an array with the first n elements of an RDD"
       (-> (f/parallelize c [9 3 8 1 2 4])
           (f/take-ordered 3 compare)) => [1 2 3])
