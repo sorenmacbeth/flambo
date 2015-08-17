@@ -20,21 +20,28 @@ To start with we will need to configure a REPL environment. The easiest way to d
 lein new flambo-tutorial
 ```
 
-This will create a new Clojure project skelton to work with. This tutorial uses the REPL, but it is convienent to use a project.clj file to tell the REPL what dependencies are required. To do that, modify the project.clj file that Leiningen created to include the flambo dependency: `[yieldbot/flambo "0.6.0-SNAPSHOT"]` (check to ensure you have the correct version of flambo, it may have changed since this was written). Since we are working from the REPL, it is best to set up a dev profile. Mine looks like this:
+This will create a new Clojure project skelton to work with. This tutorial uses the REPL, but it is convienent to use a project.clj file to tell the REPL what dependencies are required. To do that, modify the project.clj file so that it looks like below:  
 
 ```clojure
+(defproject flambo-tutorial "0.1.0-SNAPSHOT"
+  :description "Flambo tutorial"
+  :url "https://github.com/yieldbot/flambo/blob/master/Tutorial.md"
+  :license {:name "Eclipse Public License"
+            :url "http://www.eclipse.org/legal/epl-v10.html"}
+  :dependencies [[org.clojure/clojure "1.6.0"]
+                 [yieldbot/flambo "0.6.0-SNAPSHOT"]
+                 [org.clojure/tools.logging "0.3.1"]]
   :profiles {:dev
-             ;; so gen-class stuff works in the repl
-             {:aot [flambo.function]}
+             {:aot [clojure.tools.logging.impl flambo.function flambo-tutorial.core]}
              :provided
              {:dependencies
-              [[org.apache.spark/spark-core_2.10 "1.3.0"]
-               [org.apache.spark/spark-streaming_2.10 "1.3.0"]
-               [org.apache.spark/spark-streaming-kafka_2.10 "1.3.0"]
-               [org.apache.spark/spark-streaming-flume_2.10 "1.3.0"]
-               [org.apache.spark/spark-sql_2.10 "1.3.0"]]}
-             :uberjar
-             {:aot :all}}
+              [[org.apache.spark/spark-core_2.10 "1.4.0"]
+               [org.apache.spark/spark-streaming_2.10 "1.4.0"]
+               [org.apache.spark/spark-streaming-kafka_2.10 "1.4.0"]
+               [org.apache.spark/spark-streaming-flume_2.10 "1.4.0"]
+               [org.apache.spark/spark-sql_2.10 "1.4.0"]
+               [com.databricks/spark-csv_2.10 "1.0.1"]]
+             :uberjar {:aot :all}}})
 ```
 
 There are more dependencies in this profile than you need for this tutorial, but leave them so that you will be able to complete other tutorials without modifying your project file. From this point you should be able to start a REPL with `lein repl` from the project top-level directory. If things are not working, check the [flambo project.clj](https://github.com/yieldbot/flambo/blob/develop/project.clj) for clues.
