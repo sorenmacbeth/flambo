@@ -249,7 +249,17 @@
           f/collect
           vec) => (just [0 1 2 3 4] :in-any-order))
 
-     (future-fact "map-partitions-to-pair")
+     (fact
+      "map-partitions-to-pair"
+      (let [rdd (f/parallelize-pairs c [(ft/tuple 1 2) (ft/tuple 3 4) (ft/tuple 5 6)])]
+        (-> rdd
+            (f/repartition 3)
+            (f/map-partitions-to-pair (f/fn [it]
+                                        (map (ft/key-val-fn
+                                              (f/fn [k v]
+                                                (ft/tuple (inc k) (inc v)))) (iterator-seq it))))
+            f/collect
+            vec) => (just [(ft/tuple 2 3) (ft/tuple 4 5) (ft/tuple 6 7)] :in-any-order)))
 
      (fact
       "cartesian creates cartesian product of two RDDS"
@@ -383,12 +393,12 @@
       "take returns an array with the first n elements of an RDD with default comparator"
       (-> (f/parallelize c [9 3 8 1 2 4])
           (f/take-ordered 3)) => [1 2 3])
-          
+
      (fact
       "take returns an array with the first n elements of an RDD"
       (-> (f/parallelize c [9 3 8 1 2 4])
           (f/take-ordered 3 compare)) => [1 2 3])
-               
+
      (fact
       "glom returns an RDD created by coalescing all elements within each partition into a list"
       (-> (f/parallelize c [1 2 3 4 5 6 7 8 9 10] 2)
