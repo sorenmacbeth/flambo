@@ -35,7 +35,7 @@
          (f/count (sql/sql c "SELECT * FROM foo WHERE col2 = 'a'")) => 2)
 
        (fact "table-names gets all tables"
-         (sql/table-names c) => ["foo" "bar"])
+         (sql/table-names c) => (just ["foo" "bar"] :in-any-order))
 
        (fact "table returns dataframe with the data for given name"
          (f/first (sql/table c "foo")) => (f/first test-df)

@@ -1,4 +1,4 @@
-(defproject yieldbot/flambo "0.6.0"
+(defproject yieldbot/flambo "0.7.0"
   :description "A Clojure DSL for Apache Spark"
   :url "https://github.com/yieldbot/flambo"
   :license {:name "Eclipse Public License"
@@ -6,10 +6,10 @@
   :mailing-list {:name "flambo user mailing list"
                  :archive "https://groups.google.com/d/forum/flambo-user"
                  :post "flambo-user@googlegroups.com"}
-  :dependencies [[org.clojure/clojure "1.6.0"]
+  :dependencies [[org.clojure/clojure "1.7.0"]
                  [org.clojure/tools.logging "0.3.1"]
                  [org.clojure/core.memoize "0.5.7"]
-                 [yieldbot/serializable-fn "0.0.9"
+                 [yieldbot/serializable-fn "0.1.1"
                   :exclusions [com.twitter/chill-java]]
                  [com.twitter/carbonite "1.4.0"
                   :exclusions [com.twitter/chill-java]]
@@ -26,14 +26,14 @@
                     flambo.example.tfidf]}
              :provided
              {:dependencies
-              [[org.apache.spark/spark-core_2.10 "1.4.0"]
-               [org.apache.spark/spark-streaming_2.10 "1.4.0"]
-               [org.apache.spark/spark-streaming-kafka_2.10 "1.4.0"]
-               [org.apache.spark/spark-streaming-flume_2.10 "1.4.0"]
-               [org.apache.spark/spark-sql_2.10 "1.4.0"]
+              [[org.apache.spark/spark-core_2.10 "1.5.0"]
+               [org.apache.spark/spark-streaming_2.10 "1.5.0"]
+               [org.apache.spark/spark-streaming-kafka_2.10 "1.5.0"]
+               [org.apache.spark/spark-streaming-flume_2.10 "1.5.0"]
+               [org.apache.spark/spark-sql_2.10 "1.5.0"]
                [com.databricks/spark-csv_2.10 "1.0.1"]]}
-             :clojure-1.7
-             {:dependencies [[org.clojure/clojure "1.7.0-beta2"]]}
+             :clojure-1.6
+             {:dependencies [[org.clojure/clojure "1.6.0"]]}
              :uberjar
              {:aot :all}
              :example

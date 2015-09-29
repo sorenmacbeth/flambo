@@ -10,7 +10,7 @@
 ;; happily accepted!
 ;;
 (ns flambo.api
-  (:refer-clojure :exclude [fn map reduce first count take distinct filter group-by values partition-by])
+  (:refer-clojure :exclude [fn map reduce first count take distinct filter group-by values partition-by min max])
   (:require [serializable.fn :as sfn]
             [clojure.tools.logging :as log]
             [flambo.function :refer [flat-map-function
@@ -125,8 +125,15 @@
 (defn text-file
   "Reads a text file from HDFS, a local file system (available on all nodes),
   or any Hadoop-supported file system URI, and returns it as an `JavaRDD` of Strings."
-  [spark-context filename]
-  (.textFile spark-context filename))
+  ([spark-context filename] (.textFile spark-context filename))
+  ([spark-context filename min-partitions] (.textFile spark-context filename min-partitions)))
+
+(defn whole-text-files
+  "Read a directory of text files from HDFS, a local file system (available on all nodes),
+  or any Hadoop-supported file system URI, and returns it as a `JavaPairRDD` of (K, V) pairs,
+  where, K is the path of each file, V is the content of each file."
+  ([spark-context path] (.wholeTextFiles spark-context path))
+  ([spark-context path min-partitions] (.wholeTextFiles spark-context path min-partitions)))
 
 (defn parallelize
   "Distributes a local collection to form/return an RDD"
@@ -144,8 +151,9 @@
   ([rdd]
    (.name rdd)))
 
-(defn partitionwise-sampled-rdd [rdd sampler preserve-partitioning? seed]
+(defn partitionwise-sampled-rdd
   "Creates a PartitionwiseSampledRRD from existing RDD and a sampler object"
+  [rdd sampler preserve-partitioning? seed]
   (-> (PartitionwiseSampledRDD.
        (.rdd rdd)
        sampler
@@ -229,9 +237,11 @@
   (.filter rdd (function (ftruthy? f))))
 
 (defn union
-  "Union `rdd` and `other`. duplicate keys are kept."
-  [rdd other]
-  (.union rdd other))
+  "Union `rdd` and `other`, or multiple RDDs. Duplicate keys are kept."
+  ([rdd other]
+   (.union rdd other))
+  ([context rdd & rdds]
+   (.union context rdd (ArrayList. rdds))))
 
 (defn foreach
   "Applies the function `f` to all elements of `rdd`."
@@ -439,6 +449,26 @@
   "Return the number of elements in `rdd`."
   (memfn count))
 
+(defn min
+  "Return the minimum value `rdd` using a comparator."
+  ([rdd]
+    (.min rdd compare))
+  ([rdd compare-fn]
+    (.min rdd
+      (if (instance? Comparator compare-fn)
+        compare-fn
+        (comparator compare-fn)))))
+
+(defn max
+  "Return the maximum value in `rdd` using a comparator."
+  ([rdd]
+    (.max rdd compare))
+  ([rdd compare-fn]
+    (.max rdd
+      (if (instance? Comparator compare-fn)
+        compare-fn
+        (comparator compare-fn)))))
+
 (def glom
   "Returns an RDD created by coalescing all elements of `rdd` within each partition into a list."
   (memfn glom))
@@ -464,6 +494,18 @@
   program computes all the elements)."
   [rdd cnt]
   (.take rdd cnt))
+
+(defn take-ordered
+  "Return an array with the first n elements of `rdd`.
+  (Note: this is currently not executed in parallel. Instead, the driver
+  program computes all the elements)."
+  ([rdd cnt]
+    (.takeOrdered rdd cnt))  
+  ([rdd cnt compare-fn]
+    (.takeOrdered rdd cnt 
+      (if (instance? Comparator compare-fn)
+        compare-fn
+        (comparator compare-fn)))))  
 
 (defmulti histogram "compute histogram of an RDD of doubles"
   (fn [_ bucket-arg] (sequential? bucket-arg)))
