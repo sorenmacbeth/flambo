@@ -2,7 +2,7 @@
   (:require [serializable.fn :as sfn]
             [flambo.kryo :as kryo]
             [clojure.tools.logging :as log]
-            [clojure.core.memoize :as memo]))
+            [flambo.utils :as utils]))
 
 (set! *warn-on-reflection* true)
 
@@ -15,7 +15,7 @@
 ;; XXX: memoizing here is weird because all functions in a JVM now share a single
 ;;      cache lookup. Maybe we could memoize in the constructor or something instead?
 ;; TODO: what is a good cache size here???
-(def deserialize-fn (memo/lru sfn/deserialize :lru/threshold 1000))
+(def deserialize-fn (utils/lru-memoize 5000 sfn/deserialize))
 (def array-of-bytes-type (Class/forName "[B"))
 
 ;; ## Generic
