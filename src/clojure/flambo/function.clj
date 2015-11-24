@@ -33,7 +33,6 @@
     (log/trace "CLASS" (type this))
     (log/trace "META" (meta f))
     (log/trace "XS" xs)
-    (log/trace (memo/snapshot deserialize-fn))
     (apply f xs)))
 
 ;; ## Functions
