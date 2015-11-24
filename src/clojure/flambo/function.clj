@@ -84,7 +84,6 @@
     (log/trace "CLASS" (type this))
     (log/trace "META" (meta f))
     (log/trace "XS" xs)
-    (log/trace (memo/snapshot deserialize-fn))
     (apply f xs)))
 
 (defn Function2-call [^flambo.function.Function2 this & xs]
@@ -96,7 +95,6 @@
     (log/trace "CLASS" (type this))
     (log/trace "META" (meta f))
     (log/trace "XS" xs)
-    (log/trace "MEMO" (memo/snapshot deserialize-fn))
     (apply f xs)))
 
 (defn Function3-call [^flambo.function.Function2 this & xs]
@@ -108,7 +106,6 @@
     (log/trace "CLASS" (type this))
     (log/trace "META" (meta f))
     (log/trace "XS" xs)
-    (log/trace "MEMO" (memo/snapshot deserialize-fn))
     (apply f xs)))
 
 (defn VoidFunction-call [^flambo.function.VoidFunction this & xs]
@@ -120,7 +117,6 @@
     (log/trace "CLASS" (type this))
     (log/trace "META" (meta f))
     (log/trace "XS" xs)
-    (log/trace "MEMO" (memo/snapshot deserialize-fn))
     (apply f xs)))
 
 (defn FlatMapFunction-call [^flambo.function.FlatMapFunction this & xs]
@@ -132,7 +128,6 @@
     (log/trace "CLASS" (type this))
     (log/trace "META" (meta f))
     (log/trace "XS" xs)
-    (log/trace "MEMO" (memo/snapshot deserialize-fn))
     (apply f xs)))
 
 (defn FlatMapFunction2-call [^flambo.function.FlatMapFunction2 this & xs]
@@ -144,7 +139,6 @@
     (log/trace "CLASS" (type this))
     (log/trace "META" (meta f))
     (log/trace "XS" xs)
-    (log/trace "MEMO" (memo/snapshot deserialize-fn))
     (apply f xs)))
 
 (defn PairFlatMapFunction-call [^flambo.function.PairFlatMapFunction this & xs]
@@ -156,7 +150,6 @@
     (log/trace "CLASS" (type this))
     (log/trace "META" (meta f))
     (log/trace "XS" xs)
-    (log/trace "MEMO" (memo/snapshot deserialize-fn))
     (apply f xs)))
 
 (defn PairFunction-call [^flambo.function.PairFunction this & xs]
@@ -168,7 +161,6 @@
     (log/trace "CLASS" (type this))
     (log/trace "META" (meta f))
     (log/trace "XS" xs)
-    (log/trace "MEMO" (memo/snapshot deserialize-fn))
     (apply f xs)))
 
 (defn DoubleFunction-call [^flambo.function.DoubleFunction this & xs]
@@ -180,7 +172,6 @@
     (log/trace "CLASS" (type this))
     (log/trace "META" (meta f))
     (log/trace "XS" xs)
-    (log/trace "MEMO" (memo/snapshot deserialize-fn))
     (apply f xs)))
 
 (defn DoubleFlatMapFunction-call [^flambo.function.DoubleFlatMapFunction this & xs]
@@ -192,5 +183,4 @@
     (log/trace "CLASS" (type this))
     (log/trace "META" (meta f))
     (log/trace "XS" xs)
-    (log/trace "MEMO" (memo/snapshot deserialize-fn))
     (apply f xs)))
