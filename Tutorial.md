@@ -20,7 +20,7 @@ To start with we will need to configure a REPL environment. The easiest way to d
 lein new flambo-tutorial
 ```
 
-This will create a new Clojure project skelton to work with. This tutorial uses the REPL, but it is convienent to use a project.clj file to tell the REPL what dependencies are required. To do that, modify the project.clj file that Leiningen created to include the flambo dependency: `[yieldbot/flambo "0.6.0-SNAPSHOT"]` (check to ensure you have the correct version of flambo, it may have changed since this was written). Since we are working from the REPL, it is best to set up a dev profile. Mine looks like this:
+This will create a new Clojure project skelton to work with. This tutorial uses the REPL, but it is convienent to use a project.clj file to tell the REPL what dependencies are required. To do that, modify the project.clj file that Leiningen created to include the flambo dependency: `[yieldbot/flambo "0.7.2-SNAPSHOT"]` (check to ensure you have the correct version of flambo, it may have changed since this was written). Since we are working from the REPL, it is best to set up a dev profile. Mine looks like this:
 
 ```clojure
   :profiles {:dev
@@ -28,11 +28,11 @@ This will create a new Clojure project skelton to work with. This tutorial uses 
              {:aot [flambo.function]}
              :provided
              {:dependencies
-              [[org.apache.spark/spark-core_2.10 "1.3.0"]
-               [org.apache.spark/spark-streaming_2.10 "1.3.0"]
-               [org.apache.spark/spark-streaming-kafka_2.10 "1.3.0"]
-               [org.apache.spark/spark-streaming-flume_2.10 "1.3.0"]
-               [org.apache.spark/spark-sql_2.10 "1.3.0"]]}
+              [[org.apache.spark/spark-core_2.10 "1.6.0"]
+               [org.apache.spark/spark-streaming_2.10 "1.6.0"]
+               [org.apache.spark/spark-streaming-kafka_2.10 "1.6.0"]
+               [org.apache.spark/spark-streaming-flume_2.10 "1.6.0"]
+               [org.apache.spark/spark-sql_2.10 "1.6.0"]]}
              :uberjar
              {:aot :all}}
 ```
