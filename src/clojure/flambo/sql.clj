@@ -107,10 +107,14 @@
   ([sql-context database-name]
    (seq (.tableNames sql-context database-name))))
 
+(defn- as-col-array
+  [exprs]
+  (into-array Column (map sqlf/col exprs)))
+
 (defn select
   "Select a set of columns"
   [df & exprs]
-  (.select df (into-array Column (map sqlf/col exprs))))
+  (.select df (as-col-array exprs)))
 
 (defn where
   "Filters DataFrame rows using SQL expression"
@@ -119,11 +123,11 @@
 
 (defn group-by
   [df & exprs]
-  (.groupBy df (into-array Column (map sqlf/col exprs))))
+  (.groupBy df (as-col-array exprs)))
 
 (defn agg
   [df expr & exprs]
-  (.agg df (sqlf/col expr) (into-array Column (map sqlf/col exprs))))
+  (.agg df (sqlf/col expr) (as-col-array exprs)))
 
 ;; DataFrame
 (defn register-temp-table
