@@ -3,9 +3,10 @@
 ;;
 (ns flambo.sql
   (:refer-clojure :exclude [load])
-  (:require [flambo.api :as f :refer [defsparkfn]])
+  (:require [flambo.api :as f :refer [defsparkfn]]
+            [flambo.sql-functions :as sqlf])
   (:import [org.apache.spark.api.java JavaSparkContext]
-           [org.apache.spark.sql SQLContext Row Dataset]))
+           [org.apache.spark.sql SQLContext Row Dataset Column]))
 
 ;; ## SQLContext
 ;;
@@ -106,6 +107,11 @@
   ([sql-context database-name]
    (seq (.tableNames sql-context database-name))))
 
+(defn select
+  "Select a set of columns"
+  [df & exprs]
+  (.select df (into-array Column (map sqlf/col exprs))))
+
 ;; DataFrame
 (defn register-temp-table
   "Registers this dataframe as a temporary table using the given name."
@@ -126,3 +132,4 @@
       (if (< i n)
         (recur (inc i) (conj! v (.get row i)))
         (persistent! v)))))
+

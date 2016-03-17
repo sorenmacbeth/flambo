@@ -2,7 +2,8 @@
   (:use midje.sweet)
   (:require [flambo.api   :as f]
             [flambo.conf  :as conf]
-            [flambo.sql   :as sql]))
+            [flambo.sql   :as sql]
+            [flambo.sql-functions :as sqlf]))
 
 (facts
  "about spark-sql-context"
@@ -59,4 +60,12 @@
                _ (sql/clear-cache c)]
            (or (sql/is-cached? c "foo") (sql/is-cached? c "bar"))) => false)
 
+       (fact "select returns a DataFrame"
+          (class (sql/select test-df "*")) => org.apache.spark.sql.DataFrame
+          (class (sql/select test-df "col1" "col2")) => org.apache.spark.sql.DataFrame)
+
+       (fact "select returns expected columns"
+          (sql/columns (sql/select test-df "*")) => ["col1" "col2"]
+          (sql/columns (sql/select test-df "col1")) => ["col1"]
+          (sql/columns (sql/select test-df "col2")) => ["col2"])
        ))))
