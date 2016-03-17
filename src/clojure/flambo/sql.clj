@@ -117,6 +117,14 @@
   [df expr]
   (.where df expr))
 
+(defn group-by
+  [df & exprs]
+  (.groupBy df (into-array Column (map sqlf/col exprs))))
+
+(defn agg
+  [df expr & exprs]
+  (.agg df (sqlf/col expr) (into-array Column (map sqlf/col exprs))))
+
 ;; DataFrame
 (defn register-temp-table
   "Registers this dataframe as a temporary table using the given name."
