@@ -112,6 +112,11 @@
   [df & exprs]
   (.select df (into-array Column (map sqlf/col exprs))))
 
+(defn where
+  "Filters DataFrame rows using SQL expression"
+  [df expr]
+  (.where df expr))
+
 ;; DataFrame
 (defn register-temp-table
   "Registers this dataframe as a temporary table using the given name."

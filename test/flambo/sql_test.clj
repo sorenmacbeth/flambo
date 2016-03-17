@@ -68,4 +68,10 @@
           (sql/columns (sql/select test-df "*")) => ["col1" "col2"]
           (sql/columns (sql/select test-df "col1")) => ["col1"]
           (sql/columns (sql/select test-df "col2")) => ["col2"])
+
+        (fact "where returns expected number of rows"
+          (.count (sql/where test-df "1 = 1")) => 3
+          (.count (sql/where test-df "1 = 0 ")) => 0
+          (.count (sql/where test-df "col1 > 4")) => 2)
+
        ))))
