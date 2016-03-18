@@ -2,7 +2,7 @@
 ;; SparkSQL & DataFrame wrapper
 ;;
 (ns flambo.sql
-  (:refer-clojure :exclude [load])
+  (:refer-clojure :exclude [load group-by])
   (:require [flambo.api :as f :refer [defsparkfn]]
             [flambo.sql-functions :as sqlf])
   (:import [org.apache.spark.api.java JavaSparkContext]
@@ -122,10 +122,12 @@
   (.where df expr))
 
 (defn group-by
+  "Groups data using the specified expressions"
   [df & exprs]
   (.groupBy df (as-col-array exprs)))
 
 (defn agg
+  "Aggregates grouped data using the specified expressions"
   [df expr & exprs]
   (.agg df (sqlf/col expr) (as-col-array exprs)))
 

@@ -2,8 +2,9 @@
   (:use midje.sweet)
   (:require [flambo.api   :as f]
             [flambo.conf  :as conf]
-            [flambo.sql   :as sql]
-            [flambo.sql-functions :as sqlf]))
+            [flambo.sql   :as sql])
+  (:import [org.apache.spark.sql functions]))
+
 
 (facts
  "about spark-sql-context"
@@ -76,6 +77,10 @@
 
        (fact "group-by returns GroupedData object"
           (class (sql/group-by test-df)) => org.apache.spark.sql.GroupedData)
+
+       (fact "agg on grouped data returns a DataFrame"
+          (class (sql/agg (sql/group-by test-df 'col2) (functions/sum (functions/lit 1)))) => org.apache.spark.sql.DataFrame)
+
        ))))
 
 
