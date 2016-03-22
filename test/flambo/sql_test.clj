@@ -3,7 +3,7 @@
   (:require [flambo.api   :as f]
             [flambo.conf  :as conf]
             [flambo.sql   :as sql])
-  (:import [org.apache.spark.sql RelationalGroupedDataset]
+  (:import [org.apache.spark.sql functions RelationalGroupedDataset Column]
            [org.apache.spark.sql.expressions WindowSpec]))
 
 
@@ -96,4 +96,8 @@
 
        (fact "ramge-between returns WindowSpec"
              (class (sql/range-between (sql/window) -1 0)) => WindowSpec)
+
+       (fact "over returns a column"
+             (class (sql/over (functions/sum "foo") (sql/window))) => Column)
+
        ))))

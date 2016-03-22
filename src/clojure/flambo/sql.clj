@@ -170,6 +170,11 @@
     [w lower-bound upper-bound]
     (.rangeBetween w lower-bound upper-bound))
 
+(defn over
+  "Return expresion with a given windowing"
+  [exprs w]
+  (.over (sqlf/col exprs) w))
+
 ;; Row
 (defsparkfn row->vec [^Row row]
   (let [n (.length row)]
