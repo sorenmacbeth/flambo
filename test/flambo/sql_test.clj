@@ -90,4 +90,7 @@
 
        (fact "partition-by returns WindowSpec"
              (class (sql/partition-by (sql/window))) => WindowSpec)
+
+       (fact "rows-between returns WindowSpec"
+             (class (sql/rows-between (sql/window) -1 0)) => WindowSpec)
        ))))

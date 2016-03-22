@@ -160,6 +160,11 @@
   [w & exprs]
   (.partitionBy w (as-col-array exprs)))
 
+(defn rows-between
+  "Create window spec with row window specified"
+  [w lower-bound upper-bound]
+  (.rowsBetween w lower-bound upper-bound))
+
 ;; Row
 (defsparkfn row->vec [^Row row]
   (let [n (.length row)]
