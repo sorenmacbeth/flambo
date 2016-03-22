@@ -83,6 +83,9 @@
 
        (fact "window returns WindowSpec"
           (class (sql/window)) => org.apache.spark.sql.expressions.WindowSpec)
+
+       (fact "order-by returns WindowSpec"
+             (class (sql/order-by (sql/window))) => org.apache.spark.sql.expressions.WindowSpec)
        ))))
 
 

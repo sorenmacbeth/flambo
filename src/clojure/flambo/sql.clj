@@ -150,6 +150,11 @@
   []
   (Window/partitionBy (as-col-array [])))
 
+(defn order-by
+  "Create window spec with specified ordering"
+  [w & exprs]
+  (.orderBy w (as-col-array exprs)))
+
 ;; Row
 (defsparkfn row->vec [^Row row]
   (let [n (.length row)]
