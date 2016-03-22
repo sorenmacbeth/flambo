@@ -93,4 +93,7 @@
 
        (fact "rows-between returns WindowSpec"
              (class (sql/rows-between (sql/window) -1 0)) => WindowSpec)
+
+       (fact "ramge-between returns WindowSpec"
+             (class (sql/range-between (sql/window) -1 0)) => WindowSpec)
        ))))

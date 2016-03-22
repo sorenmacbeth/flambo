@@ -165,6 +165,11 @@
   [w lower-bound upper-bound]
   (.rowsBetween w lower-bound upper-bound))
 
+(defn range-between
+  "Create window spec with range window specified"
+    [w lower-bound upper-bound]
+    (.rangeBetween w lower-bound upper-bound))
+
 ;; Row
 (defsparkfn row->vec [^Row row]
   (let [n (.length row)]
