@@ -3,7 +3,8 @@
   (:require [flambo.api   :as f]
             [flambo.conf  :as conf]
             [flambo.sql   :as sql])
-  (:import [org.apache.spark.sql functions]))
+  (:import [org.apache.spark.sql RelationalGroupedDataset]
+           [org.apache.spark.sql.expressions WindowSpec]))
 
 
 (facts
@@ -62,8 +63,8 @@
            (or (sql/is-cached? c "foo") (sql/is-cached? c "bar"))) => false)
 
        (fact "select returns a DataFrame"
-          (class (sql/select test-df "*")) => org.apache.spark.sql.DataFrame
-          (class (sql/select test-df "col1" "col2")) => org.apache.spark.sql.DataFrame)
+             (class (sql/select test-df "*")) => org.apache.spark.sql.Dataset
+             (class (sql/select test-df "col1" "col2")) => org.apache.spark.sql.Dataset)
 
        (fact "select returns expected columns"
           (sql/columns (sql/select test-df "*")) => ["col1" "col2"]
@@ -76,17 +77,17 @@
           (.count (sql/where test-df "col1 > 4")) => 2)
 
        (fact "group-by returns GroupedData object"
-          (class (sql/group-by test-df)) => org.apache.spark.sql.GroupedData)
+             (class (sql/group-by test-df)) => RelationalGroupedDataset)
 
        (fact "agg on grouped data returns a DataFrame"
-          (class (sql/agg (sql/group-by test-df 'col2) (functions/sum (functions/lit 1)))) => org.apache.spark.sql.DataFrame)
+             (class (sql/agg (sql/group-by test-df 'col2) (functions/sum (functions/lit 1)))) => org.apache.spark.sql.Dataset)
 
        (fact "window returns WindowSpec"
-          (class (sql/window)) => org.apache.spark.sql.expressions.WindowSpec)
+             (class (sql/window)) => WindowSpec)
 
        (fact "order-by returns WindowSpec"
-             (class (sql/order-by (sql/window))) => org.apache.spark.sql.expressions.WindowSpec)
+             (class (sql/order-by (sql/window))) => WindowSpec)
 
        (fact "partition-by returns WindowSpec"
-             (class (sql/partition-by (sql/window))) => org.apache.spark.sql.expressions.WindowSpec)
+             (class (sql/partition-by (sql/window))) => WindowSpec)
        ))))
