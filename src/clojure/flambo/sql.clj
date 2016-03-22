@@ -155,6 +155,11 @@
   [w & exprs]
   (.orderBy w (as-col-array exprs)))
 
+(defn partition-by
+  "Create window spec with specified partitioning"
+  [w & exprs]
+  (.partitionBy w (as-col-array exprs)))
+
 ;; Row
 (defsparkfn row->vec [^Row row]
   (let [n (.length row)]
