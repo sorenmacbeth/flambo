@@ -6,7 +6,8 @@
   (:require [flambo.api :as f :refer [defsparkfn]]
             [flambo.sql-functions :as sqlf])
   (:import [org.apache.spark.api.java JavaSparkContext]
-           [org.apache.spark.sql SQLContext Row Dataset Column]))
+           [org.apache.spark.sql SQLContext Row Dataset Column]
+           [org.apache.spark.sql.expressions Window]))
 
 ;; ## SQLContext
 ;;
@@ -143,6 +144,11 @@
   (seq (.columns df)))
 
 (def print-schema (memfn printSchema))
+
+(defn window
+  "Create an empty window specification"
+  []
+  (Window/partitionBy (as-col-array [])))
 
 ;; Row
 (defsparkfn row->vec [^Row row]

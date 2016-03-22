@@ -81,6 +81,8 @@
        (fact "agg on grouped data returns a DataFrame"
           (class (sql/agg (sql/group-by test-df 'col2) (functions/sum (functions/lit 1)))) => org.apache.spark.sql.DataFrame)
 
+       (fact "window returns WindowSpec"
+          (class (sql/window)) => org.apache.spark.sql.expressions.WindowSpec)
        ))))
 
 
