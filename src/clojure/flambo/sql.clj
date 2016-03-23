@@ -7,6 +7,7 @@
             [flambo.sql-functions :as sqlf])
   (:import [org.apache.spark.api.java JavaSparkContext]
            [org.apache.spark.sql SQLContext Row Dataset Column]
+           [org.apache.spark.sql.hive HiveContext]
            [org.apache.spark.sql.expressions Window]))
 
 ;; ## SQLContext
@@ -15,6 +16,11 @@
   "Build a SQLContext from a JavaSparkContext"
   [^JavaSparkContext spark-context]
   (SQLContext. spark-context))
+
+(defn ^SQLContext hive-context
+  "Build a HiveContext from a JavaSparkContext"
+  [^JavaSparkContext spark-context]
+  (HiveContext. spark-context))
 
 (defn ^JavaSparkContext spark-context
   "Get reference to the SparkContext out of a SQLContext"

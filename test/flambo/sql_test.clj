@@ -100,4 +100,7 @@
        (fact "over returns a column"
              (class (sql/over (functions/sum "foo") (sql/window))) => Column)
 
+       (fact "hive-context returns a HiveContext"
+             (class (sql/hive-context sc)) => org.apache.spark.sql.hive.HiveContext)
+
        ))))
