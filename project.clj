@@ -28,11 +28,11 @@
                     flambo.example.tfidf]}
              :provided
              {:dependencies
-              [[org.apache.spark/spark-core_2.10 "1.6.0"]
-               [org.apache.spark/spark-streaming_2.10 "1.6.0"]
-               [org.apache.spark/spark-streaming-kafka_2.10 "1.6.0"]
-               [org.apache.spark/spark-streaming-flume_2.10 "1.6.0"]
-               [org.apache.spark/spark-sql_2.10 "1.6.0"]
+              [[org.apache.spark/spark-core_2.10 "1.6.1"]
+               [org.apache.spark/spark-streaming_2.10 "1.6.1"]
+               [org.apache.spark/spark-streaming-kafka_2.10 "1.6.1"]
+               [org.apache.spark/spark-streaming-flume_2.10 "1.6.1"]
+               [org.apache.spark/spark-sql_2.10 "1.6.1"]
                [com.databricks/spark-csv_2.10 "1.0.1"]]}
              :clojure-1.6
              {:dependencies [[org.clojure/clojure "1.6.0"]]}
