@@ -29,7 +29,7 @@ public class BaseFlamboRegistrator implements KryoRegistrator {
 
 
     } catch (Exception e) {
-      throw new RuntimeException("Failed to register kryo!");
+      throw new RuntimeException("Failed to register kryo!", e);
     }
   }
 }

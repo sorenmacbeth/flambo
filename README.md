@@ -374,7 +374,7 @@ Here is an Example (this won't work in your REPL):
   (:require [flambo.kryo :as kryo])
   (:import [flameprincess FlamePrincessHeat FlamePrincessHeatSerializer]))
 
-(kryo/defregistrator flameprincess [kryo]
+(kryo/defregistrator flameprincess [this kryo]
   (.register kryo FlamePrincessHeat (FlamePrincessHeatSerializer.)))
 
 (def c (-> (conf/spark-conf)
