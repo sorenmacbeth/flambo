@@ -419,8 +419,10 @@
   in a given directory `path` in the local filesystem, HDFS or any other Hadoop-supported
   file system. Spark will call toString on each element to convert it to a line of
   text in the file."
-  [rdd path]
-  (.saveAsTextFile rdd path))
+  ([rdd path]
+   (.saveAsTextFile rdd path))
+  ([rrd path compression-codec]
+    (.saveAsTextFile rrd path compression-codec)))
 
 (defn save-as-sequence-file
   "Writes the elements of `rdd` as a Hadoop SequenceFile in a given `path`
