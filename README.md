@@ -391,6 +391,8 @@ Thanks to [Ben Black](https://github.com/b) for doing the work on the streaming 
 <a name="support">
 ## Support
 
+There is a #flambo channel available for support on the [Clojurians](http://clojurians.net/) Slack as well as a flambo-users google group. 
+
 YourKit
 
 <img src="http://www.yourkit.com/images/yklogo.png"></img>
