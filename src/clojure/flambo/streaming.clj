@@ -14,7 +14,6 @@
                                      void-function]])
   (:import [org.apache.spark.streaming.api.java JavaStreamingContext]
            [org.apache.spark.streaming.kafka KafkaUtils]
-           [org.apache.spark.streaming.flume FlumeUtils]
            [org.apache.spark.streaming Duration Time]))
 
 (defn duration [ms]
@@ -49,12 +48,6 @@
 
 (defn kafka-direct-stream [streaming-context key-class value-class key-decoder-class value-decoder-class kafka-params topic-set]
   (KafkaUtils/createDirectStream streaming-context key-class value-class key-decoder-class value-decoder-class kafka-params topic-set))
-
-(defn flume-stream [streaming-context host port]
-  (FlumeUtils/createStream streaming-context host port))
-
-(defn flume-polling-stream [streaming-context host port]
-  (FlumeUtils/createPollingStream streaming-context host port))
 
 (defn flat-map [dstream f]
   (.flatMap dstream (flat-map-function f)))

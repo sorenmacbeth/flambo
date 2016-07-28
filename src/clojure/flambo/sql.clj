@@ -5,7 +5,7 @@
   (:refer-clojure :exclude [load])
   (:require [flambo.api :as f :refer [defsparkfn]])
   (:import [org.apache.spark.api.java JavaSparkContext]
-           [org.apache.spark.sql SQLContext Row DataFrame]))
+           [org.apache.spark.sql SQLContext Row Dataset]))
 
 ;; ## SQLContext
 ;;
@@ -33,7 +33,7 @@
        (finally (.stop ~'x)))))
 
 (defn parquet-file
-  "Loads a Parquet file, returning the result as a DataFrame."
+  "Loads a Parquet file, returning the result as a Dataset."
   [sql-context path]
   (.parquetFile sql-context path))
 
@@ -44,9 +44,9 @@
 
 ;; Since 1.3 the SparkSQL data sources API is recommended for load & save operations.
 (defn load
-  "Returns the dataset stored at path as a DataFrame."
+  "Returns the dataset stored at path as a Dataset."
   ([sql-context path]                   ; data source type configured by spark.sql.sources.default
-   (.load sql-context path))            
+   (.load sql-context path))
   ([sql-context path source-type]       ; specify data source type
    (.load sql-context path source-type)))
 
@@ -94,7 +94,7 @@
   [sql-context table-name]
   (.isCached sql-context table-name))
 
-(defn ^DataFrame table
+(defn ^Dataset table
   "Return a table as a DataFrame"
   [sql-context table-name]
   (.table sql-context table-name))

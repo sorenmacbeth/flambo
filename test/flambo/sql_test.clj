@@ -24,7 +24,7 @@
 
        (fact
          "load gives us a DataFrame"
-         (class (sql/load c "test/resources/data.csv" "com.databricks.spark.csv")) => org.apache.spark.sql.DataFrame)
+         (class (sql/load c "test/resources/data.csv" "com.databricks.spark.csv")) => org.apache.spark.sql.Dataset)
 
        (fact
          "returns an array of column names from a CSV file"

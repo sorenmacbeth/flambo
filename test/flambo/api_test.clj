@@ -70,7 +70,7 @@
   (let [double-tuple2 (Tuple2. 1 (Tuple2. 2 "hi"))]
     (f/double-untuple double-tuple2) => [1 [2 "hi"]]))
 
-(fact 
+ (fact
   "group untuple returns a vector with a key and a multiple value vector"
   (let [group-untuple2 (Tuple2. 1 [2 3 4])]
     (f/group-untuple group-untuple2) => [1 [2 3 4]])))
@@ -111,11 +111,11 @@
           vec) => (contains #{["key1" 3] ["key2" 7] ["key3" 5]}))
 
      (fact
-      "similar to map, but each input item can be mapped to 0 or more output items;
+      "flat-map is similar to map, but each input item can be mapped to 0 or more output items;
         mapping function must therefore return a sequence rather than a single item"
       (-> (f/parallelize c [["Four score and seven years ago our fathers"]
                             ["brought forth on this continent a new nation"]])
-          (f/flat-map (f/fn [x] (clojure.string/split (first x) #" ")))
+          (f/flat-map (f/fn [x] (.iterator (clojure.string/split (first x) #" "))))
           f/collect
           vec) => ["Four" "score" "and" "seven" "years" "ago" "our" "fathers" "brought" "forth" "on" "this" "continent" "a" "new" "nation"])
 
@@ -232,8 +232,8 @@
       "flat-map-to-pair"
       (-> (f/parallelize c [["Four score and seven"]
                             ["years ago"]])
-          (f/flat-map-to-pair (f/fn [x] (map (fn [y] (ft/tuple y 1))
-                                             (clojure.string/split (first x) #" "))))
+          (f/flat-map-to-pair (f/fn [x] (.iterator (map (fn [y] (ft/tuple y 1))
+                                                        (clojure.string/split (first x) #" ")))))
           (f/map f/untuple)
           f/collect
           vec) => [["Four" 1] ["score" 1] ["and" 1] ["seven" 1] ["years" 1] ["ago" 1]])
@@ -241,7 +241,7 @@
      (fact
       "map-partitions"
       (-> (f/parallelize c [0 1 2 3 4])
-          (f/map-partitions (f/fn [it] (map identity (iterator-seq it))))
+          (f/map-partitions (f/fn [it] (.iterator (map identity (iterator-seq it)))))
           f/collect) => [0 1 2 3 4])
 
      (fact
@@ -258,9 +258,10 @@
         (-> rdd
             (f/repartition 3)
             (f/map-partitions-to-pair (f/fn [it]
-                                        (map (ft/key-val-fn
-                                              (f/fn [k v]
-                                                (ft/tuple (inc k) (inc v)))) (iterator-seq it))))
+                                        (.iterator
+                                         (map (ft/key-val-fn
+                                               (f/fn [k v]
+                                                 (ft/tuple (inc k) (inc v)))) (iterator-seq it)))))
             f/collect
             vec) => (just [(ft/tuple 2 3) (ft/tuple 4 5) (ft/tuple 6 7)] :in-any-order)))
 
@@ -274,19 +275,19 @@
             vec) => (just [[1 5] [1 6] [1 7] [2 5] [2 6] [2 7]] :in-any-order)))
 
      (fact "repartition returns a new RDD with exactly n partitions"
-       (let [rdd1 (f/parallelize c [1 2])
-             rdd2 (f/parallelize c [5 6 7])
-             rdd3 (f/parallelize c [8 9 10 11])
-             rdd4 (f/parallelize c [12 13])]
-         (-> (f/union c rdd1 rdd2 rdd3 rdd4)
-             (f/repartition 4)
-             f/partition-count) => 4))
+           (let [rdd1 (f/parallelize c [1 2])
+                 rdd2 (f/parallelize c [5 6 7])
+                 rdd3 (f/parallelize c [8 9 10 11])
+                 rdd4 (f/parallelize c [12 13])]
+             (-> (f/union c rdd1 rdd2 rdd3 rdd4)
+                 (f/repartition 4)
+                 f/partition-count) => 4))
 
      (fact "subtract returns a new RDD with the elements from the second RDD removed from the first"
-       (-> (f/parallelize c [1 3 5 7 9])
-           (f/subtract (f/parallelize c [1 3 5]))
-           f/collect
-           vec) => (just [7 9] :in-any-order))
+           (-> (f/parallelize c [1 3 5 7 9])
+               (f/subtract (f/parallelize c [1 3 5]))
+               f/collect
+               vec) => (just [7 9] :in-any-order))
 
      )))
 
