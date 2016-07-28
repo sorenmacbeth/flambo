@@ -2865,12 +2865,12 @@ net.brehaut.ClojureTools = (function (SH) {
     build_tree: build_tree
   };
 })(SyntaxHighlighter);
-</script><title>yieldbot/flambo -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name"><a href="https://github.com/yieldbot/flambo">yieldbot/flambo</a></h1><h2 class="project-version">0.7.1</h2><br /><p>A Clojure DSL for Apache Spark</p>
-</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.7.0</td></tr><tr><td class="dep-name">org.clojure/tools.logging</td><td class="dotted"><hr /></td><td class="dep-version">0.3.1</td></tr><tr><td class="dep-name">org.clojure/core.memoize</td><td class="dotted"><hr /></td><td class="dep-version">0.5.7</td></tr><tr><td class="dep-name">yieldbot/serializable-fn</td><td class="dotted"><hr /></td><td class="dep-version">0.1.1</td></tr><tr><td class="dep-name">com.twitter/carbonite</td><td class="dotted"><hr /></td><td class="dep-version">1.4.0</td></tr><tr><td class="dep-name">com.twitter/chill_2.10</td><td class="dotted"><hr /></td><td class="dep-version">0.5.0</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#flambo.accumulator">flambo.accumulator</a></li><li><a href="#flambo.api">flambo.api</a></li><li><a href="#flambo.broadcast">flambo.broadcast</a></li><li><a href="#flambo.conf">flambo.conf</a></li><li><a href="#flambo.debug">flambo.debug</a></li><li><a href="#flambo.function">flambo.function</a></li><li><a href="#flambo.kryo">flambo.kryo</a></li><li><a href="#flambo.scala-interop">flambo.scala-interop</a></li><li><a href="#flambo.sql">flambo.sql</a></li><li><a href="#flambo.streaming">flambo.streaming</a></li><li><a href="#flambo.tuple">flambo.tuple</a></li><li><a href="#flambo.utils">flambo.utils</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#flambo.accumulator" name="flambo.accumulator"><h1 class="project-name">flambo.accumulator</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><p>Accumulators</p>
+</script><title>yieldbot/flambo -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name"><a href="https://github.com/yieldbot/flambo">yieldbot/flambo</a></h1><h2 class="project-version">0.7.2</h2><br /><p>A Clojure DSL for Apache Spark</p>
+</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.7.0</td></tr><tr><td class="dep-name">org.clojure/tools.logging</td><td class="dotted"><hr /></td><td class="dep-version">0.3.1</td></tr><tr><td class="dep-name">com.google.guava/guava</td><td class="dotted"><hr /></td><td class="dep-version">18.0</td></tr><tr><td class="dep-name">yieldbot/serializable-fn</td><td class="dotted"><hr /></td><td class="dep-version">0.1.1</td></tr><tr><td class="dep-name">com.twitter/carbonite</td><td class="dotted"><hr /></td><td class="dep-version">1.4.0</td></tr><tr><td class="dep-name">com.twitter/chill_2.10</td><td class="dotted"><hr /></td><td class="dep-version">0.5.0</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#flambo.accumulator">flambo.accumulator</a></li><li><a href="#flambo.api">flambo.api</a></li><li><a href="#flambo.broadcast">flambo.broadcast</a></li><li><a href="#flambo.conf">flambo.conf</a></li><li><a href="#flambo.debug">flambo.debug</a></li><li><a href="#flambo.function">flambo.function</a></li><li><a href="#flambo.kryo">flambo.kryo</a></li><li><a href="#flambo.scala-interop">flambo.scala-interop</a></li><li><a href="#flambo.sql">flambo.sql</a></li><li><a href="#flambo.streaming">flambo.streaming</a></li><li><a href="#flambo.tuple">flambo.tuple</a></li><li><a href="#flambo.utils">flambo.utils</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#flambo.accumulator" name="flambo.accumulator"><h1 class="project-name">flambo.accumulator</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(ns flambo.accumulator
-  (:refer-clojure :exclude [name])
   (:import [org.apache.spark Accumulator]
-           [scala.Option]))</pre></td></tr><tr><td class="docs">
+           [scala.Option])
+  (:refer-clojure :exclude [name]))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn accumulator
   ([sc value]
    (.accumulator sc value))
@@ -3201,8 +3201,10 @@ http://spark.apache.org/docs/latest/programming-guide.html#accumulators</p>
   file system. Spark will call toString on each element to convert it to a line of
   text in the file.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn save-as-text-file
-  [rdd path]
-  (.saveAsTextFile rdd path))</pre></td></tr><tr><td class="docs"><p>Writes the elements of <code>rdd</code> as a Hadoop SequenceFile in a given <code>path</code>
+  ([rdd path]
+   (.saveAsTextFile rdd path))
+  ([rrd path compression-codec]
+    (.saveAsTextFile rrd path compression-codec)))</pre></td></tr><tr><td class="docs"><p>Writes the elements of <code>rdd</code> as a Hadoop SequenceFile in a given <code>path</code>
   in the local filesystem, HDFS or any other Hadoop-supported file system.
   This is available on RDDs of key-value pairs that either implement Hadoop's
   Writable interface.</p>
@@ -3371,14 +3373,14 @@ objects to pass into <code>spark-context</code>.</p>
   (:require [serializable.fn :as sfn]
             [flambo.kryo :as kryo]
             [clojure.tools.logging :as log]
-            [clojure.core.memoize :as memo]))</pre></td></tr><tr><td class="docs">
+            [flambo.utils :as utils]))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(set! *warn-on-reflection* true)</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn- serfn? [f]
   (= (type f) :serializable.fn/serializable-fn))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(def serialize-fn sfn/serialize)</pre></td></tr><tr><td class="docs"><p>XXX: memoizing here is weird because all functions in a JVM now share a single
      cache lookup. Maybe we could memoize in the constructor or something instead?
 TODO: what is a good cache size here???</p>
-</td><td class="codes"><pre class="brush: clojure">(def deserialize-fn (memo/lru sfn/deserialize :lru/threshold 1000))
+</td><td class="codes"><pre class="brush: clojure">(def deserialize-fn (utils/lru-memoize 5000 sfn/deserialize))
 (def array-of-bytes-type (Class/forName &quot;[B&quot;))</pre></td></tr><tr><td class="docs"><p>Save the function f in state</p>
 
 <h2>Generic</h2>
@@ -3394,7 +3396,6 @@ TODO: what is a good cache size here???</p>
     (log/trace &quot;CLASS&quot; (type this))
     (log/trace &quot;META&quot; (meta f))
     (log/trace &quot;XS&quot; xs)
-    (log/trace (memo/snapshot deserialize-fn))
     (apply f xs)))</pre></td></tr><tr><td class="docs"><h2>Functions</h2>
 </td><td class="codes"><pre class="brush: clojure">(defn mk-sym
   [fmt sym-name]
@@ -3440,7 +3441,6 @@ and I don't think I can do that from the generic -call I used above.</p>
     (log/trace &quot;CLASS&quot; (type this))
     (log/trace &quot;META&quot; (meta f))
     (log/trace &quot;XS&quot; xs)
-    (log/trace (memo/snapshot deserialize-fn))
     (apply f xs)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn Function2-call [^flambo.function.Function2 this &amp; xs]
   (let [fn-or-serfn (.state this)
@@ -3451,7 +3451,6 @@ and I don't think I can do that from the generic -call I used above.</p>
     (log/trace &quot;CLASS&quot; (type this))
     (log/trace &quot;META&quot; (meta f))
     (log/trace &quot;XS&quot; xs)
-    (log/trace &quot;MEMO&quot; (memo/snapshot deserialize-fn))
     (apply f xs)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn Function3-call [^flambo.function.Function2 this &amp; xs]
   (let [fn-or-serfn (.state this)
@@ -3462,7 +3461,6 @@ and I don't think I can do that from the generic -call I used above.</p>
     (log/trace &quot;CLASS&quot; (type this))
     (log/trace &quot;META&quot; (meta f))
     (log/trace &quot;XS&quot; xs)
-    (log/trace &quot;MEMO&quot; (memo/snapshot deserialize-fn))
     (apply f xs)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn VoidFunction-call [^flambo.function.VoidFunction this &amp; xs]
   (let [fn-or-serfn (.state this)
@@ -3473,7 +3471,6 @@ and I don't think I can do that from the generic -call I used above.</p>
     (log/trace &quot;CLASS&quot; (type this))
     (log/trace &quot;META&quot; (meta f))
     (log/trace &quot;XS&quot; xs)
-    (log/trace &quot;MEMO&quot; (memo/snapshot deserialize-fn))
     (apply f xs)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn FlatMapFunction-call [^flambo.function.FlatMapFunction this &amp; xs]
   (let [fn-or-serfn (.state this)
@@ -3484,7 +3481,6 @@ and I don't think I can do that from the generic -call I used above.</p>
     (log/trace &quot;CLASS&quot; (type this))
     (log/trace &quot;META&quot; (meta f))
     (log/trace &quot;XS&quot; xs)
-    (log/trace &quot;MEMO&quot; (memo/snapshot deserialize-fn))
     (apply f xs)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn FlatMapFunction2-call [^flambo.function.FlatMapFunction2 this &amp; xs]
   (let [fn-or-serfn (.state this)
@@ -3495,7 +3491,6 @@ and I don't think I can do that from the generic -call I used above.</p>
     (log/trace &quot;CLASS&quot; (type this))
     (log/trace &quot;META&quot; (meta f))
     (log/trace &quot;XS&quot; xs)
-    (log/trace &quot;MEMO&quot; (memo/snapshot deserialize-fn))
     (apply f xs)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn PairFlatMapFunction-call [^flambo.function.PairFlatMapFunction this &amp; xs]
   (let [fn-or-serfn (.state this)
@@ -3506,7 +3501,6 @@ and I don't think I can do that from the generic -call I used above.</p>
     (log/trace &quot;CLASS&quot; (type this))
     (log/trace &quot;META&quot; (meta f))
     (log/trace &quot;XS&quot; xs)
-    (log/trace &quot;MEMO&quot; (memo/snapshot deserialize-fn))
     (apply f xs)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn PairFunction-call [^flambo.function.PairFunction this &amp; xs]
   (let [fn-or-serfn (.state this)
@@ -3517,7 +3511,6 @@ and I don't think I can do that from the generic -call I used above.</p>
     (log/trace &quot;CLASS&quot; (type this))
     (log/trace &quot;META&quot; (meta f))
     (log/trace &quot;XS&quot; xs)
-    (log/trace &quot;MEMO&quot; (memo/snapshot deserialize-fn))
     (apply f xs)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn DoubleFunction-call [^flambo.function.DoubleFunction this &amp; xs]
   (let [fn-or-serfn (.state this)
@@ -3528,7 +3521,6 @@ and I don't think I can do that from the generic -call I used above.</p>
     (log/trace &quot;CLASS&quot; (type this))
     (log/trace &quot;META&quot; (meta f))
     (log/trace &quot;XS&quot; xs)
-    (log/trace &quot;MEMO&quot; (memo/snapshot deserialize-fn))
     (apply f xs)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn DoubleFlatMapFunction-call [^flambo.function.DoubleFlatMapFunction this &amp; xs]
   (let [fn-or-serfn (.state this)
@@ -3539,7 +3531,6 @@ and I don't think I can do that from the generic -call I used above.</p>
     (log/trace &quot;CLASS&quot; (type this))
     (log/trace &quot;META&quot; (meta f))
     (log/trace &quot;XS&quot; xs)
-    (log/trace &quot;MEMO&quot; (memo/snapshot deserialize-fn))
     (apply f xs)))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#flambo.kryo" name="flambo.kryo"><h1 class="project-name">flambo.kryo</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>Utilities and macros for dealing with kryo</h2>
 </td><td class="codes"><pre class="brush: clojure">(ns flambo.kryo
   (:import [org.apache.spark SparkEnv]
@@ -3777,7 +3768,45 @@ Spark Streaming; consider it a work in progress.</p>
   (:import [org.apache.spark.util.random BernoulliCellSampler]
            [java.io PrintStream]
            [flambo WriterOutputStream]
-           [org.apache.log4j Logger WriterAppender SimpleLayout]))</pre></td></tr><tr><td class="docs">
+           [org.apache.log4j Logger WriterAppender SimpleLayout]
+           [com.google.common.cache Cache CacheBuilder]
+           [java.util.concurrent TimeUnit]))</pre></td></tr><tr><td class="docs"><p>Memoize backed by a sized (LRU) ttl guava cache. Keeps metrics on the hit-rate
+  of the cache, and the eviction rate.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn sized-ttl-memoize
+  [size ttl f &amp; args]
+  (let [^CacheBuilder cb (doto (CacheBuilder/newBuilder)
+                           (.maximumSize (long size))
+                           (.expireAfterWrite (long ttl) TimeUnit/MILLISECONDS)
+                           (.recordStats))
+        ^Cache c (.build cb)]
+    (fn [&amp; args]
+      (if-let [v (.getIfPresent c args)]
+        v
+        (when-let [v (apply f args)]
+          (.put c args v)
+          v)))))</pre></td></tr><tr><td class="docs"><p>Memoize backed by ttl guava cache</p>
+</td><td class="codes"><pre class="brush: clojure">(defn ttl-memoize
+  [ttl f &amp; args]
+  (let [^CacheBuilder builder (doto (CacheBuilder/newBuilder)
+                                (.expireAfterWrite (long ttl) TimeUnit/MILLISECONDS))
+        ^Cache c (.build builder)]
+    (fn [&amp; args]
+      (if-let [v (.getIfPresent c args)]
+        v
+        (when-let [v (apply f args)]
+          (.put c args v)
+          v)))))</pre></td></tr><tr><td class="docs"><p>Memoize backed by maximum size (LRU) guava cache</p>
+</td><td class="codes"><pre class="brush: clojure">(defn lru-memoize
+  [size f &amp; args]
+  (let [^CacheBuilder builder (doto (CacheBuilder/newBuilder)
+                                (.maximumSize (long size)))
+        ^Cache c (.build builder)]
+    (fn [&amp; args]
+      (if-let [v (.getIfPresent c args)]
+        v
+        (when-let [v (apply f args)]
+          (.put c args v)
+          v)))))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn echo-types [c]
   (if (coll? c)
     (log/debug &quot;TYPES&quot; (map type c))
