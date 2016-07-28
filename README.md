@@ -33,7 +33,7 @@ Flambo is a Clojure DSL for Spark. It allows you to create and manipulate Spark 
 <a name="versions">
 ## Supported Spark Versions
 
-flambo 0.7.1 targets >= Spark 1.5.0
+flambo 0.7.2 targets >= Spark 1.5.0
 
 flambo 0.6.0 targets >= Spark 1.3.0
 
@@ -52,7 +52,7 @@ Flambo is available from clojars. Depending on the version of Spark you're using
 
 ### With Leiningen
 
-`[yieldbot/flambo "0.7.1"]` for Spark 1.5.0 or greater
+`[yieldbot/flambo "0.7.2"]` for Spark 1.5.0 or greater
 
 `[yieldbot/flambo "0.6.0"]` for Spark 1.3.0 or greater
 
@@ -374,7 +374,7 @@ Here is an Example (this won't work in your REPL):
   (:require [flambo.kryo :as kryo])
   (:import [flameprincess FlamePrincessHeat FlamePrincessHeatSerializer]))
 
-(kryo/defregistrator flameprincess [kryo]
+(kryo/defregistrator flameprincess [this kryo]
   (.register kryo FlamePrincessHeat (FlamePrincessHeatSerializer.)))
 
 (def c (-> (conf/spark-conf)
@@ -390,6 +390,8 @@ Thanks to [Ben Black](https://github.com/b) for doing the work on the streaming 
 
 <a name="support">
 ## Support
+
+There is a #flambo channel available for support on the [Clojurians](http://clojurians.net/) Slack as well as a flambo-users google group. 
 
 YourKit
 

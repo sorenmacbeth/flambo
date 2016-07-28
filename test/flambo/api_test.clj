@@ -70,7 +70,10 @@
   (let [double-tuple2 (Tuple2. 1 (Tuple2. 2 "hi"))]
     (f/double-untuple double-tuple2) => [1 [2 "hi"]]))
 
- (future-fact "group-untuple"))
+(fact 
+  "group untuple returns a vector with a key and a multiple value vector"
+  (let [group-untuple2 (Tuple2. 1 [2 3 4])]
+    (f/group-untuple group-untuple2) => [1 [2 3 4]])))
 
 (facts
  "about transformations"
@@ -270,9 +273,20 @@
             f/collect
             vec) => (just [[1 5] [1 6] [1 7] [2 5] [2 6] [2 7]] :in-any-order)))
 
-     (future-fact "repartition returns a new RDD with exactly n partitions")
+     (fact "repartition returns a new RDD with exactly n partitions"
+       (let [rdd1 (f/parallelize c [1 2])
+             rdd2 (f/parallelize c [5 6 7])
+             rdd3 (f/parallelize c [8 9 10 11])
+             rdd4 (f/parallelize c [12 13])]
+         (-> (f/union c rdd1 rdd2 rdd3 rdd4)
+             (f/repartition 4)
+             f/partition-count) => 4))
 
-     (future-fact "subtract")
+     (fact "subtract returns a new RDD with the elements from the second RDD removed from the first"
+       (-> (f/parallelize c [1 3 5 7 9])
+           (f/subtract (f/parallelize c [1 3 5]))
+           f/collect
+           vec) => (just [7 9] :in-any-order))
 
      )))
 

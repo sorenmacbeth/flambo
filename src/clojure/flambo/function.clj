@@ -2,7 +2,7 @@
   (:require [serializable.fn :as sfn]
             [flambo.kryo :as kryo]
             [clojure.tools.logging :as log]
-            [clojure.core.memoize :as memo]))
+            [flambo.utils :as utils]))
 
 (set! *warn-on-reflection* true)
 
@@ -15,7 +15,7 @@
 ;; XXX: memoizing here is weird because all functions in a JVM now share a single
 ;;      cache lookup. Maybe we could memoize in the constructor or something instead?
 ;; TODO: what is a good cache size here???
-(def deserialize-fn (memo/lru sfn/deserialize :lru/threshold 1000))
+(def deserialize-fn (utils/lru-memoize 5000 sfn/deserialize))
 (def array-of-bytes-type (Class/forName "[B"))
 
 ;; ## Generic
@@ -33,7 +33,6 @@
     (log/trace "CLASS" (type this))
     (log/trace "META" (meta f))
     (log/trace "XS" xs)
-    (log/trace (memo/snapshot deserialize-fn))
     (apply f xs)))
 
 ;; ## Functions
@@ -85,7 +84,6 @@
     (log/trace "CLASS" (type this))
     (log/trace "META" (meta f))
     (log/trace "XS" xs)
-    (log/trace (memo/snapshot deserialize-fn))
     (apply f xs)))
 
 (defn Function2-call [^flambo.function.Function2 this & xs]
@@ -97,7 +95,6 @@
     (log/trace "CLASS" (type this))
     (log/trace "META" (meta f))
     (log/trace "XS" xs)
-    (log/trace "MEMO" (memo/snapshot deserialize-fn))
     (apply f xs)))
 
 (defn Function3-call [^flambo.function.Function2 this & xs]
@@ -109,7 +106,6 @@
     (log/trace "CLASS" (type this))
     (log/trace "META" (meta f))
     (log/trace "XS" xs)
-    (log/trace "MEMO" (memo/snapshot deserialize-fn))
     (apply f xs)))
 
 (defn VoidFunction-call [^flambo.function.VoidFunction this & xs]
@@ -121,7 +117,6 @@
     (log/trace "CLASS" (type this))
     (log/trace "META" (meta f))
     (log/trace "XS" xs)
-    (log/trace "MEMO" (memo/snapshot deserialize-fn))
     (apply f xs)))
 
 (defn FlatMapFunction-call [^flambo.function.FlatMapFunction this & xs]
@@ -133,7 +128,6 @@
     (log/trace "CLASS" (type this))
     (log/trace "META" (meta f))
     (log/trace "XS" xs)
-    (log/trace "MEMO" (memo/snapshot deserialize-fn))
     (apply f xs)))
 
 (defn FlatMapFunction2-call [^flambo.function.FlatMapFunction2 this & xs]
@@ -145,7 +139,6 @@
     (log/trace "CLASS" (type this))
     (log/trace "META" (meta f))
     (log/trace "XS" xs)
-    (log/trace "MEMO" (memo/snapshot deserialize-fn))
     (apply f xs)))
 
 (defn PairFlatMapFunction-call [^flambo.function.PairFlatMapFunction this & xs]
@@ -157,7 +150,6 @@
     (log/trace "CLASS" (type this))
     (log/trace "META" (meta f))
     (log/trace "XS" xs)
-    (log/trace "MEMO" (memo/snapshot deserialize-fn))
     (apply f xs)))
 
 (defn PairFunction-call [^flambo.function.PairFunction this & xs]
@@ -169,7 +161,6 @@
     (log/trace "CLASS" (type this))
     (log/trace "META" (meta f))
     (log/trace "XS" xs)
-    (log/trace "MEMO" (memo/snapshot deserialize-fn))
     (apply f xs)))
 
 (defn DoubleFunction-call [^flambo.function.DoubleFunction this & xs]
@@ -181,7 +172,6 @@
     (log/trace "CLASS" (type this))
     (log/trace "META" (meta f))
     (log/trace "XS" xs)
-    (log/trace "MEMO" (memo/snapshot deserialize-fn))
     (apply f xs)))
 
 (defn DoubleFlatMapFunction-call [^flambo.function.DoubleFlatMapFunction this & xs]
@@ -193,5 +183,4 @@
     (log/trace "CLASS" (type this))
     (log/trace "META" (meta f))
     (log/trace "XS" xs)
-    (log/trace "MEMO" (memo/snapshot deserialize-fn))
     (apply f xs)))
