@@ -19,8 +19,8 @@
                       (clojure.string/split content #" "))
         doc-terms-count (count terms)
         term-frequencies (frequencies terms)]
-    (map (fn [term] (ft/tuple doc-id [term (term-frequencies term) doc-terms-count]))
-         (distinct terms))))
+    (.iterator (map (fn [term] (ft/tuple doc-id [term (term-frequencies term) doc-terms-count]))
+                    (distinct terms)))))
 
 (defn calc-idf [doc-count]
   (f/fn [term tuple-seq]
@@ -56,7 +56,7 @@
           ;; where tf is per document, that is, tf(term, document)
           tf-by-doc (-> doc-term-seq
                         (f/map-to-pair (ft/key-val-fn (f/fn [doc-id [term term-freq doc-terms-count]]
-                                                      (ft/tuple term [doc-id (double (/ term-freq doc-terms-count))]))))
+                                                        (ft/tuple term [doc-id (double (/ term-freq doc-terms-count))]))))
                         (inspect "tf-by-doc")
                         f/cache)
 
