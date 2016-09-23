@@ -40,7 +40,7 @@
 (defn json-file
   "Loads a JSON file (one object per line), returning the result as a DataFrame."
   [sql-context path]
-  (.jsonFile sql-context path))
+  (-> sql-context .read (.format "json") (.load path)))
 
 ;; Since 1.3 the SparkSQL data sources API is recommended for load & save operations.
 (defn load
@@ -77,7 +77,7 @@
 (defn json-rdd
   "Load an RDD of JSON strings (one object per line), inferring the schema, and returning a DataFrame"
   [sql-context json-rdd]
-  (.jsonRDD sql-context json-rdd))
+  (-> sql-context .read (.json json-rdd)))
 
 (defn uncache-table
   "Removes the specified table from the in-memory cache."
