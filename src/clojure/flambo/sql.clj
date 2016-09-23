@@ -68,7 +68,7 @@
     (.put options "header" (if header "true" "false"))
     (.put options "separator" separator)
     (.put options "quote" quote)
-    (.load sql-context "com.databricks.spark.csv" options)))
+    (-> sql-context .read (.format "csv") (.options options) .load)))
 
 (defn register-data-frame-as-table
   "Registers the given DataFrame as a temporary table in the
