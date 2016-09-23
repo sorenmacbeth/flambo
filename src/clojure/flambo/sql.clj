@@ -2,10 +2,13 @@
 ;; SparkSQL & DataFrame wrapper
 ;;
 (ns flambo.sql
-  (:refer-clojure :exclude [load])
-  (:require [flambo.api :as f :refer [defsparkfn]])
+  (:refer-clojure :exclude [load group-by])
+  (:require [flambo.api :as f :refer [defsparkfn]]
+            [flambo.sql-functions :as sqlf])
   (:import [org.apache.spark.api.java JavaSparkContext]
-           [org.apache.spark.sql SQLContext Row Dataset]))
+           [org.apache.spark.sql SQLContext Row Dataset Column]
+           [org.apache.spark.sql.hive HiveContext]
+           [org.apache.spark.sql.expressions Window]))
 
 ;; ## SQLContext
 ;;
@@ -13,6 +16,11 @@
   "Build a SQLContext from a JavaSparkContext"
   [^JavaSparkContext spark-context]
   (SQLContext. spark-context))
+
+(defn ^SQLContext hive-context
+  "Build a HiveContext from a JavaSparkContext"
+  [^JavaSparkContext spark-context]
+  (HiveContext. spark-context))
 
 (defn ^JavaSparkContext spark-context
   "Get reference to the SparkContext out of a SQLContext"
@@ -106,6 +114,30 @@
   ([sql-context database-name]
    (seq (.tableNames sql-context database-name))))
 
+(defn- as-col-array
+  [exprs]
+  (into-array Column (map sqlf/col exprs)))
+
+(defn select
+  "Select a set of columns"
+  [df & exprs]
+  (.select df (as-col-array exprs)))
+
+(defn where
+  "Filters DataFrame rows using SQL expression"
+  [df expr]
+  (.where df expr))
+
+(defn group-by
+  "Groups data using the specified expressions"
+  [df & exprs]
+  (.groupBy df (as-col-array exprs)))
+
+(defn agg
+  "Aggregates grouped data using the specified expressions"
+  [df expr & exprs]
+  (.agg df (sqlf/col expr) (as-col-array exprs)))
+
 ;; DataFrame
 (defn register-temp-table
   "Registers this dataframe as a temporary table using the given name."
@@ -119,6 +151,36 @@
 
 (def print-schema (memfn printSchema))
 
+(defn window
+  "Create an empty window specification"
+  []
+  (Window/partitionBy (as-col-array [])))
+
+(defn order-by
+  "Create window spec with specified ordering"
+  [w & exprs]
+  (.orderBy w (as-col-array exprs)))
+
+(defn partition-by
+  "Create window spec with specified partitioning"
+  [w & exprs]
+  (.partitionBy w (as-col-array exprs)))
+
+(defn rows-between
+  "Create window spec with row window specified"
+  [w lower-bound upper-bound]
+  (.rowsBetween w lower-bound upper-bound))
+
+(defn range-between
+  "Create window spec with range window specified"
+    [w lower-bound upper-bound]
+    (.rangeBetween w lower-bound upper-bound))
+
+(defn over
+  "Return expresion with a given windowing"
+  [exprs w]
+  (.over (sqlf/col exprs) w))
+
 ;; Row
 (defsparkfn row->vec [^Row row]
   (let [n (.length row)]
@@ -126,3 +188,4 @@
       (if (< i n)
         (recur (inc i) (conj! v (.get row i)))
         (persistent! v)))))
+

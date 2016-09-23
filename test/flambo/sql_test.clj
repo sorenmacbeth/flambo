@@ -2,7 +2,10 @@
   (:use midje.sweet)
   (:require [flambo.api   :as f]
             [flambo.conf  :as conf]
-            [flambo.sql   :as sql]))
+            [flambo.sql   :as sql])
+  (:import [org.apache.spark.sql functions RelationalGroupedDataset Column]
+           [org.apache.spark.sql.expressions WindowSpec]))
+
 
 (facts
  "about spark-sql-context"
@@ -58,5 +61,46 @@
                _ (sql/cache-table c "bar")
                _ (sql/clear-cache c)]
            (or (sql/is-cached? c "foo") (sql/is-cached? c "bar"))) => false)
+
+       (fact "select returns a DataFrame"
+             (class (sql/select test-df "*")) => org.apache.spark.sql.Dataset
+             (class (sql/select test-df "col1" "col2")) => org.apache.spark.sql.Dataset)
+
+       (fact "select returns expected columns"
+          (sql/columns (sql/select test-df "*")) => ["col1" "col2"]
+          (sql/columns (sql/select test-df "col1")) => ["col1"]
+          (sql/columns (sql/select test-df "col2")) => ["col2"])
+
+       (fact "where returns expected number of rows"
+          (.count (sql/where test-df "1 = 1")) => 3
+          (.count (sql/where test-df "1 = 0 ")) => 0
+          (.count (sql/where test-df "col1 > 4")) => 2)
+
+       (fact "group-by returns GroupedData object"
+             (class (sql/group-by test-df)) => RelationalGroupedDataset)
+
+       (fact "agg on grouped data returns a DataFrame"
+             (class (sql/agg (sql/group-by test-df 'col2) (functions/sum (functions/lit 1)))) => org.apache.spark.sql.Dataset)
+
+       (fact "window returns WindowSpec"
+             (class (sql/window)) => WindowSpec)
+
+       (fact "order-by returns WindowSpec"
+             (class (sql/order-by (sql/window))) => WindowSpec)
+
+       (fact "partition-by returns WindowSpec"
+             (class (sql/partition-by (sql/window))) => WindowSpec)
+
+       (fact "rows-between returns WindowSpec"
+             (class (sql/rows-between (sql/window) -1 0)) => WindowSpec)
+
+       (fact "ramge-between returns WindowSpec"
+             (class (sql/range-between (sql/window) -1 0)) => WindowSpec)
+
+       (fact "over returns a column"
+             (class (sql/over (functions/sum "foo") (sql/window))) => Column)
+
+       (fact "hive-context returns a HiveContext"
+             (class (sql/hive-context sc)) => org.apache.spark.sql.hive.HiveContext)
 
        ))))
