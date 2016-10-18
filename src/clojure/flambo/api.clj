@@ -222,7 +222,7 @@
   "Similar to `map-partitions`, but runs separately on each partition (block) of the `rdd`, so function `f`
   must be of type Iterator<T> => Iterable<scala.Tuple2<K,V>>."
   [rdd f & {:keys [preserves-partitioning]
-            :or {:preserves-partitioning false}}]
+            :or {preserves-partitioning false}}]
   (.mapPartitionsToPair rdd (pair-flat-map-function f) (u/truthy? preserves-partitioning)))
 
 (defn map-partitions-with-index
