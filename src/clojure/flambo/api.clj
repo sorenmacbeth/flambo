@@ -58,6 +58,13 @@
   [& body]
   `(sfn/fn ~@body))
 
+(defmacro iterator-fn
+  [& body]
+  (let [[args & biz] body
+        it-biz (list (cons '.iterator (with-meta biz {:tag java.lang.Iterable})))
+        it-body (cons args it-biz)]
+    `(fn ~@it-body)))
+
 (defmacro defsparkfn
   [name & body]
   `(def ~name

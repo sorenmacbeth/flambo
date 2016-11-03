@@ -55,7 +55,7 @@
           :output-dir "doc/codox"
           :src-dir-uri "http://github.com/yieldbot/flambo/blob/develop/"
           :src-linenum-anchor-prefix "L"}
-  :javac-options ["-source" "1.6" "-target" "1.6"]
+  :javac-options ["-source" "1.7" "-target" "1.7"]
   :jvm-opts ^:replace ["-server" "-Xmx1g"]
   :global-vars {*warn-on-reflection* false}
   :min-lein-version "2.5.0")

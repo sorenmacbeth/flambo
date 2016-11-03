@@ -115,7 +115,7 @@
         mapping function must therefore return a sequence rather than a single item"
       (-> (f/parallelize c [["Four score and seven years ago our fathers"]
                             ["brought forth on this continent a new nation"]])
-          (f/flat-map (f/fn [x] (.iterator (clojure.string/split (first x) #" "))))
+          (f/flat-map (f/iterator-fn [x] (clojure.string/split (first x) #" ")))
           f/collect
           vec) => ["Four" "score" "and" "seven" "years" "ago" "our" "fathers" "brought" "forth" "on" "this" "continent" "a" "new" "nation"])
 
@@ -232,8 +232,8 @@
       "flat-map-to-pair"
       (-> (f/parallelize c [["Four score and seven"]
                             ["years ago"]])
-          (f/flat-map-to-pair (f/fn [x] (.iterator (map (fn [y] (ft/tuple y 1))
-                                                        (clojure.string/split (first x) #" ")))))
+          (f/flat-map-to-pair (f/iterator-fn [x] (map (fn [y] (ft/tuple y 1))
+                                             (clojure.string/split (first x) #" "))))
           (f/map f/untuple)
           f/collect
           vec) => [["Four" 1] ["score" 1] ["and" 1] ["seven" 1] ["years" 1] ["ago" 1]])
@@ -241,14 +241,14 @@
      (fact
       "map-partitions"
       (-> (f/parallelize c [0 1 2 3 4])
-          (f/map-partitions (f/fn [it] (.iterator (map identity (iterator-seq it)))))
+          (f/map-partitions (f/iterator-fn [it] (map identity (iterator-seq it))))
           f/collect) => [0 1 2 3 4])
 
      (fact
       "map-partitions-with-index"
       (-> (f/parallelize c [0 1 2 3 4])
           (f/repartition 4)
-          (f/map-partitions-with-index (f/fn [i it] (.iterator (map identity (iterator-seq it)))))
+          (f/map-partitions-with-index (f/iterator-fn [i it] (map identity (iterator-seq it))))
           f/collect
           vec) => (just [0 1 2 3 4] :in-any-order))
 
@@ -257,11 +257,10 @@
       (let [rdd (f/parallelize-pairs c [(ft/tuple 1 2) (ft/tuple 3 4) (ft/tuple 5 6)])]
         (-> rdd
             (f/repartition 3)
-            (f/map-partitions-to-pair (f/fn [it]
-                                        (.iterator
-                                         (map (ft/key-val-fn
-                                               (f/fn [k v]
-                                                 (ft/tuple (inc k) (inc v)))) (iterator-seq it)))))
+            (f/map-partitions-to-pair (f/iterator-fn [it]
+                                        (map (ft/key-val-fn
+                                              (f/fn [k v]
+                                                (ft/tuple (inc k) (inc v)))) (iterator-seq it))))
             f/collect
             vec) => (just [(ft/tuple 2 3) (ft/tuple 4 5) (ft/tuple 6 7)] :in-any-order)))
 
