@@ -67,10 +67,8 @@
 
 (defmacro iterator-fn
   [& body]
-  (let [[args & rest] body
-        rest (cons 'flambo.api/iterator rest)
-        it-body (cons args (list rest))]
-    `(fn ~@it-body)))
+  (let [[args & impl] body]
+    `(fn ~args (~'flambo.api/iterator ~@impl))))
 
 (defn spark-context
   "Creates a spark context that loads settings from given configuration object
