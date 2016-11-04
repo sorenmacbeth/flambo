@@ -58,17 +58,20 @@
   [& body]
   `(sfn/fn ~@body))
 
-(defmacro iterator-fn
-  [& body]
-  (let [[args & biz] body
-        it-biz (list (cons '.iterator (with-meta biz {:tag java.lang.Iterable})))
-        it-body (cons args it-biz)]
-    `(fn ~@it-body)))
-
 (defmacro defsparkfn
   [name & body]
   `(def ~name
      (fn ~@body)))
+
+(defn hinted-iterator [x]
+  (.iterator ^java.lang.Iterable x))
+
+(defmacro iterator-fn
+  [& body]
+  (let [[args & rest] body
+        rest (cons 'flambo.api/hinted-iterator rest)
+        it-body (cons args (list rest))]
+    `(fn ~@it-body)))
 
 (defn spark-context
   "Creates a spark context that loads settings from given configuration object
