@@ -63,13 +63,12 @@
   `(def ~name
      (fn ~@body)))
 
-(defn hinted-iterator [x]
-  (.iterator ^java.lang.Iterable x))
+(def iterator (memfn ^java.lang.Iterable iterator))
 
 (defmacro iterator-fn
   [& body]
   (let [[args & rest] body
-        rest (cons 'flambo.api/hinted-iterator rest)
+        rest (cons 'flambo.api/iterator rest)
         it-body (cons args (list rest))]
     `(fn ~@it-body)))
 
@@ -512,12 +511,12 @@
   (Note: this is currently not executed in parallel. Instead, the driver
   program computes all the elements)."
   ([rdd cnt]
-    (.takeOrdered rdd cnt))  
+    (.takeOrdered rdd cnt))
   ([rdd cnt compare-fn]
-    (.takeOrdered rdd cnt 
+    (.takeOrdered rdd cnt
       (if (instance? Comparator compare-fn)
         compare-fn
-        (comparator compare-fn)))))  
+        (comparator compare-fn)))))
 
 (defmulti histogram "compute histogram of an RDD of doubles"
   (fn [_ bucket-arg] (sequential? bucket-arg)))
