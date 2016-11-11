@@ -14,13 +14,14 @@
 
 ;; Returns a stopword filtered seq of
 ;; [doc-id term term-frequency doc-terms-count] tuples
-(f/defsparkfn gen-docid-term-tuples [doc-id content]
-  (let [terms (filter #(not (contains? stopwords %))
-                      (clojure.string/split content #" "))
-        doc-terms-count (count terms)
-        term-frequencies (frequencies terms)]
-    (.iterator (map (fn [term] (ft/tuple doc-id [term (term-frequencies term) doc-terms-count]))
-                    (distinct terms)))))
+(def gen-docid-term-tuples
+  (f/iterator-fn [doc-id content]
+                 (let [terms (filter #(not (contains? stopwords %))
+                                     (clojure.string/split content #" "))
+                       doc-terms-count (count terms)
+                       term-frequencies (frequencies terms)]
+                   (map (fn [term] (ft/tuple doc-id [term (term-frequencies term) doc-terms-count]))
+                        (distinct terms)))))
 
 (defn calc-idf [doc-count]
   (f/fn [term tuple-seq]
@@ -32,16 +33,23 @@
     (let [c (-> (conf/spark-conf)
                 (conf/master master)
                 (conf/app-name "tfidf")
-                (conf/set "spark.akka.timeout" "300")
                 (conf/set conf)
                 (conf/set-executor-env env))
           sc (f/spark-context c)
 
           ;; sample docs and terms
-          documents [(ft/tuple "doc1" "Four score and seven years ago our fathers brought forth on this continent a new nation")
-                     (ft/tuple "doc2" "conceived in Liberty and dedicated to the proposition that all men are created equal")
-                     (ft/tuple "doc3" "Now we are engaged in a great civil war testing whether that nation or any nation so")
-                     (ft/tuple "doc4" "conceived and so dedicated can long endure We are met on a great battlefield of that war")]
+          documents [(ft/tuple
+                      "doc1"
+                      "Four score and seven years ago our fathers brought forth on this continent a new nation")
+                     (ft/tuple
+                      "doc2"
+                      "conceived in Liberty and dedicated to the proposition that all men are created equal")
+                     (ft/tuple
+                      "doc3"
+                      "Now we are engaged in a great civil war testing whether that nation or any nation so")
+                     (ft/tuple
+                      "doc4"
+                      "conceived and so dedicated can long endure We are met on a great battlefield of that war")]
 
           doc-data (f/parallelize-pairs sc documents)
           _ (inspect doc-data "doc-data")
