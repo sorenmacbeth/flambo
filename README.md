@@ -33,17 +33,8 @@ Flambo is a Clojure DSL for Spark. It allows you to create and manipulate Spark 
 <a name="versions">
 ## Supported Spark Versions
 
-flambo 0.7.2 targets >= Spark 1.5.0
-
-flambo 0.6.0 targets >= Spark 1.3.0
-
-flambo 0.5.0 targets >= Spark 1.2.0
-
-flambo 0.4.0 targets >= Spark 1.1.0
-
-flambo 0.3.3 targets >= Spark 1.0.0
-
-flambo 0.2.0 targets Spark 0.9.1
+flambo 0.8.0 targets Spark 2.x
+flambo 0.7.2 targets Spark 1.x
 
 <a name="installation">
 ## Installation
@@ -52,24 +43,15 @@ Flambo is available from clojars. Depending on the version of Spark you're using
 
 ### With Leiningen
 
-`[yieldbot/flambo "0.7.2"]` for Spark 1.5.0 or greater
-
-`[yieldbot/flambo "0.6.0"]` for Spark 1.3.0 or greater
-
-`[yieldbot/flambo "0.5.0"]` for Spark 1.2.0 or greater
-
-`[yieldbot/flambo "0.4.0"]` for Spark 1.1.0 or greater
-
-`[yieldbot/flambo "0.3.3"]` for Spark 1.0.0 or greater
-
-`[yieldbot/flambo "0.2.0"]` for Spark 0.9.1
+`[yieldbot/flambo "0.8.0"]` for Spark 2.x
+`[yieldbot/flambo "0.7.2"]` for Spark 1.x
 
 Don't forget to add spark (and possibly your hadoop distribution's hadoop-client library) to the `:provided` profile in your `project.clj` file:
 
 ```clojure
 {:profiles {:provided
              {:dependencies
-              [[org.apache.spark/spark-core_2.10 "1.5.0"]]}}}
+              [[org.apache.spark/spark-core_2.11 "2.0.1"]]}}}
 ```
 
 <a name="aot">
@@ -249,7 +231,7 @@ The following code generates pairs of `word` and `count` using `ft/tuple`. We ca
             [clojure.string :as s]))
 
 (-> (f/text-file sc "data.txt")
-    (f/flat-map (f/fn [l] (s/split l #" ")))
+    (f/flat-map (f/iterator-fn [l] (s/split l #" ")))
     (f/map-to-pair (f/fn [w] (ft/tuple w 1)))
     (f/reduce-by-key (f/fn [x y] (+ x y))))
 ```
@@ -263,7 +245,7 @@ After the `reduce-by-key` operation, we can sort the pairs alphabetically using 
             [clojure.string :as s]))
 
 (-> (f/text-file sc "data.txt")
-    (f/flat-map (f/fn [l] (s/split l #" ")))
+    (f/flat-map (f/iterator-fn [l] (s/split l #" ")))
     (f/map-to-pair (f/fn [w] (ft/tuple w 1)))
     (f/reduce-by-key (f/fn [x y] (+ x y)))
     f/sort-by-key
@@ -279,7 +261,7 @@ Flambo supports the following RDD transformations:
 * `map`: returns a new RDD formed by passing each element of the source through a function.
 * `map-to-pair`: returns a new `JavaPairRDD` of (K, V) pairs by applying a function to all elements of an RDD.
 * `reduce-by-key`: when called on an RDD of (K, V) pairs, returns an RDD of (K, V) pairs where the values for each key are aggregated using a reduce function.
-* `flat-map`: similar to `map`, but each input item can be mapped to 0 or more output items (so the function should return a collection rather than a single item)
+* `flat-map`: similar to `map`, but each input item can be mapped to 0 or more output items (so the function should return a collection rather than a single item). NB: as of Spark 2.x, flat-map functions are expected to return a `java.util.Iterator` object. `flambo.api/iterator-fn` is provided so that you can continue to return a collection if desired. 
 * `filter`: returns a new RDD containing only the elements of the source RDD that satisfy a predicate function.
 * `join`: when called on an RDD of type (K, V) and (K, W), returns a dataset of (K, (V, W)) pairs with all pairs of elements for each key.
 * `left-outer-join`: performs a left outer join of a pair of RDDs. For each element (K, V) in the first RDD, the resulting RDD will either contain all pairs (K, (V, W)) for W in second RDD, or the pair (K, (V, nil)) if no elements in the second RDD have key K.
@@ -292,7 +274,7 @@ Flambo supports the following RDD transformations:
 * `coalesce`: decreases the number of partitions in an RDD to 'n'. Useful for running operations more efficiently after filtering down a large dataset.
 * `group-by`: returns an RDD of items grouped by the return value of a function.
 * `group-by-key`: groups the values for each key in an RDD into a single sequence.
-* `flat-map-to-pair`: returns a new `JavaPairRDD` by first applying a function to all elements of the RDD, and then flattening the results.
+* `flat-map-to-pair`: returns a new `JavaPairRDD` by first applying a function to all elements of the RDD, and then flattening the results. NB: as of Spark 2.x, flat-map-to-pair functions are expected to return a `java.util.Iterator` object. `flambo.api/iterator-fn` is provided so that you can continue to return a collection if desired.
 
 <a name="rdd-actions">
 #### RDD Actions

@@ -63,6 +63,13 @@
   `(def ~name
      (fn ~@body)))
 
+(def iterator (memfn ^java.lang.Iterable iterator))
+
+(defmacro iterator-fn
+  [& body]
+  (let [[args & impl] body]
+    `(fn ~args (~'flambo.api/iterator ~@impl))))
+
 (defn spark-context
   "Creates a spark context that loads settings from given configuration object
   or system properties"
@@ -222,7 +229,7 @@
   "Similar to `map-partitions`, but runs separately on each partition (block) of the `rdd`, so function `f`
   must be of type Iterator<T> => Iterable<scala.Tuple2<K,V>>."
   [rdd f & {:keys [preserves-partitioning]
-            :or {:preserves-partitioning false}}]
+            :or {preserves-partitioning false}}]
   (.mapPartitionsToPair rdd (pair-flat-map-function f) (u/truthy? preserves-partitioning)))
 
 (defn map-partitions-with-index
@@ -502,12 +509,12 @@
   (Note: this is currently not executed in parallel. Instead, the driver
   program computes all the elements)."
   ([rdd cnt]
-    (.takeOrdered rdd cnt))  
+    (.takeOrdered rdd cnt))
   ([rdd cnt compare-fn]
-    (.takeOrdered rdd cnt 
+    (.takeOrdered rdd cnt
       (if (instance? Comparator compare-fn)
         compare-fn
-        (comparator compare-fn)))))  
+        (comparator compare-fn)))))
 
 (defmulti histogram "compute histogram of an RDD of doubles"
   (fn [_ bucket-arg] (sequential? bucket-arg)))

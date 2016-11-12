@@ -3,8 +3,8 @@
             [clojure.tools.logging :as log]))
 
 (defn inspect [rdd name & {:keys [count? cache?]
-                           :or {:count? false
-                                :cache? false}}]
+                           :or {count? false
+                                cache? false}}]
   (let [rdd (if cache?
               (-> rdd
                   (f/cache)

@@ -20,7 +20,7 @@ To start with we will need to configure a REPL environment. The easiest way to d
 lein new flambo-tutorial
 ```
 
-This will create a new Clojure project skelton to work with. This tutorial uses the REPL, but it is convienent to use a project.clj file to tell the REPL what dependencies are required. To do that, modify the project.clj file that Leiningen created to include the flambo dependency: `[yieldbot/flambo "0.7.2-SNAPSHOT"]` (check to ensure you have the correct version of flambo, it may have changed since this was written). Since we are working from the REPL, it is best to set up a dev profile. Mine looks like this:
+This will create a new Clojure project skelton to work with. This tutorial uses the REPL, but it is convienent to use a project.clj file to tell the REPL what dependencies are required. To do that, modify the project.clj file that Leiningen created to include the flambo dependency: `[yieldbot/flambo "0.8.0"]` (check to ensure you have the correct version of flambo, it may have changed since this was written). Since we are working from the REPL, it is best to set up a dev profile. Mine looks like this:
 
 ```clojure
   :profiles {:dev
@@ -28,11 +28,11 @@ This will create a new Clojure project skelton to work with. This tutorial uses 
              {:aot [flambo.function]}
              :provided
              {:dependencies
-              [[org.apache.spark/spark-core_2.10 "1.6.0"]
-               [org.apache.spark/spark-streaming_2.10 "1.6.0"]
-               [org.apache.spark/spark-streaming-kafka_2.10 "1.6.0"]
-               [org.apache.spark/spark-streaming-flume_2.10 "1.6.0"]
-               [org.apache.spark/spark-sql_2.10 "1.6.0"]]}
+              [[org.apache.spark/spark-core_2.11 "2.0.1"]
+               [org.apache.spark/spark-streaming_2.11 "2.0.1]
+               [org.apache.spark/spark-streaming-kafka-0-8_2.11 "2.0.1"]
+               [org.apache.spark/spark-sql_2.11 "2.0.1"]
+               [org.apache.spark/spark-hive_2.11 "2.0.1"]]}
              :uberjar
              {:aot :all}}
 ```
@@ -78,7 +78,6 @@ With the housekeeping out of the way, we can define a spark configuration, `c`, 
 user=> (def c (-> (conf/spark-conf)
                   (conf/master master)
                   (conf/app-name "tfidf")
-                  (conf/set "spark.akka.timeout" "300")
                   (conf/set conf)
                   (conf/set-executor-env env)))
 user=> (def sc (f/spark-context c))
@@ -116,10 +115,10 @@ To compute the term freqencies, we need a dictionary of the terms in each docume
 user=> (def stopwords #{"a" "all" "and" "any" "are" "is" "in" "of" "on" "or" "our" "so" "this" "the" "that" "to" "we"})
 ```
 
-We would like a filtered dictionary RDD to work with. To get this, we'll write a function and pass the RDD, `doc-data`, of `[doc-id content]` tuples to the flambo `flat-map-to-pair` transformation to get a new stopword filtered RDD of `[doc-id term term-frequency doc-terms-count]` tuples. First we use the flambo named function macro [flambo.api/defsparkfn](https://github.com/yieldbot/flambo/blob/develop/src/clojure/flambo/api.clj#L58) to define a Clojure helper function `gen-docid-term-tuples` that will filter stop words and return the tuples we want:
+We would like a filtered dictionary RDD to work with. To get this, we'll write a function and pass the RDD, `doc-data`, of `[doc-id content]` tuples to the flambo `flat-map-to-pair` transformation to get a new stopword filtered RDD of `[doc-id term term-frequency doc-terms-count]` tuples. First we define a Clojure helper function `gen-docid-term-tuples` that will filter stop words and return the tuples we want:
 
 ```clojure
-user=> (f/defsparkfn gen-docid-term-tuples [doc-id content]
+user=> (def gen-docid-term-tuples (f/iterator-fn gen-docid-term-tuples [doc-id content]
   (let [terms (filter #(not (contains? stopwords %))
                       (clojure.string/split content #" "))
         doc-terms-count (count terms)

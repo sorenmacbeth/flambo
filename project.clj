@@ -1,4 +1,4 @@
-(defproject yieldbot/flambo "0.7.2"
+(defproject yieldbot/flambo "0.8.0"
   :description "A Clojure DSL for Apache Spark"
   :url "https://github.com/yieldbot/flambo"
   :license {:name "Eclipse Public License"
@@ -9,11 +9,11 @@
   :dependencies [[org.clojure/clojure "1.7.0"]
                  [org.clojure/tools.logging "0.3.1"]
                  [com.google.guava/guava "18.0"]
-                 [yieldbot/serializable-fn "0.1.1"
+                 [yieldbot/serializable-fn "0.1.2"
                   :exclusions [com.twitter/chill-java]]
-                 [com.twitter/carbonite "1.4.0"
+                 [com.twitter/carbonite "1.5.0"
                   :exclusions [com.twitter/chill-java]]
-                 [com.twitter/chill_2.10 "0.5.0"
+                 [com.twitter/chill_2.11 "0.8.0"
                   :exclusions [org.scala-lang/scala-library]]]
   :profiles {:dev
              {:dependencies [[midje "1.6.3"]
@@ -28,12 +28,11 @@
                     flambo.example.tfidf]}
              :provided
              {:dependencies
-              [[org.apache.spark/spark-core_2.10 "1.6.2"]
-               [org.apache.spark/spark-streaming_2.10 "1.6.2"]
-               [org.apache.spark/spark-streaming-kafka_2.10 "1.6.2"]
-               [org.apache.spark/spark-streaming-flume_2.10 "1.6.2"]
-               [org.apache.spark/spark-sql_2.10 "1.6.2"]
-               [com.databricks/spark-csv_2.10 "1.4.0"]]}
+              [[org.apache.spark/spark-core_2.11 "2.0.1"]
+               [org.apache.spark/spark-streaming_2.11 "2.0.1"]
+               [org.apache.spark/spark-streaming-kafka-0-8_2.11 "2.0.1"]
+               [org.apache.spark/spark-sql_2.11 "2.0.1"]
+               [org.apache.spark/spark-hive_2.11 "2.0.1"]]}
              :clojure-1.6
              {:dependencies [[org.clojure/clojure "1.6.0"]]}
              :uberjar
@@ -56,7 +55,7 @@
           :output-dir "doc/codox"
           :src-dir-uri "http://github.com/yieldbot/flambo/blob/develop/"
           :src-linenum-anchor-prefix "L"}
-  :javac-options ["-source" "1.6" "-target" "1.6"]
+  :javac-options ["-source" "1.7" "-target" "1.7"]
   :jvm-opts ^:replace ["-server" "-Xmx1g"]
   :global-vars {*warn-on-reflection* false}
   :min-lein-version "2.5.0")
