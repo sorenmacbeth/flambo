@@ -2865,8 +2865,8 @@ net.brehaut.ClojureTools = (function (SH) {
     build_tree: build_tree
   };
 })(SyntaxHighlighter);
-</script><title>yieldbot/flambo -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name"><a href="https://github.com/yieldbot/flambo">yieldbot/flambo</a></h1><h2 class="project-version">0.7.2</h2><br /><p>A Clojure DSL for Apache Spark</p>
-</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.7.0</td></tr><tr><td class="dep-name">org.clojure/tools.logging</td><td class="dotted"><hr /></td><td class="dep-version">0.3.1</td></tr><tr><td class="dep-name">com.google.guava/guava</td><td class="dotted"><hr /></td><td class="dep-version">18.0</td></tr><tr><td class="dep-name">yieldbot/serializable-fn</td><td class="dotted"><hr /></td><td class="dep-version">0.1.1</td></tr><tr><td class="dep-name">com.twitter/carbonite</td><td class="dotted"><hr /></td><td class="dep-version">1.4.0</td></tr><tr><td class="dep-name">com.twitter/chill_2.10</td><td class="dotted"><hr /></td><td class="dep-version">0.5.0</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#flambo.accumulator">flambo.accumulator</a></li><li><a href="#flambo.api">flambo.api</a></li><li><a href="#flambo.broadcast">flambo.broadcast</a></li><li><a href="#flambo.conf">flambo.conf</a></li><li><a href="#flambo.debug">flambo.debug</a></li><li><a href="#flambo.function">flambo.function</a></li><li><a href="#flambo.kryo">flambo.kryo</a></li><li><a href="#flambo.scala-interop">flambo.scala-interop</a></li><li><a href="#flambo.sql">flambo.sql</a></li><li><a href="#flambo.streaming">flambo.streaming</a></li><li><a href="#flambo.tuple">flambo.tuple</a></li><li><a href="#flambo.utils">flambo.utils</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#flambo.accumulator" name="flambo.accumulator"><h1 class="project-name">flambo.accumulator</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+</script><title>yieldbot/flambo -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name"><a href="https://github.com/yieldbot/flambo">yieldbot/flambo</a></h1><h2 class="project-version">0.8.0</h2><br /><p>A Clojure DSL for Apache Spark</p>
+</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.7.0</td></tr><tr><td class="dep-name">org.clojure/tools.logging</td><td class="dotted"><hr /></td><td class="dep-version">0.3.1</td></tr><tr><td class="dep-name">com.google.guava/guava</td><td class="dotted"><hr /></td><td class="dep-version">18.0</td></tr><tr><td class="dep-name">yieldbot/serializable-fn</td><td class="dotted"><hr /></td><td class="dep-version">0.1.2</td></tr><tr><td class="dep-name">com.twitter/carbonite</td><td class="dotted"><hr /></td><td class="dep-version">1.5.0</td></tr><tr><td class="dep-name">com.twitter/chill_2.11</td><td class="dotted"><hr /></td><td class="dep-version">0.8.0</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#flambo.accumulator">flambo.accumulator</a></li><li><a href="#flambo.api">flambo.api</a></li><li><a href="#flambo.broadcast">flambo.broadcast</a></li><li><a href="#flambo.conf">flambo.conf</a></li><li><a href="#flambo.debug">flambo.debug</a></li><li><a href="#flambo.function">flambo.function</a></li><li><a href="#flambo.kryo">flambo.kryo</a></li><li><a href="#flambo.scala-interop">flambo.scala-interop</a></li><li><a href="#flambo.sql">flambo.sql</a></li><li><a href="#flambo.sql-functions">flambo.sql-functions</a></li><li><a href="#flambo.streaming">flambo.streaming</a></li><li><a href="#flambo.tuple">flambo.tuple</a></li><li><a href="#flambo.utils">flambo.utils</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#flambo.accumulator" name="flambo.accumulator"><h1 class="project-name">flambo.accumulator</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(ns flambo.accumulator
   (:import [org.apache.spark Accumulator]
            [scala.Option])
@@ -2936,7 +2936,12 @@ into any <code>SparkConf</code> objects that are created.</p>
 </td><td class="codes"><pre class="brush: clojure">(defmacro defsparkfn
   [name &amp; body]
   `(def ~name
-     (fn ~@body)))</pre></td></tr><tr><td class="docs"><p>Creates a spark context that loads settings from given configuration object
+     (fn ~@body)))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(def iterator (memfn ^java.lang.Iterable iterator))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defmacro iterator-fn
+  [&amp; body]
+  (let [[args &amp; impl] body]
+    `(fn ~args (~'flambo.api/iterator ~@impl))))</pre></td></tr><tr><td class="docs"><p>Creates a spark context that loads settings from given configuration object
   or system properties</p>
 </td><td class="codes"><pre class="brush: clojure">(defn spark-context
   ([conf]
@@ -3056,7 +3061,7 @@ http://spark.apache.org/docs/latest/programming-guide.html#accumulators</p>
   must be of type Iterator&lt;T> => Iterable<scala.Tuple2&lt;K,V>>.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn map-partitions-to-pair
   [rdd f &amp; {:keys [preserves-partitioning]
-            :or {:preserves-partitioning false}}]
+            :or {preserves-partitioning false}}]
   (.mapPartitionsToPair rdd (pair-flat-map-function f) (u/truthy? preserves-partitioning)))</pre></td></tr><tr><td class="docs"><p>Similar to <code>map-partitions</code> but function <code>f</code> is of type (Int, Iterator&lt;T>) => Iterator&lt;U> where
   <code>i</code> represents the index of partition.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn map-partitions-with-index
@@ -3259,12 +3264,12 @@ http://spark.apache.org/docs/latest/programming-guide.html#accumulators</p>
   program computes all the elements).</p>
 </td><td class="codes"><pre class="brush: clojure">(defn take-ordered
   ([rdd cnt]
-    (.takeOrdered rdd cnt))  
+    (.takeOrdered rdd cnt))
   ([rdd cnt compare-fn]
-    (.takeOrdered rdd cnt 
+    (.takeOrdered rdd cnt
       (if (instance? Comparator compare-fn)
         compare-fn
-        (comparator compare-fn)))))  </pre></td></tr><tr><td class="docs"><p>compute histogram of an RDD of doubles</p>
+        (comparator compare-fn)))))</pre></td></tr><tr><td class="docs"><p>compute histogram of an RDD of doubles</p>
 </td><td class="codes"><pre class="brush: clojure">(defmulti histogram 
   (fn [_ bucket-arg] (sequential? bucket-arg)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defmethod histogram true [rdd buckets]
@@ -3353,8 +3358,8 @@ objects to pass into <code>spark-context</code>.</p>
   (:require [flambo.api :as f]
             [clojure.tools.logging :as log]))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn inspect [rdd name &amp; {:keys [count? cache?]
-                           :or {:count? false
-                                :cache? false}}]
+                           :or {count? false
+                                cache? false}}]
   (let [rdd (if cache?
               (-&gt; rdd
                   (f/cache)
@@ -3575,15 +3580,21 @@ and I don't think I can do that from the generic -call I used above.</p>
   (when (instance? Some option)
     (.get option)))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#flambo.sql" name="flambo.sql"><h1 class="project-name">flambo.sql</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><p>SparkSQL &amp; DataFrame wrapper</p>
 </td><td class="codes"><pre class="brush: clojure">(ns flambo.sql
-  (:refer-clojure :exclude [load])
-  (:require [flambo.api :as f :refer [defsparkfn]])
+  (:refer-clojure :exclude [load group-by])
+  (:require [flambo.api :as f :refer [defsparkfn]]
+            [flambo.sql-functions :as sqlf])
   (:import [org.apache.spark.api.java JavaSparkContext]
-           [org.apache.spark.sql SQLContext Row DataFrame]))</pre></td></tr><tr><td class="docs"><p>Build a SQLContext from a JavaSparkContext</p>
+           [org.apache.spark.sql SQLContext Row Dataset Column]
+           [org.apache.spark.sql.hive HiveContext]
+           [org.apache.spark.sql.expressions Window]))</pre></td></tr><tr><td class="docs"><p>Build a SQLContext from a JavaSparkContext</p>
 
 <h2>SQLContext</h2>
 </td><td class="codes"><pre class="brush: clojure">(defn ^SQLContext sql-context
   [^JavaSparkContext spark-context]
-  (SQLContext. spark-context))</pre></td></tr><tr><td class="docs"><p>Get reference to the SparkContext out of a SQLContext</p>
+  (SQLContext. spark-context))</pre></td></tr><tr><td class="docs"><p>Build a HiveContext from a JavaSparkContext</p>
+</td><td class="codes"><pre class="brush: clojure">(defn ^SQLContext hive-context
+  [^JavaSparkContext spark-context]
+  (HiveContext. spark-context))</pre></td></tr><tr><td class="docs"><p>Get reference to the SparkContext out of a SQLContext</p>
 </td><td class="codes"><pre class="brush: clojure">(defn ^JavaSparkContext spark-context
   [^SQLContext sql-context]
   (JavaSparkContext/fromSparkContext (.sparkContext sql-context)))</pre></td></tr><tr><td class="docs"><p>Execute a query. The dialect that is used for SQL parsing can be configured with 'spark.sql.dialect'.</p>
@@ -3596,18 +3607,18 @@ and I don't think I can do that from the generic -call I used above.</p>
          ~context-sym (sql-context ~'x)]
      (try
        ~@body
-       (finally (.stop ~'x)))))</pre></td></tr><tr><td class="docs"><p>Loads a Parquet file, returning the result as a DataFrame.</p>
+       (finally (.stop ~'x)))))</pre></td></tr><tr><td class="docs"><p>Loads a Parquet file, returning the result as a Dataset.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn parquet-file
   [sql-context path]
   (.parquetFile sql-context path))</pre></td></tr><tr><td class="docs"><p>Loads a JSON file (one object per line), returning the result as a DataFrame.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn json-file
   [sql-context path]
-  (.jsonFile sql-context path))</pre></td></tr><tr><td class="docs"><p>Returns the dataset stored at path as a DataFrame.</p>
+  (-&gt; sql-context .read (.format &quot;json&quot;) (.load path)))</pre></td></tr><tr><td class="docs"><p>Returns the dataset stored at path as a Dataset.</p>
 
 <p>Since 1.3 the SparkSQL data sources API is recommended for load &amp; save operations.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn load
   ([sql-context path]                   ; data source type configured by spark.sql.sources.default
-   (.load sql-context path))            
+   (.load sql-context path))
   ([sql-context path source-type]       ; specify data source type
    (.load sql-context path source-type)))</pre></td></tr><tr><td class="docs"><p>Reads a file in table format and creates a data frame from it, with cases corresponding to
   lines and variables to fields in the file. A clone of R's read.csv.</p>
@@ -3619,7 +3630,7 @@ and I don't think I can do that from the generic -call I used above.</p>
     (.put options &quot;header&quot; (if header &quot;true&quot; &quot;false&quot;))
     (.put options &quot;separator&quot; separator)
     (.put options &quot;quote&quot; quote)
-    (.load sql-context &quot;com.databricks.spark.csv&quot; options)))</pre></td></tr><tr><td class="docs"><p>Registers the given DataFrame as a temporary table in the
+    (-&gt; sql-context .read (.format &quot;csv&quot;) (.options options) .load)))</pre></td></tr><tr><td class="docs"><p>Registers the given DataFrame as a temporary table in the
   catalog. Temporary tables exist only during the lifetime of this
   instance of SQLContex.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn register-data-frame-as-table
@@ -3630,7 +3641,7 @@ and I don't think I can do that from the generic -call I used above.</p>
   (.cacheTable sql-context table-name))</pre></td></tr><tr><td class="docs"><p>Load an RDD of JSON strings (one object per line), inferring the schema, and returning a DataFrame</p>
 </td><td class="codes"><pre class="brush: clojure">(defn json-rdd
   [sql-context json-rdd]
-  (.jsonRDD sql-context json-rdd))</pre></td></tr><tr><td class="docs"><p>Removes the specified table from the in-memory cache.</p>
+  (-&gt; sql-context .read (.json json-rdd)))</pre></td></tr><tr><td class="docs"><p>Removes the specified table from the in-memory cache.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn uncache-table
   [sql-context table-name]
   (.uncacheTable sql-context table-name))</pre></td></tr><tr><td class="docs"><p>Remove all tables from cache</p>
@@ -3640,14 +3651,29 @@ and I don't think I can do that from the generic -call I used above.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn is-cached?
   [sql-context table-name]
   (.isCached sql-context table-name))</pre></td></tr><tr><td class="docs"><p>Return a table as a DataFrame</p>
-</td><td class="codes"><pre class="brush: clojure">(defn ^DataFrame table
+</td><td class="codes"><pre class="brush: clojure">(defn ^Dataset table
   [sql-context table-name]
   (.table sql-context table-name))</pre></td></tr><tr><td class="docs"><p>Return a seq of strings of table names, optionally within a specific database</p>
 </td><td class="codes"><pre class="brush: clojure">(defn table-names
   ([sql-context]
    (seq (.tableNames sql-context)))
   ([sql-context database-name]
-   (seq (.tableNames sql-context database-name))))</pre></td></tr><tr><td class="docs"><p>Registers this dataframe as a temporary table using the given name.</p>
+   (seq (.tableNames sql-context database-name))))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn- as-col-array
+  [exprs]
+  (into-array Column (map sqlf/col exprs)))</pre></td></tr><tr><td class="docs"><p>Select a set of columns</p>
+</td><td class="codes"><pre class="brush: clojure">(defn select
+  [df &amp; exprs]
+  (.select df (as-col-array exprs)))</pre></td></tr><tr><td class="docs"><p>Filters DataFrame rows using SQL expression</p>
+</td><td class="codes"><pre class="brush: clojure">(defn where
+  [df expr]
+  (.where df expr))</pre></td></tr><tr><td class="docs"><p>Groups data using the specified expressions</p>
+</td><td class="codes"><pre class="brush: clojure">(defn group-by
+  [df &amp; exprs]
+  (.groupBy df (as-col-array exprs)))</pre></td></tr><tr><td class="docs"><p>Aggregates grouped data using the specified expressions</p>
+</td><td class="codes"><pre class="brush: clojure">(defn agg
+  [df expr &amp; exprs]
+  (.agg df (sqlf/col expr) (as-col-array exprs)))</pre></td></tr><tr><td class="docs"><p>Registers this dataframe as a temporary table using the given name.</p>
 
 <p>DataFrame</p>
 </td><td class="codes"><pre class="brush: clojure">(defn register-temp-table
@@ -3656,13 +3682,37 @@ and I don't think I can do that from the generic -call I used above.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn columns
   [df]
   (seq (.columns df)))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(def print-schema (memfn printSchema))</pre></td></tr><tr><td class="docs"><p>Row</p>
+</td><td class="codes"><pre class="brush: clojure">(def print-schema (memfn printSchema))</pre></td></tr><tr><td class="docs"><p>Create an empty window specification</p>
+</td><td class="codes"><pre class="brush: clojure">(defn window
+  []
+  (Window/partitionBy (as-col-array [])))</pre></td></tr><tr><td class="docs"><p>Create window spec with specified ordering</p>
+</td><td class="codes"><pre class="brush: clojure">(defn order-by
+  [w &amp; exprs]
+  (.orderBy w (as-col-array exprs)))</pre></td></tr><tr><td class="docs"><p>Create window spec with specified partitioning</p>
+</td><td class="codes"><pre class="brush: clojure">(defn partition-by
+  [w &amp; exprs]
+  (.partitionBy w (as-col-array exprs)))</pre></td></tr><tr><td class="docs"><p>Create window spec with row window specified</p>
+</td><td class="codes"><pre class="brush: clojure">(defn rows-between
+  [w lower-bound upper-bound]
+  (.rowsBetween w lower-bound upper-bound))</pre></td></tr><tr><td class="docs"><p>Create window spec with range window specified</p>
+</td><td class="codes"><pre class="brush: clojure">(defn range-between
+    [w lower-bound upper-bound]
+    (.rangeBetween w lower-bound upper-bound))</pre></td></tr><tr><td class="docs"><p>Return expresion with a given windowing</p>
+</td><td class="codes"><pre class="brush: clojure">(defn over
+  [exprs w]
+  (.over (sqlf/col exprs) w))</pre></td></tr><tr><td class="docs"><p>Row</p>
 </td><td class="codes"><pre class="brush: clojure">(defsparkfn row-&gt;vec [^Row row]
   (let [n (.length row)]
     (loop [i 0 v (transient [])]
       (if (&lt; i n)
         (recur (inc i) (conj! v (.get row i)))
-        (persistent! v)))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#flambo.streaming" name="flambo.streaming"><h1 class="project-name">flambo.streaming</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>EXPERIMENTAL</h2>
+        (persistent! v)))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#flambo.sql-functions" name="flambo.sql-functions"><h1 class="project-name">flambo.sql-functions</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(ns flambo.sql-functions
+  (:import [org.apache.spark.sql functions]))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defmulti col class)
+(defmethod col org.apache.spark.sql.Column [x] x)
+(defmethod col java.lang.String [x] (functions/col x))
+(defmethod col clojure.lang.Symbol [x] (functions/col (str x)))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#flambo.streaming" name="flambo.streaming"><h1 class="project-name">flambo.streaming</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>EXPERIMENTAL</h2>
 
 <p>This is a partial and mostly untested implementation of
 Spark Streaming; consider it a work in progress.</p>
@@ -3677,7 +3727,6 @@ Spark Streaming; consider it a work in progress.</p>
                                      void-function]])
   (:import [org.apache.spark.streaming.api.java JavaStreamingContext]
            [org.apache.spark.streaming.kafka KafkaUtils]
-           [org.apache.spark.streaming.flume FlumeUtils]
            [org.apache.spark.streaming Duration Time]))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn duration [ms]
   (Duration. ms))</pre></td></tr><tr><td class="docs">
@@ -3702,10 +3751,6 @@ Spark Streaming; consider it a work in progress.</p>
   (KafkaUtils/createStream streaming-context zk-connect group-id (into {} (for [[k v] topic-map] [k (Integer. v)]))))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn kafka-direct-stream [streaming-context key-class value-class key-decoder-class value-decoder-class kafka-params topic-set]
   (KafkaUtils/createDirectStream streaming-context key-class value-class key-decoder-class value-decoder-class kafka-params topic-set))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn flume-stream [streaming-context host port]
-  (FlumeUtils/createStream streaming-context host port))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn flume-polling-stream [streaming-context host port]
-  (FlumeUtils/createPollingStream streaming-context host port))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn flat-map [dstream f]
   (.flatMap dstream (flat-map-function f)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn map [dstream f]
@@ -3875,7 +3920,7 @@ Spark Streaming; consider it a work in progress.</p>
    &quot;111111111111111111111111111111111111 11111111111111 111111111111111111111111111&quot;])</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn hail-flambo []
   (doseq [hs flambo]
-    (println hs)))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr></table><div class="footer">Generated by <a href="https://github.com/gdeer81/marginalia">Marginalia</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a><div id="floating-toc"><ul><li class="floating-toc-li" id="floating-toc_flambo.accumulator">flambo.accumulator</li><li class="floating-toc-li" id="floating-toc_flambo.api">flambo.api</li><li class="floating-toc-li" id="floating-toc_flambo.broadcast">flambo.broadcast</li><li class="floating-toc-li" id="floating-toc_flambo.conf">flambo.conf</li><li class="floating-toc-li" id="floating-toc_flambo.debug">flambo.debug</li><li class="floating-toc-li" id="floating-toc_flambo.function">flambo.function</li><li class="floating-toc-li" id="floating-toc_flambo.kryo">flambo.kryo</li><li class="floating-toc-li" id="floating-toc_flambo.scala-interop">flambo.scala-interop</li><li class="floating-toc-li" id="floating-toc_flambo.sql">flambo.sql</li><li class="floating-toc-li" id="floating-toc_flambo.streaming">flambo.streaming</li><li class="floating-toc-li" id="floating-toc_flambo.tuple">flambo.tuple</li><li class="floating-toc-li" id="floating-toc_flambo.utils">flambo.utils</li></ul></div></div><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
+    (println hs)))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr></table><div class="footer">Generated by <a href="https://github.com/gdeer81/marginalia">Marginalia</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a><div id="floating-toc"><ul><li class="floating-toc-li" id="floating-toc_flambo.accumulator">flambo.accumulator</li><li class="floating-toc-li" id="floating-toc_flambo.api">flambo.api</li><li class="floating-toc-li" id="floating-toc_flambo.broadcast">flambo.broadcast</li><li class="floating-toc-li" id="floating-toc_flambo.conf">flambo.conf</li><li class="floating-toc-li" id="floating-toc_flambo.debug">flambo.debug</li><li class="floating-toc-li" id="floating-toc_flambo.function">flambo.function</li><li class="floating-toc-li" id="floating-toc_flambo.kryo">flambo.kryo</li><li class="floating-toc-li" id="floating-toc_flambo.scala-interop">flambo.scala-interop</li><li class="floating-toc-li" id="floating-toc_flambo.sql">flambo.sql</li><li class="floating-toc-li" id="floating-toc_flambo.sql-functions">flambo.sql-functions</li><li class="floating-toc-li" id="floating-toc_flambo.streaming">flambo.streaming</li><li class="floating-toc-li" id="floating-toc_flambo.tuple">flambo.tuple</li><li class="floating-toc-li" id="floating-toc_flambo.utils">flambo.utils</li></ul></div></div><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
 SyntaxHighlighter.all();
 
 // hackity hack
