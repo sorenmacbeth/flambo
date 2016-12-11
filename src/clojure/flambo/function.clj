@@ -65,6 +65,7 @@
 (gen-function Function2 function2)
 (gen-function Function3 function3)
 (gen-function VoidFunction void-function)
+(gen-function VoidFunction2 void-function2)
 (gen-function FlatMapFunction flat-map-function)
 (gen-function FlatMapFunction2 flat-map-function2)
 (gen-function PairFlatMapFunction pair-flat-map-function)
@@ -109,6 +110,17 @@
     (apply f xs)))
 
 (defn VoidFunction-call [^flambo.function.VoidFunction this & xs]
+  (let [fn-or-serfn (.state this)
+        f (if (instance? array-of-bytes-type fn-or-serfn)
+            (binding [sfn/*deserialize* kryo/deserialize]
+              (deserialize-fn fn-or-serfn))
+            fn-or-serfn)]
+    (log/trace "CLASS" (type this))
+    (log/trace "META" (meta f))
+    (log/trace "XS" xs)
+    (apply f xs)))
+
+(defn VoidFunction2-call [^flambo.function.VoidFunction2 this & xs]
   (let [fn-or-serfn (.state this)
         f (if (instance? array-of-bytes-type fn-or-serfn)
             (binding [sfn/*deserialize* kryo/deserialize]

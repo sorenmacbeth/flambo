@@ -11,7 +11,8 @@
                                      function
                                      function2
                                      pair-function
-                                     void-function]])
+                                     void-function
+                                     void-function2]])
   (:import [org.apache.spark.streaming.api.java JavaStreamingContext]
            [org.apache.spark.streaming.kafka KafkaUtils]
            [org.apache.spark.streaming Duration Time]))
@@ -101,7 +102,7 @@
 (def print (memfn print))
 
 (defn foreach-rdd [dstream f]
-  (.foreachRDD dstream (function2 f)))
+  (.foreachRDD dstream (void-function2 f)))
 
 
 ;; ## Output
