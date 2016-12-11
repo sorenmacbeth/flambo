@@ -2,7 +2,7 @@
 ;; SparkSQL & DataFrame wrapper
 ;;
 (ns flambo.sql
-  (:refer-clojure :exclude [load group-by])
+  (:refer-clojure :exclude [load group-by partition-by])
   (:require [flambo.api :as f :refer [defsparkfn]]
             [flambo.sql-functions :as sqlf])
   (:import [org.apache.spark.api.java JavaSparkContext]
