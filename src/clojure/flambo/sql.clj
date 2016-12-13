@@ -188,4 +188,3 @@
       (if (< i n)
         (recur (inc i) (conj! v (.get row i)))
         (persistent! v)))))
-
