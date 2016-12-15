@@ -1,7 +1,7 @@
 (ns flambo.function
   (:require [serializable.fn :as sfn]
             [flambo.kryo :as kryo]
-            [flambo.utils :as utils]))
+            [flambo.cache :as cache]))
 
 (set! *warn-on-reflection* true)
 
@@ -14,7 +14,7 @@
 ;; XXX: memoizing here is weird because all functions in a JVM now share a single
 ;;      cache lookup. Maybe we could memoize in the constructor or something instead?
 ;; TODO: what is a good cache size here???
-(def deserialize-fn (utils/lru-memoize 5000 sfn/deserialize))
+(def deserialize-fn (cache/lru-memoize 5000 sfn/deserialize))
 (def array-of-bytes-type (Class/forName "[B"))
 
 ;; ## Generic
