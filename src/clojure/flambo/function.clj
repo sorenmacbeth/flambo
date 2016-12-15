@@ -1,7 +1,6 @@
 (ns flambo.function
   (:require [serializable.fn :as sfn]
             [flambo.kryo :as kryo]
-            [clojure.tools.logging :as log]
             [flambo.utils :as utils]))
 
 (set! *warn-on-reflection* true)
@@ -30,9 +29,6 @@
             (binding [sfn/*deserialize* kryo/deserialize]
               (deserialize-fn fn-or-serfn))
             fn-or-serfn)]
-    (log/trace "CLASS" (type this))
-    (log/trace "META" (meta f))
-    (log/trace "XS" xs)
     (apply f xs)))
 
 ;; ## Functions
@@ -82,9 +78,6 @@
             (binding [sfn/*deserialize* kryo/deserialize]
               (deserialize-fn fn-or-serfn))
             fn-or-serfn)]
-    (log/trace "CLASS" (type this))
-    (log/trace "META" (meta f))
-    (log/trace "XS" xs)
     (apply f xs)))
 
 (defn Function2-call [^flambo.function.Function2 this & xs]
@@ -93,9 +86,6 @@
             (binding [sfn/*deserialize* kryo/deserialize]
               (deserialize-fn fn-or-serfn))
             fn-or-serfn)]
-    (log/trace "CLASS" (type this))
-    (log/trace "META" (meta f))
-    (log/trace "XS" xs)
     (apply f xs)))
 
 (defn Function3-call [^flambo.function.Function2 this & xs]
@@ -104,9 +94,6 @@
             (binding [sfn/*deserialize* kryo/deserialize]
               (deserialize-fn fn-or-serfn))
             fn-or-serfn)]
-    (log/trace "CLASS" (type this))
-    (log/trace "META" (meta f))
-    (log/trace "XS" xs)
     (apply f xs)))
 
 (defn VoidFunction-call [^flambo.function.VoidFunction this & xs]
@@ -115,9 +102,6 @@
             (binding [sfn/*deserialize* kryo/deserialize]
               (deserialize-fn fn-or-serfn))
             fn-or-serfn)]
-    (log/trace "CLASS" (type this))
-    (log/trace "META" (meta f))
-    (log/trace "XS" xs)
     (apply f xs)))
 
 (defn VoidFunction2-call [^flambo.function.VoidFunction2 this & xs]
@@ -126,9 +110,6 @@
             (binding [sfn/*deserialize* kryo/deserialize]
               (deserialize-fn fn-or-serfn))
             fn-or-serfn)]
-    (log/trace "CLASS" (type this))
-    (log/trace "META" (meta f))
-    (log/trace "XS" xs)
     (apply f xs)))
 
 (defn FlatMapFunction-call [^flambo.function.FlatMapFunction this & xs]
@@ -137,9 +118,6 @@
             (binding [sfn/*deserialize* kryo/deserialize]
               (deserialize-fn fn-or-serfn))
             fn-or-serfn)]
-    (log/trace "CLASS" (type this))
-    (log/trace "META" (meta f))
-    (log/trace "XS" xs)
     (apply f xs)))
 
 (defn FlatMapFunction2-call [^flambo.function.FlatMapFunction2 this & xs]
@@ -148,9 +126,6 @@
             (binding [sfn/*deserialize* kryo/deserialize]
               (deserialize-fn fn-or-serfn))
             fn-or-serfn)]
-    (log/trace "CLASS" (type this))
-    (log/trace "META" (meta f))
-    (log/trace "XS" xs)
     (apply f xs)))
 
 (defn PairFlatMapFunction-call [^flambo.function.PairFlatMapFunction this & xs]
@@ -159,9 +134,6 @@
             (binding [sfn/*deserialize* kryo/deserialize]
               (deserialize-fn fn-or-serfn))
             fn-or-serfn)]
-    (log/trace "CLASS" (type this))
-    (log/trace "META" (meta f))
-    (log/trace "XS" xs)
     (apply f xs)))
 
 (defn PairFunction-call [^flambo.function.PairFunction this & xs]
@@ -170,9 +142,6 @@
             (binding [sfn/*deserialize* kryo/deserialize]
               (deserialize-fn fn-or-serfn))
             fn-or-serfn)]
-    (log/trace "CLASS" (type this))
-    (log/trace "META" (meta f))
-    (log/trace "XS" xs)
     (apply f xs)))
 
 (defn DoubleFunction-call [^flambo.function.DoubleFunction this & xs]
@@ -181,9 +150,6 @@
             (binding [sfn/*deserialize* kryo/deserialize]
               (deserialize-fn fn-or-serfn))
             fn-or-serfn)]
-    (log/trace "CLASS" (type this))
-    (log/trace "META" (meta f))
-    (log/trace "XS" xs)
     (apply f xs)))
 
 (defn DoubleFlatMapFunction-call [^flambo.function.DoubleFlatMapFunction this & xs]
@@ -192,7 +158,4 @@
             (binding [sfn/*deserialize* kryo/deserialize]
               (deserialize-fn fn-or-serfn))
             fn-or-serfn)]
-    (log/trace "CLASS" (type this))
-    (log/trace "META" (meta f))
-    (log/trace "XS" xs)
     (apply f xs)))
