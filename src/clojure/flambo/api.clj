@@ -77,6 +77,10 @@
   ([master app-name]
    (JavaSparkContext. master app-name)))
 
+;; added by MH
+(defn close [ctx]
+  (.close ctx))
+
 (defn local-spark-context
   [app-name]
   (let [conf (-> (conf/spark-conf)

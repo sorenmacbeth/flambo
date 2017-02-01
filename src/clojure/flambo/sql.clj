@@ -3,15 +3,25 @@
 ;;
 (ns flambo.sql
   (:refer-clojure :exclude [load group-by partition-by])
+
   (:require [flambo.api :as f :refer [defsparkfn]]
             [flambo.sql-functions :as sqlf])
-  (:import [org.apache.spark.api.java JavaSparkContext]
+
+    (:import [org.apache.spark.api.java JavaSparkContext]
            [org.apache.spark.sql SQLContext Row Dataset Column]
            [org.apache.spark.sql.hive HiveContext]
-           [org.apache.spark.sql.expressions Window]))
+           [org.apache.spark.sql.expressions Window]
+
+           [org.apache.spark.sql.types DataType DataTypes StructField StructType
+            Metadata MetadataBuilder]
+           
+           [org.apache.spark.sql.types ArrayType BinaryType BooleanType
+            ByteType CalendarIntervalType DateType Decimal DecimalType
+            DoubleType FloatType IntegerType LongType  MapType  NullType
+            NumericType ShortType StringType TimestampType UserDefinedType]))
 
 ;; ## SQLContext
-;;
+
 (defn ^SQLContext sql-context
   "Build a SQLContext from a JavaSparkContext"
   [^JavaSparkContext spark-context]
@@ -188,3 +198,22 @@
       (if (< i n)
         (recur (inc i) (conj! v (.get row i)))
         (persistent! v)))))
+
+
+;; by MH
+
+(defn show
+  ([df]   (.show df))
+  ([df n]   (.show df n)))
+
+(defn count [sql-ctx]
+  (.count sql-ctx))
+
+(defn create-global-temp-view [v-name]
+  (.createGlobalTempView v-name))
+
+(defn create-or-replace-temp-view [v-name]
+  (.createOrReplaceTempView v-name))
+
+
+
