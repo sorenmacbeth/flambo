@@ -6,7 +6,7 @@
   :mailing-list {:name "flambo user mailing list"
                  :archive "https://groups.google.com/d/forum/flambo-user"
                  :post "flambo-user@googlegroups.com"}
-  :dependencies [[org.clojure/clojure "1.7.0"]
+  :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/tools.logging "0.3.1"]
                  [com.google.guava/guava "18.0"]
                  [yieldbot/serializable-fn "0.1.2"
@@ -28,11 +28,11 @@
                     flambo.example.tfidf]}
              :provided
              {:dependencies
-              [[org.apache.spark/spark-core_2.11 "2.0.2"]
-               [org.apache.spark/spark-streaming_2.11 "2.0.2"]
-               [org.apache.spark/spark-streaming-kafka-0-8_2.11 "2.0.2"]
-               [org.apache.spark/spark-sql_2.11 "2.0.2"]
-               [org.apache.spark/spark-hive_2.11 "2.0.2"]]}
+              [[org.apache.spark/spark-core_2.11 "2.1.0"]
+               [org.apache.spark/spark-streaming_2.11 "2.1.0"]
+               [org.apache.spark/spark-streaming-kafka-0-8_2.11 "2.1.0"]
+               [org.apache.spark/spark-sql_2.11 "2.1.0"]
+               [org.apache.spark/spark-hive_2.11 "2.1.0"]]}
              :clojure-1.6
              {:dependencies [[org.clojure/clojure "1.6.0"]]}
              :uberjar
@@ -55,7 +55,7 @@
           :output-dir "doc/codox"
           :src-dir-uri "http://github.com/yieldbot/flambo/blob/develop/"
           :src-linenum-anchor-prefix "L"}
-  :javac-options ["-source" "1.7" "-target" "1.7"]
+  :javac-options ["-source" "1.8" "-target" "1.8"]
   :jvm-opts ^:replace ["-server" "-Xmx1g"]
   :global-vars {*warn-on-reflection* false}
   :min-lein-version "2.5.0")
