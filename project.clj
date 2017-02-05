@@ -6,7 +6,7 @@
   :mailing-list {:name "flambo user mailing list"
                  :archive "https://groups.google.com/d/forum/flambo-user"
                  :post "flambo-user@googlegroups.com"}
-  :dependencies [[org.clojure/clojure "1.8.0"]
+  :dependencies [[org.clojure/clojure "1.7.0"]
                  [org.clojure/tools.logging "0.3.1"]
                  [com.google.guava/guava "18.0"]
                  [yieldbot/serializable-fn "0.1.2"
