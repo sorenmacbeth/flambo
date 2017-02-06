@@ -77,9 +77,7 @@
   ([master app-name]
    (JavaSparkContext. master app-name)))
 
-;; added by MH
-(defn close [ctx]
-  (.close ctx))
+(def close (memfn close))
 
 (defn local-spark-context
   [app-name]

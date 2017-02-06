@@ -1,4 +1,4 @@
-(defproject yieldbot/flambo "0.8.2-SNAPSHOT"
+(defproject yieldbot/flambo "0.8.1-SNAPSHOT"
   :description "A Clojure DSL for Apache Spark"
   :url "https://github.com/yieldbot/flambo"
   :license {:name "Eclipse Public License"
@@ -55,7 +55,7 @@
           :output-dir "doc/codox"
           :src-dir-uri "http://github.com/yieldbot/flambo/blob/develop/"
           :src-linenum-anchor-prefix "L"}
-  :javac-options ["-source" "1.8" "-target" "1.8"]
+  :javac-options ["-source" "1.7" "-target" "1.7"]
   :jvm-opts ^:replace ["-server" "-Xmx1g"]
   :global-vars {*warn-on-reflection* false}
   :min-lein-version "2.5.0")

@@ -7,18 +7,21 @@
   (:require [flambo.api :as f :refer [defsparkfn]]
             [flambo.sql-functions :as sqlf])
 
-    (:import [org.apache.spark.api.java JavaSparkContext]
+      (:import [org.apache.spark.api.java JavaSparkContext]
            [org.apache.spark.sql SQLContext Row Dataset Column]
            [org.apache.spark.sql.hive HiveContext]
            [org.apache.spark.sql.expressions Window]
 
-           [org.apache.spark.sql.types DataType DataTypes StructField StructType
-            Metadata MetadataBuilder]
+           ;;[org.apache.spark.sql.types DataType DataTypes StructField StructType
+            ;;Metadata MetadataBuilder]
+
+           [org.apache.spark.sql.types DataTypes]
            
-           [org.apache.spark.sql.types ArrayType BinaryType BooleanType
-            ByteType CalendarIntervalType DateType Decimal DecimalType
-            DoubleType FloatType IntegerType LongType  MapType  NullType
-            NumericType ShortType StringType TimestampType UserDefinedType]))
+           ;;[org.apache.spark.sql.types ArrayType BinaryType BooleanType
+            ;;ByteType CalendarIntervalType DateType Decimal DecimalType
+            ;;DoubleType FloatType IntegerType LongType  MapType  NullType
+           ;;NumericType ShortType StringType TimestampType UserDefinedType]
+    ))
 
 ;; ## SQLContext
 
@@ -208,20 +211,11 @@
         (persistent! v)))))
 
 
-;; by MH
+(def show (memfn show))
 
-(defn show
-  ([df]   (.show df))
-  ([df n]   (.show df n)))
+(def count (memfn count))
 
-(defn count [sql-ctx]
-  (.count sql-ctx))
-
-(defn create-global-temp-view [v-name]
-  (.createGlobalTempView v-name))
+(def create-global-temp-view (memfn createGlobalTempView))
 
 (defn create-or-replace-temp-view [v-name]
   (.createOrReplaceTempView v-name))
-
-
-
