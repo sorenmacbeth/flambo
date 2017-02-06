@@ -11,17 +11,7 @@
            [org.apache.spark.sql SQLContext Row Dataset Column]
            [org.apache.spark.sql.hive HiveContext]
            [org.apache.spark.sql.expressions Window]
-
-           ;;[org.apache.spark.sql.types DataType DataTypes StructField StructType
-            ;;Metadata MetadataBuilder]
-
-           [org.apache.spark.sql.types DataTypes]
-           
-           ;;[org.apache.spark.sql.types ArrayType BinaryType BooleanType
-            ;;ByteType CalendarIntervalType DateType Decimal DecimalType
-            ;;DoubleType FloatType IntegerType LongType  MapType  NullType
-           ;;NumericType ShortType StringType TimestampType UserDefinedType]
-    ))
+           [org.apache.spark.sql.types DataTypes]))
 
 ;; ## SQLContext
 
