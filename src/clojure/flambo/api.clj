@@ -77,6 +77,8 @@
   ([master app-name]
    (JavaSparkContext. master app-name)))
 
+(def close (memfn close))
+
 (defn local-spark-context
   [app-name]
   (let [conf (-> (conf/spark-conf)

@@ -4,8 +4,10 @@
             [flambo.conf  :as conf]
             [flambo.sql   :as sql])
   (:import [org.apache.spark.sql functions RelationalGroupedDataset Column]
-           [org.apache.spark.sql.expressions WindowSpec]))
-
+           [org.apache.spark.sql.expressions WindowSpec]
+           [org.apache.spark.sql.types DataTypes IntegerType StringType]
+           
+           ))
 
 (facts
  "about spark-sql-context"
@@ -101,6 +103,27 @@
              (class (sql/over (functions/sum "foo") (sql/window))) => Column)
 
        (fact "hive-context returns a HiveContext"
-             (class (sql/hive-context sc)) => org.apache.spark.sql.hive.HiveContext)
+             (class (sql/hive-context sc)) => org.apache.spark.sql.hive.HiveContext)       
+       )
+     (let [
+           schema (sql/create-custom-schema
+                   [["id" DataTypes/IntegerType true]
+                    ["name" DataTypes/StringType true]
+                    ["seq" DataTypes/IntegerType true]])
+           df (sql/read-csv c "test/resources/no-header.csv" :header false :schema schema)
+           ]
+       (fact
+        "returns an array of column names from a CSV file using custom schema"
+        (sql/columns df) => ["id" "name" "seq"])
+       (fact
+        "count test"
+        (sql/count df) => 3)       
+       )
+     )
+   
+   
+   )
+ )
 
-       ))))
+
+

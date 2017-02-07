@@ -3,15 +3,18 @@
 ;;
 (ns flambo.sql
   (:refer-clojure :exclude [load group-by partition-by])
+
   (:require [flambo.api :as f :refer [defsparkfn]]
             [flambo.sql-functions :as sqlf])
-  (:import [org.apache.spark.api.java JavaSparkContext]
+
+      (:import [org.apache.spark.api.java JavaSparkContext]
            [org.apache.spark.sql SQLContext Row Dataset Column]
            [org.apache.spark.sql.hive HiveContext]
-           [org.apache.spark.sql.expressions Window]))
+           [org.apache.spark.sql.expressions Window]
+           [org.apache.spark.sql.types DataTypes]))
 
 ;; ## SQLContext
-;;
+
 (defn ^SQLContext sql-context
   "Build a SQLContext from a JavaSparkContext"
   [^JavaSparkContext spark-context]
@@ -58,17 +61,25 @@
   ([sql-context path source-type]       ; specify data source type
    (.load sql-context path source-type)))
 
+(defn create-custom-schema [array]
+  (-> (map #(DataTypes/createStructField (first %) (second %) (nth % 2))  array)
+      DataTypes/createStructType))
+
 (defn read-csv
   "Reads a file in table format and creates a data frame from it, with cases corresponding to
   lines and variables to fields in the file. A clone of R's read.csv."
-  [sql-context path &{:keys [header separator quote]
+  [sql-context path &{:keys [header separator quote schema]
                       :or   {header false separator "," quote "'"}}]
   (let [options (new java.util.HashMap)]
     (.put options "path" path)
     (.put options "header" (if header "true" "false"))
     (.put options "separator" separator)
     (.put options "quote" quote)
-    (-> sql-context .read (.format "csv") (.options options) .load)))
+    (if schema
+      (-> sql-context .read (.format "csv") (.options options) (.schema schema) .load)
+      (-> sql-context .read (.format "csv") (.options options) .load)
+      )))
+
 
 (defn register-data-frame-as-table
   "Registers the given DataFrame as a temporary table in the
@@ -188,3 +199,13 @@
       (if (< i n)
         (recur (inc i) (conj! v (.get row i)))
         (persistent! v)))))
+
+
+(def show (memfn show))
+
+(def count (memfn count))
+
+(def create-global-temp-view (memfn createGlobalTempView))
+
+(defn create-or-replace-temp-view [v-name]
+  (.createOrReplaceTempView v-name))
