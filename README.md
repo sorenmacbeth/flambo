@@ -22,6 +22,7 @@ Flambo is a Clojure DSL for [Apache Spark](http://spark.apache.org/docs/latest/)
 * [License](#license)
 
 <a name="overview">
+
 ## Overview
 
 Apache Spark is a fast and general-purpose cluster computing system. It provides high-level APIs in Java, Scala and Python, and an optimized engine that supports general execution graphs.
@@ -31,12 +32,14 @@ Flambo is a Clojure DSL for Spark. It allows you to create and manipulate Spark 
 "So that's where I came from." --Flambo
 
 <a name="versions">
+
 ## Supported Spark Versions
 
 flambo 0.8.0 targets Spark 2.x
 flambo 0.7.2 targets Spark 1.x
 
 <a name="installation">
+
 ## Installation
 
 Flambo is available from clojars. Depending on the version of Spark you're using, add one of the following to the dependences in your `project.clj` file:
@@ -55,6 +58,7 @@ Don't forget to add spark (and possibly your hadoop distribution's hadoop-client
 ```
 
 <a name="aot">
+
 ## AOT
 
 It is necessary to AOT compile any namespaces which require `flambo.api`. You can AOT compile your application uberjar before running it in your spark cluster. This can easily accomplished by adding an `:uberjar` profile with `{:aot :all}` in it.
@@ -67,11 +71,13 @@ When working locally in a REPL, you'll want to AOT compile those namespaces as w
 ```
 
 <a name="usage">
+
 ## Usage
 
 Flambo makes developing Spark applications quick and painless by utilizing the powerful abstractions available in Clojure. For instance, you can use the Clojure threading macro `->` to chain sequences of operations and transformations.
 
 <a name="initializing-flambo">
+
 ### Initializing flambo
 
 The first step is to create a Spark configuration object, SparkConf, which contains information about your application. This is used to construct a SparkContext object which tells Spark how to access a cluster.
@@ -105,6 +111,7 @@ For running on YARN, see [running on YARN](https://spark.apache.org/docs/0.9.1/r
 Hard-coding the value of `master` and other configuration parameters can be avoided by passing the values to Spark when running `spark-submit` (Spark 1.0.0) or by allowing `spark-submit` to read these properties from a configuration file. See [Standalone Applications](#running-flambo) for information on running flambo applications and see Spark's [documentation](http://spark.apache.org/docs/latest/configuration.html) for more details about configuring Spark properties.
 
 <a name="rdds">
+
 ### Resilient Distributed Datasets (RDDs)
 
 The main abstraction Spark provides is a _resilient distributed dataset_, RDD, which is a fault-tolerant collection of elements partitioned across the nodes of the cluster that can be operated on in parallel. There are two ways to create RDDs: _parallelizing_ an existing collection in your driver program, or referencing a dataset in an external storage system, such as a shared filesystem, HDFS, HBase, or any data source offering a Hadoop InputFormat.
@@ -142,6 +149,7 @@ Text file RDDs can be created in flambo using the `text-file` function under the
 ```
 
 <a name="rdd-operations">
+
 ### RDD Operations
 
 RDDs support two types of operations:
@@ -150,6 +158,7 @@ RDDs support two types of operations:
 * [_actions_](#rdd-actions), which return a value to the driver program after running a computation on the dataset
 
 <a name="basics">
+
 #### Basics
 
 To illustrate RDD basics in flambo, consider the following simple application using the sample `data.txt` file located at the root of the flambo repo.
@@ -175,6 +184,7 @@ If we also wanted to reuse the resulting RDD of length of lines in later steps, 
 before the `reduce` action, which would cause the line-lengths RDD to be saved to memory after the first time it is realized. See [RDD Persistence](#rdd-persistence) for more on persisting and caching RDDs in flambo.
 
 <a name="flambo-functions">
+
 #### Passing Functions to flambo
 
 Spark’s API relies heavily on passing functions in the driver program to run on the cluster. Flambo makes it easy and natural to define serializable Spark functions/operations and provides two ways to do this:
@@ -216,6 +226,7 @@ We can also use `f/first` or `f/take` to return just a subset of the data.
 ```
 
 <a name="key-value-pairs">
+
 #### Working with Key-Value Pairs
 
 While most Spark operations work on RDDs containing any type of objects, a few special operations are only available on RDDs of key-value pairs. The most common ones are distributed "shuffle" operations, such as grouping or aggregating the elements by a key.
@@ -254,6 +265,7 @@ After the `reduce-by-key` operation, we can sort the pairs alphabetically using 
 ```
 
 <a name="rdd-transformations">
+
 #### RDD Transformations
 
 Flambo supports the following RDD transformations:
@@ -277,6 +289,7 @@ Flambo supports the following RDD transformations:
 * `flat-map-to-pair`: returns a new `JavaPairRDD` by first applying a function to all elements of the RDD, and then flattening the results. NB: as of Spark 2.x, flat-map-to-pair functions are expected to return a `java.util.Iterator` object. `flambo.api/iterator-fn` is provided so that you can continue to return a collection if desired.
 
 <a name="rdd-actions">
+
 #### RDD Actions
 
 Flambo supports the following RDD actions:
@@ -294,6 +307,7 @@ Flambo supports the following RDD actions:
 * `cache`: persists an RDD with the default storage level ('MEMORY_ONLY').
 
 <a name="tuple-functions">
+
 #### Tuple functions
 
 Flambo supports the following tuple functions:
@@ -304,6 +318,7 @@ Flambo supports the following tuple functions:
 To see an example of these functions in use, check out the [tf-idf example](test/flambo/example/tfidf.clj).
 
 <a name="rdd-persistence">
+
 ### RDD Persistence
 
 Spark provides the ability to persist (or cache) a dataset in memory across operations. Spark’s cache is fault-tolerant – if any partition of an RDD is lost, it will automatically be recomputed using the transformations that originally created it. Caching is a key tool for iterative algorithms and fast interactive use. Like Spark, flambo provides the functions `f/persist` and `f/cache` to persist RDDs. `f/persist` sets the storage level of an RDD to persist its values across operations after the first time it is computed. Storage levels are available in the `flambo.api/STORAGE-LEVELS` map. This can only be used to assign a new storage level if the RDD does not have a storage level set already. `cache` is a convenience function for using the default storage level, 'MEMORY_ONLY'.
@@ -320,6 +335,7 @@ Spark provides the ability to persist (or cache) a dataset in memory across oper
 ```
 
 <a name="running-flambo">
+
 ### Standalone Applications
 
 To run your flambo application as a standalone application using the Spark API, you'll need to package your application in an uberjar using `lein` and execute it with:
@@ -341,6 +357,7 @@ $ spark-submit --class com.some.class.with.main uberjar.jar --flag1 arg1 --flag2
 ```
 
 <a name="kryo">
+
 ## Kryo
 
 Flambo requires that Spark is configured to use kryo for serialization. This is configured by default using system properties.
@@ -364,6 +381,7 @@ Here is an Example (this won't work in your REPL):
 ```
 
 <a name="acknowledgements">
+
 ## Acknowledgements
 
 Thanks to The Climate Corporation and their open source project [clj-spark](https://github.com/TheClimateCorporation/clj-spark) which served as the starting point for this project.
@@ -371,6 +389,7 @@ Thanks to The Climate Corporation and their open source project [clj-spark](http
 Thanks to [Ben Black](https://github.com/b) for doing the work on the streaming api.
 
 <a name="support">
+
 ## Support
 
 There is a #flambo channel available for support on the [Clojurians](http://clojurians.net/) Slack as well as a flambo-users google group. 
@@ -391,6 +410,7 @@ Profiler</a>, innovative and intelligent tools for profiling Java and
 .NET applications.
 
 <a name="license">
+
 ## License
 
 Copyright © 2014,2015 Yieldbot, Inc.
