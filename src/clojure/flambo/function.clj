@@ -23,14 +23,6 @@
   [f]
   [[] f])
 
-(defn -call [this & xs]
-  (let [fn-or-serfn (.state this)
-        f (if (instance? array-of-bytes-type fn-or-serfn)
-            (binding [sfn/*deserialize* kryo/deserialize]
-              (deserialize-fn fn-or-serfn))
-            fn-or-serfn)]
-    (apply f xs)))
-
 ;; ## Functions
 (defn mk-sym
   [fmt sym-name]
@@ -41,8 +33,6 @@
   (let [new-class-sym (mk-sym "flambo.function.%s" clazz)
         prefix-sym (mk-sym "%s-" clazz)]
     `(do
-       (def ~(mk-sym "%s-init" clazz) -init)
-       (def ~(mk-sym "%s-call" clazz) -call)
        (gen-class
         :name ~new-class-sym
         :extends flambo.function.AbstractFlamboFunction
@@ -51,6 +41,15 @@
         :init ~'init
         :state ~'state
         :constructors {[Object] []})
+       (def ~(mk-sym "%s-init" clazz) -init)
+       (defn ~(mk-sym "%s-call" clazz)
+         [~(vary-meta 'this assoc :tag new-class-sym) & ~'xs]
+         (let [fn-or-serfn# (.state ~'this)
+               f# (if (instance? array-of-bytes-type fn-or-serfn#)
+                    (binding [sfn/*deserialize* kryo/deserialize]
+                      (deserialize-fn fn-or-serfn#))
+                    fn-or-serfn#)]
+           (apply f# ~'xs)))
        (defn ~wrapper-name [f#]
          (new ~new-class-sym
               (if (serfn? f#)
@@ -69,93 +68,3 @@
 (gen-function DoubleFunction double-function)
 (gen-function DoubleFlatMapFunction double-flat-map-function)
 
-;; This sucks, but I need to do it to type hint the call to .state
-;; and I don't think I can do that from the generic -call I used above.
-
-(defn Function-call [^flambo.function.Function this & xs]
-  (let [fn-or-serfn (.state this)
-        f (if (instance? array-of-bytes-type fn-or-serfn)
-            (binding [sfn/*deserialize* kryo/deserialize]
-              (deserialize-fn fn-or-serfn))
-            fn-or-serfn)]
-    (apply f xs)))
-
-(defn Function2-call [^flambo.function.Function2 this & xs]
-  (let [fn-or-serfn (.state this)
-        f (if (instance? array-of-bytes-type fn-or-serfn)
-            (binding [sfn/*deserialize* kryo/deserialize]
-              (deserialize-fn fn-or-serfn))
-            fn-or-serfn)]
-    (apply f xs)))
-
-(defn Function3-call [^flambo.function.Function2 this & xs]
-  (let [fn-or-serfn (.state this)
-        f (if (instance? array-of-bytes-type fn-or-serfn)
-            (binding [sfn/*deserialize* kryo/deserialize]
-              (deserialize-fn fn-or-serfn))
-            fn-or-serfn)]
-    (apply f xs)))
-
-(defn VoidFunction-call [^flambo.function.VoidFunction this & xs]
-  (let [fn-or-serfn (.state this)
-        f (if (instance? array-of-bytes-type fn-or-serfn)
-            (binding [sfn/*deserialize* kryo/deserialize]
-              (deserialize-fn fn-or-serfn))
-            fn-or-serfn)]
-    (apply f xs)))
-
-(defn VoidFunction2-call [^flambo.function.VoidFunction2 this & xs]
-  (let [fn-or-serfn (.state this)
-        f (if (instance? array-of-bytes-type fn-or-serfn)
-            (binding [sfn/*deserialize* kryo/deserialize]
-              (deserialize-fn fn-or-serfn))
-            fn-or-serfn)]
-    (apply f xs)))
-
-(defn FlatMapFunction-call [^flambo.function.FlatMapFunction this & xs]
-  (let [fn-or-serfn (.state this)
-        f (if (instance? array-of-bytes-type fn-or-serfn)
-            (binding [sfn/*deserialize* kryo/deserialize]
-              (deserialize-fn fn-or-serfn))
-            fn-or-serfn)]
-    (apply f xs)))
-
-(defn FlatMapFunction2-call [^flambo.function.FlatMapFunction2 this & xs]
-  (let [fn-or-serfn (.state this)
-        f (if (instance? array-of-bytes-type fn-or-serfn)
-            (binding [sfn/*deserialize* kryo/deserialize]
-              (deserialize-fn fn-or-serfn))
-            fn-or-serfn)]
-    (apply f xs)))
-
-(defn PairFlatMapFunction-call [^flambo.function.PairFlatMapFunction this & xs]
-  (let [fn-or-serfn (.state this)
-        f (if (instance? array-of-bytes-type fn-or-serfn)
-            (binding [sfn/*deserialize* kryo/deserialize]
-              (deserialize-fn fn-or-serfn))
-            fn-or-serfn)]
-    (apply f xs)))
-
-(defn PairFunction-call [^flambo.function.PairFunction this & xs]
-  (let [fn-or-serfn (.state this)
-        f (if (instance? array-of-bytes-type fn-or-serfn)
-            (binding [sfn/*deserialize* kryo/deserialize]
-              (deserialize-fn fn-or-serfn))
-            fn-or-serfn)]
-    (apply f xs)))
-
-(defn DoubleFunction-call [^flambo.function.DoubleFunction this & xs]
-  (let [fn-or-serfn (.state this)
-        f (if (instance? array-of-bytes-type fn-or-serfn)
-            (binding [sfn/*deserialize* kryo/deserialize]
-              (deserialize-fn fn-or-serfn))
-            fn-or-serfn)]
-    (apply f xs)))
-
-(defn DoubleFlatMapFunction-call [^flambo.function.DoubleFlatMapFunction this & xs]
-  (let [fn-or-serfn (.state this)
-        f (if (instance? array-of-bytes-type fn-or-serfn)
-            (binding [sfn/*deserialize* kryo/deserialize]
-              (deserialize-fn fn-or-serfn))
-            fn-or-serfn)]
-    (apply f xs)))
