@@ -15,6 +15,7 @@
                   :exclusions [com.twitter/chill-java]]
                  [com.twitter/chill_2.11 "0.8.0"
                   :exclusions [org.scala-lang/scala-library]]]
+  :aot       :all
   :profiles {:dev
              {:dependencies [[midje "1.6.3"]
                              [criterium "0.4.3"]]
