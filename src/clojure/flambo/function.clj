@@ -3,8 +3,6 @@
             [flambo.kryo :as kryo]
             [flambo.cache :as cache]))
 
-(set! *warn-on-reflection* true)
-
 (defn- serfn? [f]
   (= (type f) :serializable.fn/serializable-fn))
 
@@ -67,4 +65,3 @@
 (gen-function PairFunction pair-function)
 (gen-function DoubleFunction double-function)
 (gen-function DoubleFlatMapFunction double-flat-map-function)
-
