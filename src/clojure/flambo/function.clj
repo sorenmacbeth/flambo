@@ -1,10 +1,7 @@
 (ns flambo.function
   (:require [serializable.fn :as sfn]
             [flambo.kryo :as kryo]
-            [clojure.tools.logging :as log]
-            [flambo.utils :as utils]))
-
-(set! *warn-on-reflection* true)
+            [flambo.cache :as cache]))
 
 (defn- serfn? [f]
   (= (type f) :serializable.fn/serializable-fn))
@@ -15,7 +12,7 @@
 ;; XXX: memoizing here is weird because all functions in a JVM now share a single
 ;;      cache lookup. Maybe we could memoize in the constructor or something instead?
 ;; TODO: what is a good cache size here???
-(def deserialize-fn (utils/lru-memoize 5000 sfn/deserialize))
+(def deserialize-fn (cache/lru-memoize 5000 sfn/deserialize))
 (def array-of-bytes-type (Class/forName "[B"))
 
 ;; ## Generic
@@ -23,17 +20,6 @@
   "Save the function f in state"
   [f]
   [[] f])
-
-(defn -call [this & xs]
-  (let [fn-or-serfn (.state this)
-        f (if (instance? array-of-bytes-type fn-or-serfn)
-            (binding [sfn/*deserialize* kryo/deserialize]
-              (deserialize-fn fn-or-serfn))
-            fn-or-serfn)]
-    (log/trace "CLASS" (type this))
-    (log/trace "META" (meta f))
-    (log/trace "XS" xs)
-    (apply f xs)))
 
 ;; ## Functions
 (defn mk-sym
@@ -45,8 +31,6 @@
   (let [new-class-sym (mk-sym "flambo.function.%s" clazz)
         prefix-sym (mk-sym "%s-" clazz)]
     `(do
-       (def ~(mk-sym "%s-init" clazz) -init)
-       (def ~(mk-sym "%s-call" clazz) -call)
        (gen-class
         :name ~new-class-sym
         :extends flambo.function.AbstractFlamboFunction
@@ -55,6 +39,15 @@
         :init ~'init
         :state ~'state
         :constructors {[Object] []})
+       (def ~(mk-sym "%s-init" clazz) -init)
+       (defn ~(mk-sym "%s-call" clazz)
+         [~(vary-meta 'this assoc :tag new-class-sym) & ~'xs]
+         (let [fn-or-serfn# (.state ~'this)
+               f# (if (instance? array-of-bytes-type fn-or-serfn#)
+                    (binding [sfn/*deserialize* kryo/deserialize]
+                      (deserialize-fn fn-or-serfn#))
+                    fn-or-serfn#)]
+           (apply f# ~'xs)))
        (defn ~wrapper-name [f#]
          (new ~new-class-sym
               (if (serfn? f#)
@@ -65,122 +58,10 @@
 (gen-function Function2 function2)
 (gen-function Function3 function3)
 (gen-function VoidFunction void-function)
+(gen-function VoidFunction2 void-function2)
 (gen-function FlatMapFunction flat-map-function)
 (gen-function FlatMapFunction2 flat-map-function2)
 (gen-function PairFlatMapFunction pair-flat-map-function)
 (gen-function PairFunction pair-function)
 (gen-function DoubleFunction double-function)
 (gen-function DoubleFlatMapFunction double-flat-map-function)
-
-;; This sucks, but I need to do it to type hint the call to .state
-;; and I don't think I can do that from the generic -call I used above.
-
-(defn Function-call [^flambo.function.Function this & xs]
-  (let [fn-or-serfn (.state this)
-        f (if (instance? array-of-bytes-type fn-or-serfn)
-            (binding [sfn/*deserialize* kryo/deserialize]
-              (deserialize-fn fn-or-serfn))
-            fn-or-serfn)]
-    (log/trace "CLASS" (type this))
-    (log/trace "META" (meta f))
-    (log/trace "XS" xs)
-    (apply f xs)))
-
-(defn Function2-call [^flambo.function.Function2 this & xs]
-  (let [fn-or-serfn (.state this)
-        f (if (instance? array-of-bytes-type fn-or-serfn)
-            (binding [sfn/*deserialize* kryo/deserialize]
-              (deserialize-fn fn-or-serfn))
-            fn-or-serfn)]
-    (log/trace "CLASS" (type this))
-    (log/trace "META" (meta f))
-    (log/trace "XS" xs)
-    (apply f xs)))
-
-(defn Function3-call [^flambo.function.Function2 this & xs]
-  (let [fn-or-serfn (.state this)
-        f (if (instance? array-of-bytes-type fn-or-serfn)
-            (binding [sfn/*deserialize* kryo/deserialize]
-              (deserialize-fn fn-or-serfn))
-            fn-or-serfn)]
-    (log/trace "CLASS" (type this))
-    (log/trace "META" (meta f))
-    (log/trace "XS" xs)
-    (apply f xs)))
-
-(defn VoidFunction-call [^flambo.function.VoidFunction this & xs]
-  (let [fn-or-serfn (.state this)
-        f (if (instance? array-of-bytes-type fn-or-serfn)
-            (binding [sfn/*deserialize* kryo/deserialize]
-              (deserialize-fn fn-or-serfn))
-            fn-or-serfn)]
-    (log/trace "CLASS" (type this))
-    (log/trace "META" (meta f))
-    (log/trace "XS" xs)
-    (apply f xs)))
-
-(defn FlatMapFunction-call [^flambo.function.FlatMapFunction this & xs]
-  (let [fn-or-serfn (.state this)
-        f (if (instance? array-of-bytes-type fn-or-serfn)
-            (binding [sfn/*deserialize* kryo/deserialize]
-              (deserialize-fn fn-or-serfn))
-            fn-or-serfn)]
-    (log/trace "CLASS" (type this))
-    (log/trace "META" (meta f))
-    (log/trace "XS" xs)
-    (apply f xs)))
-
-(defn FlatMapFunction2-call [^flambo.function.FlatMapFunction2 this & xs]
-  (let [fn-or-serfn (.state this)
-        f (if (instance? array-of-bytes-type fn-or-serfn)
-            (binding [sfn/*deserialize* kryo/deserialize]
-              (deserialize-fn fn-or-serfn))
-            fn-or-serfn)]
-    (log/trace "CLASS" (type this))
-    (log/trace "META" (meta f))
-    (log/trace "XS" xs)
-    (apply f xs)))
-
-(defn PairFlatMapFunction-call [^flambo.function.PairFlatMapFunction this & xs]
-  (let [fn-or-serfn (.state this)
-        f (if (instance? array-of-bytes-type fn-or-serfn)
-            (binding [sfn/*deserialize* kryo/deserialize]
-              (deserialize-fn fn-or-serfn))
-            fn-or-serfn)]
-    (log/trace "CLASS" (type this))
-    (log/trace "META" (meta f))
-    (log/trace "XS" xs)
-    (apply f xs)))
-
-(defn PairFunction-call [^flambo.function.PairFunction this & xs]
-  (let [fn-or-serfn (.state this)
-        f (if (instance? array-of-bytes-type fn-or-serfn)
-            (binding [sfn/*deserialize* kryo/deserialize]
-              (deserialize-fn fn-or-serfn))
-            fn-or-serfn)]
-    (log/trace "CLASS" (type this))
-    (log/trace "META" (meta f))
-    (log/trace "XS" xs)
-    (apply f xs)))
-
-(defn DoubleFunction-call [^flambo.function.DoubleFunction this & xs]
-  (let [fn-or-serfn (.state this)
-        f (if (instance? array-of-bytes-type fn-or-serfn)
-            (binding [sfn/*deserialize* kryo/deserialize]
-              (deserialize-fn fn-or-serfn))
-            fn-or-serfn)]
-    (log/trace "CLASS" (type this))
-    (log/trace "META" (meta f))
-    (log/trace "XS" xs)
-    (apply f xs)))
-
-(defn DoubleFlatMapFunction-call [^flambo.function.DoubleFlatMapFunction this & xs]
-  (let [fn-or-serfn (.state this)
-        f (if (instance? array-of-bytes-type fn-or-serfn)
-            (binding [sfn/*deserialize* kryo/deserialize]
-              (deserialize-fn fn-or-serfn))
-            fn-or-serfn)]
-    (log/trace "CLASS" (type this))
-    (log/trace "META" (meta f))
-    (log/trace "XS" xs)
-    (apply f xs)))

@@ -12,7 +12,6 @@
 (ns flambo.api
   (:refer-clojure :exclude [fn map reduce first count take distinct filter group-by values partition-by min max])
   (:require [serializable.fn :as sfn]
-            [clojure.tools.logging :as log]
             [flambo.function :refer [flat-map-function
                                      flat-map-function2
                                      function
@@ -68,17 +67,17 @@
 (defmacro iterator-fn
   [& body]
   (let [[args & impl] body]
-    `(fn ~args (~'flambo.api/iterator ~@impl))))
+    `(fn ~args (~'flambo.api/iterator (do ~@impl)))))
 
 (defn spark-context
   "Creates a spark context that loads settings from given configuration object
   or system properties"
   ([conf]
-   (log/debug "JavaSparkContext" (conf/to-string conf))
    (JavaSparkContext. conf))
   ([master app-name]
-   (log/debug "JavaSparkContext" master app-name)
    (JavaSparkContext. master app-name)))
+
+(def close (memfn close))
 
 (defn local-spark-context
   [app-name]
