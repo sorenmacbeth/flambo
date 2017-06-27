@@ -259,6 +259,11 @@
   [rdd f]
   (.foreachPartition rdd (void-function f)))
 
+(defn foreach-rdd
+  "Applies the function `f` to each rdd in `dstream`"
+  [dstream f]
+  (.foreachRDD dstream (void-function f)))
+
 (defn aggregate
   "Aggregates the elements of each partition, and then the results for all the partitions,
   using a given combine function and a neutral 'zero value'."
