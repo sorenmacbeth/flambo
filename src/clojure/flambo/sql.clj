@@ -2,7 +2,7 @@
 ;; SparkSQL & DataFrame wrapper
 ;;
 (ns flambo.sql
-  (:refer-clojure :exclude [load group-by partition-by])
+  (:refer-clojure :exclude [load group-by partition-by count])
 
   (:require [flambo.api :as f :refer [defsparkfn]]
             [flambo.sql-functions :as sqlf])
