@@ -29,7 +29,7 @@ This will create a new Clojure project skelton to work with. This tutorial uses 
              :provided
              {:dependencies
               [[org.apache.spark/spark-core_2.11 "2.1.1"]
-               [org.apache.spark/spark-streaming_2.11 "2.1.1]
+               [org.apache.spark/spark-streaming_2.11 "2.1.1"]
                [org.apache.spark/spark-streaming-kafka-0-8_2.11 "2.1.1"]
                [org.apache.spark/spark-sql_2.11 "2.1.1"]
                [org.apache.spark/spark-hive_2.11 "2.1.1"]]}
