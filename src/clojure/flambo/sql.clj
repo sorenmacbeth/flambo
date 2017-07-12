@@ -2,7 +2,7 @@
 ;; SparkSQL & DataFrame wrapper
 ;;
 (ns flambo.sql
-  (:refer-clojure :exclude [load group-by partition-by])
+  (:refer-clojure :exclude [load group-by partition-by count])
 
   (:require [flambo.api :as f :refer [defsparkfn]]
             [flambo.sql-functions :as sqlf])
@@ -68,12 +68,12 @@
 (defn read-csv
   "Reads a file in table format and creates a data frame from it, with cases corresponding to
   lines and variables to fields in the file. A clone of R's read.csv."
-  [sql-context path &{:keys [header separator quote schema]
-                      :or   {header false separator "," quote "'"}}]
+  [sql-context path &{:keys [header delimiter quote schema]
+                      :or   {header false delimiter "," quote "'"}}]
   (let [options (new java.util.HashMap)]
     (.put options "path" path)
     (.put options "header" (if header "true" "false"))
-    (.put options "separator" separator)
+    (.put options "delimiter" delimiter)
     (.put options "quote" quote)
     (if schema
       (-> sql-context .read (.format "csv") (.options options) (.schema schema) .load)
