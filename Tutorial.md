@@ -28,11 +28,11 @@ This will create a new Clojure project skelton to work with. This tutorial uses 
              {:aot [flambo.function]}
              :provided
              {:dependencies
-              [[org.apache.spark/spark-core_2.11 "2.1.1"]
-               [org.apache.spark/spark-streaming_2.11 "2.1.1"]
-               [org.apache.spark/spark-streaming-kafka-0-8_2.11 "2.1.1"]
-               [org.apache.spark/spark-sql_2.11 "2.1.1"]
-               [org.apache.spark/spark-hive_2.11 "2.1.1"]]}
+              [[org.apache.spark/spark-core_2.11 "2.2.0"]
+               [org.apache.spark/spark-streaming_2.11 "2.2.0"]
+               [org.apache.spark/spark-streaming-kafka-0-8_2.11 "2.2.0"]
+               [org.apache.spark/spark-sql_2.11 "2.2.0"]
+               [org.apache.spark/spark-hive_2.11 "2.2.0"]]}
              :uberjar
              {:aot :all}}
 ```
