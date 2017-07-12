@@ -1,4 +1,4 @@
-(defproject yieldbot/flambo "0.8.2"
+(defproject yieldbot/flambo "0.8.3-SNAPSHOT"
   :description "A Clojure DSL for Apache Spark"
   :url "https://github.com/yieldbot/flambo"
   :license {:name "Eclipse Public License"
