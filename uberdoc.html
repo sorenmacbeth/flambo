@@ -2865,8 +2865,8 @@ net.brehaut.ClojureTools = (function (SH) {
     build_tree: build_tree
   };
 })(SyntaxHighlighter);
-</script><title>yieldbot/flambo -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name"><a href="https://github.com/yieldbot/flambo">yieldbot/flambo</a></h1><h2 class="project-version">0.8.1</h2><br /><p>A Clojure DSL for Apache Spark</p>
-</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.7.0</td></tr><tr><td class="dep-name">org.clojure/tools.logging</td><td class="dotted"><hr /></td><td class="dep-version">0.3.1</td></tr><tr><td class="dep-name">com.google.guava/guava</td><td class="dotted"><hr /></td><td class="dep-version">18.0</td></tr><tr><td class="dep-name">yieldbot/serializable-fn</td><td class="dotted"><hr /></td><td class="dep-version">0.1.2</td></tr><tr><td class="dep-name">com.twitter/carbonite</td><td class="dotted"><hr /></td><td class="dep-version">1.5.0</td></tr><tr><td class="dep-name">com.twitter/chill_2.11</td><td class="dotted"><hr /></td><td class="dep-version">0.8.0</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#flambo.accumulator">flambo.accumulator</a></li><li><a href="#flambo.api">flambo.api</a></li><li><a href="#flambo.broadcast">flambo.broadcast</a></li><li><a href="#flambo.cache">flambo.cache</a></li><li><a href="#flambo.conf">flambo.conf</a></li><li><a href="#flambo.debug">flambo.debug</a></li><li><a href="#flambo.function">flambo.function</a></li><li><a href="#flambo.kryo">flambo.kryo</a></li><li><a href="#flambo.scala-interop">flambo.scala-interop</a></li><li><a href="#flambo.session">flambo.session</a></li><li><a href="#flambo.sql">flambo.sql</a></li><li><a href="#flambo.sql-functions">flambo.sql-functions</a></li><li><a href="#flambo.streaming">flambo.streaming</a></li><li><a href="#flambo.tuple">flambo.tuple</a></li><li><a href="#flambo.utils">flambo.utils</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#flambo.accumulator" name="flambo.accumulator"><h1 class="project-name">flambo.accumulator</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+</script><title>yieldbot/flambo -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name"><a href="https://github.com/yieldbot/flambo">yieldbot/flambo</a></h1><h2 class="project-version">0.8.2</h2><br /><p>A Clojure DSL for Apache Spark</p>
+</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.8.0</td></tr><tr><td class="dep-name">org.clojure/tools.logging</td><td class="dotted"><hr /></td><td class="dep-version">0.3.1</td></tr><tr><td class="dep-name">com.google.guava/guava</td><td class="dotted"><hr /></td><td class="dep-version">18.0</td></tr><tr><td class="dep-name">yieldbot/serializable-fn</td><td class="dotted"><hr /></td><td class="dep-version">0.1.2</td></tr><tr><td class="dep-name">com.twitter/carbonite</td><td class="dotted"><hr /></td><td class="dep-version">1.5.0</td></tr><tr><td class="dep-name">com.twitter/chill_2.11</td><td class="dotted"><hr /></td><td class="dep-version">0.8.0</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#flambo.accumulator">flambo.accumulator</a></li><li><a href="#flambo.api">flambo.api</a></li><li><a href="#flambo.broadcast">flambo.broadcast</a></li><li><a href="#flambo.cache">flambo.cache</a></li><li><a href="#flambo.conf">flambo.conf</a></li><li><a href="#flambo.debug">flambo.debug</a></li><li><a href="#flambo.function">flambo.function</a></li><li><a href="#flambo.kryo">flambo.kryo</a></li><li><a href="#flambo.scala-interop">flambo.scala-interop</a></li><li><a href="#flambo.session">flambo.session</a></li><li><a href="#flambo.sql">flambo.sql</a></li><li><a href="#flambo.sql-functions">flambo.sql-functions</a></li><li><a href="#flambo.streaming">flambo.streaming</a></li><li><a href="#flambo.tuple">flambo.tuple</a></li><li><a href="#flambo.utils">flambo.utils</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#flambo.accumulator" name="flambo.accumulator"><h1 class="project-name">flambo.accumulator</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(ns flambo.accumulator
   (:import [org.apache.spark Accumulator]
            [scala.Option])
@@ -3078,7 +3078,10 @@ http://spark.apache.org/docs/latest/programming-guide.html#accumulators</p>
   (.foreach rdd (void-function f)))</pre></td></tr><tr><td class="docs"><p>Applies the function <code>f</code> to each partition iterator of <code>rdd</code>.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn foreach-partition
   [rdd f]
-  (.foreachPartition rdd (void-function f)))</pre></td></tr><tr><td class="docs"><p>Aggregates the elements of each partition, and then the results for all the partitions,
+  (.foreachPartition rdd (void-function f)))</pre></td></tr><tr><td class="docs"><p>Applies the function <code>f</code> to each rdd in <code>dstream</code></p>
+</td><td class="codes"><pre class="brush: clojure">(defn foreach-rdd
+  [dstream f]
+  (.foreachRDD dstream (void-function f)))</pre></td></tr><tr><td class="docs"><p>Aggregates the elements of each partition, and then the results for all the partitions,
   using a given combine function and a neutral 'zero value'.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn aggregate
   [rdd zero-value seq-op comb-op]
@@ -3537,7 +3540,7 @@ TODO: what is a good cache size here???</p>
   [sb]
   (.getOrCreate sb))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#flambo.sql" name="flambo.sql"><h1 class="project-name">flambo.sql</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><p>SparkSQL &amp; DataFrame wrapper</p>
 </td><td class="codes"><pre class="brush: clojure">(ns flambo.sql
-  (:refer-clojure :exclude [load group-by partition-by])
+  (:refer-clojure :exclude [load group-by partition-by count])
   (:require [flambo.api :as f :refer [defsparkfn]]
             [flambo.sql-functions :as sqlf])
       (:import [org.apache.spark.api.java JavaSparkContext]
@@ -3583,12 +3586,12 @@ TODO: what is a good cache size here???</p>
       DataTypes/createStructType))</pre></td></tr><tr><td class="docs"><p>Reads a file in table format and creates a data frame from it, with cases corresponding to
   lines and variables to fields in the file. A clone of R's read.csv.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn read-csv
-  [sql-context path &amp;{:keys [header separator quote schema]
-                      :or   {header false separator &quot;,&quot; quote &quot;'&quot;}}]
+  [sql-context path &amp;{:keys [header delimiter quote schema]
+                      :or   {header false delimiter &quot;,&quot; quote &quot;'&quot;}}]
   (let [options (new java.util.HashMap)]
     (.put options &quot;path&quot; path)
     (.put options &quot;header&quot; (if header &quot;true&quot; &quot;false&quot;))
-    (.put options &quot;separator&quot; separator)
+    (.put options &quot;delimiter&quot; delimiter)
     (.put options &quot;quote&quot; quote)
     (if schema
       (-&gt; sql-context .read (.format &quot;csv&quot;) (.options options) (.schema schema) .load)
