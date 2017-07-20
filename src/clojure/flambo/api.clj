@@ -494,6 +494,13 @@
   "Returns all the elements of `rdd` as an array at the driver process."
   (memfn collect))
 
+(defn collect-as-map
+  "Returns all the key-value elements of `rdd` as a map at the driver process."
+  [rdd]
+  (->> rdd
+       .collectAsMap
+       (into {})))
+
 (defn distinct
   "Return a new RDD that contains the distinct elements of the source `rdd`."
   ([rdd]

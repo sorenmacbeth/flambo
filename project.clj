@@ -58,6 +58,6 @@
           :src-dir-uri "http://github.com/yieldbot/flambo/blob/develop/"
           :src-linenum-anchor-prefix "L"}
   :javac-options ["-source" "1.8" "-target" "1.8"]
-  :jvm-opts ^:replace ["-server" "-Xmx1g"]
+  :jvm-opts ^:replace ["-server" "-Xmx2g"]
   :global-vars {*warn-on-reflection* false}
   :min-lein-version "2.5.0")

@@ -94,9 +94,7 @@
         RDD through a pair function"
       (-> (f/parallelize c ["a" "b" "c" "d"])
           (f/map-to-pair (f/fn [x] (ft/tuple x 1)))
-          (f/map f/untuple)
-          f/collect
-          vec) => [["a" 1] ["b" 1] ["c" 1] ["d" 1]])
+          f/collect-as-map) => {"a" 1, "b" 1, "c" 1, "d" 1})
 
      (fact
       "reduce-by-key returns an RDD of (K, V) when called on an RDD of (K, V) pairs"
