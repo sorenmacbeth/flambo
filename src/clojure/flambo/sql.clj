@@ -231,7 +231,8 @@
   * :long
   * :string-tuple"
   [type]
-  (cond (keyword? type)
+  (cond (instance? java.lang.Class type) (Encoders/javaSerialization type)
+        (keyword? type)
         (case type
           :object (Encoders/javaSerialization java.io.Serializable)
           :string (Encoders/STRING)
