@@ -1,7 +1,22 @@
 (ns flambo.function
   (:require [serializable.fn :as sfn]
             [flambo.kryo :as kryo]
-            [flambo.cache :as cache]))
+            [flambo.cache :as cache])
+  (:import [org.apache.spark.api.java.function
+            Function
+            Function2
+            Function3
+            VoidFunction
+            VoidFunction2
+            FlatMapFunction
+            FlatMapFunction2
+            PairFlatMapFunction
+            PairFunction
+            DoubleFunction
+            DoubleFlatMapFunction
+            MapFunction
+            ReduceFunction
+            FilterFunction]))
 
 (defn- serfn? [f]
   (= (type f) :serializable.fn/serializable-fn))
@@ -26,6 +41,9 @@
   [fmt sym-name]
   (symbol (format fmt sym-name)))
 
+(defn check-not-nil! [x message]
+  (when (nil? x) (throw (ex-info message))))
+
 (defmacro gen-function
   [clazz wrapper-name]
   (let [new-class-sym (mk-sym "flambo.function.%s" clazz)
@@ -42,23 +60,19 @@
        (def ~(mk-sym "%s-init" clazz) -init)
        (defn ~(mk-sym "%s-call" clazz)
          [~(vary-meta 'this assoc :tag new-class-sym) & ~'xs]
-         (if-not ~'this
-           (throw (ex-info "Nil this func instance" {})))
-         (if-not ~'xs
-           (throw (ex-info "Nil xs args" {})))
+         (check-not-nil! ~'this "Nil this func instance")
+         (check-not-nil! ~'xs "Nil xs args")
          (let [fn-or-serfn# (.state ~'this)
-               _# (if-not fn-or-serfn#
-                    (throw (ex-info "Nil fn-or-serfn state")))
+               _# (check-not-nil! "Nil fn-or-serfn state")
                f# (if (instance? array-of-bytes-type fn-or-serfn#)
                     (binding [sfn/*deserialize* kryo/deserialize]
                       (deserialize-fn fn-or-serfn#))
                     fn-or-serfn#)]
-           (if-not f#
-             (throw (ex-info "Nil func or serialize func")))
+           (check-not-nil! f# "Nil func or serialize func")
            (apply f# ~'xs)))
-       (defn ~wrapper-name [f#]
-         (if-not f#
-           (throw (ex-info "Nil func or serialize func wrapper")))
+       (defn ~(vary-meta wrapper-name assoc :tag clazz)
+         [f#]
+         (check-not-nil! "Nil func or serialize func wrapper")
          (new ~new-class-sym
               (if (serfn? f#)
                 (binding [sfn/*serialize* kryo/serialize]
