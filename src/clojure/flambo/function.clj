@@ -63,7 +63,7 @@
          (check-not-nil! ~'this "Nil this func instance")
          (check-not-nil! ~'xs "Nil xs args")
          (let [fn-or-serfn# (.state ~'this)
-               _# (check-not-nil! "Nil fn-or-serfn state")
+               _# (check-not-nil! fn-or-serfn# "Nil fn-or-serfn state")
                f# (if (instance? array-of-bytes-type fn-or-serfn#)
                     (binding [sfn/*deserialize* kryo/deserialize]
                       (deserialize-fn fn-or-serfn#))
@@ -72,7 +72,7 @@
            (apply f# ~'xs)))
        (defn ~(vary-meta wrapper-name assoc :tag clazz)
          [f#]
-         (check-not-nil! "Nil func or serialize func wrapper")
+         (check-not-nil! f# "Nil func or serialize func wrapper")
          (new ~new-class-sym
               (if (serfn? f#)
                 (binding [sfn/*serialize* kryo/serialize]
