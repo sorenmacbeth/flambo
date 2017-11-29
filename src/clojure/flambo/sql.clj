@@ -2,16 +2,21 @@
 ;; SparkSQL & DataFrame wrapper
 ;;
 (ns flambo.sql
-  (:refer-clojure :exclude [load group-by partition-by count])
+  (:refer-clojure :exclude [load group-by partition-by count map filter reduce])
 
   (:require [flambo.api :as f :refer [defsparkfn]]
-            [flambo.sql-functions :as sqlf])
+            [flambo.sql-functions :as sqlf]
+            [flambo.function :refer [map-function
+                                     filter-function
+                                     reduce-function
+                                     flat-map-function]])
 
       (:import [org.apache.spark.api.java JavaSparkContext]
            [org.apache.spark.sql SQLContext Row Dataset Column]
            [org.apache.spark.sql.hive HiveContext]
            [org.apache.spark.sql.expressions Window]
-           [org.apache.spark.sql.types DataTypes]))
+           [org.apache.spark.sql.types DataTypes]
+           [org.apache.spark.sql Encoders]))
 
 ;; ## SQLContext
 
@@ -62,7 +67,7 @@
    (.load sql-context path source-type)))
 
 (defn create-custom-schema [array]
-  (-> (map #(DataTypes/createStructField (first %) (second %) (nth % 2))  array)
+  (-> (clojure.core/map #(DataTypes/createStructField (first %) (second %) (nth % 2))  array)
       DataTypes/createStructType))
 
 (defn read-csv
@@ -127,7 +132,7 @@
 
 (defn- as-col-array
   [exprs]
-  (into-array Column (map sqlf/col exprs)))
+  (into-array Column (clojure.core/map sqlf/col exprs)))
 
 (defn select
   "Select a set of columns"
@@ -209,3 +214,60 @@
 
 (defn create-or-replace-temp-view [v-name]
   (.createOrReplaceTempView v-name))
+
+(defn encoder-for-type
+  "Create a Spark SQL Encoder for **type**.  The available options for
+  **type** are:
+
+  * :object
+  * :string
+  * :boolean
+  * :byte
+  * :java.sql.Date
+  * :java.math.BigDecimal
+  * :double
+  * :float
+  * :integer
+  * :long
+  * :string-tuple"
+  [type]
+  (cond (instance? java.lang.Class type) (Encoders/javaSerialization type)
+        (keyword? type)
+        (case type
+          :object (Encoders/javaSerialization java.io.Serializable)
+          :string (Encoders/STRING)
+          :boolean (Encoders/BOOLEAN)
+          :byte (Encoders/BYTE)
+          :java.sql.Date (Encoders/DATE)
+          :java.math.BigDecimal (Encoders/DECIMAL)
+          :double (Encoders/DOUBLE)
+          :float (Encoders/FLOAT)
+          :integer (Encoders/INT)
+          :long (Encoders/LONG)
+          :string-tuple (Encoders/tuple (Encoders/STRING) (Encoders/STRING)))
+        true type))
+
+(defn map
+  "Returns a new dataframe formed by passing each element of the source through the function `f`."
+  ([df f] (map df :object f))
+  ([df type f]
+   (->> (encoder-for-type type)
+        (.map df (map-function f)))))
+
+(defn filter
+  "Returns a new dataframe containing only the elements of `df` that satisfy a predicate `f`."
+  [df f]
+  (.filter df (filter-function f)))
+
+(defn reduce
+  "Returns a new dataframe containing only the elements of `df` that satisfy a predicate `f`."
+  [df f]
+  (.reduce df (reduce-function f)))
+
+(defn flat-map
+  "Similar to `map`, but each input item can be mapped to 0 or more output items (so the
+  function `f` should return a collection rather than a single item)"
+  ([df f] (flat-map df :object f))
+  ([df type f]
+   (->> (encoder-for-type type)
+        (.flatMap df (flat-map-function f)))))

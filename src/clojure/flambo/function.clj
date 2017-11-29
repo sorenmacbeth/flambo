@@ -42,13 +42,23 @@
        (def ~(mk-sym "%s-init" clazz) -init)
        (defn ~(mk-sym "%s-call" clazz)
          [~(vary-meta 'this assoc :tag new-class-sym) & ~'xs]
+         (if-not ~'this
+           (throw (ex-info "Nil this func instance" {})))
+         (if-not ~'xs
+           (throw (ex-info "Nil xs args" {})))
          (let [fn-or-serfn# (.state ~'this)
+               _# (if-not fn-or-serfn#
+                    (throw (ex-info "Nil fn-or-serfn state")))
                f# (if (instance? array-of-bytes-type fn-or-serfn#)
                     (binding [sfn/*deserialize* kryo/deserialize]
                       (deserialize-fn fn-or-serfn#))
                     fn-or-serfn#)]
+           (if-not f#
+             (throw (ex-info "Nil func or serialize func")))
            (apply f# ~'xs)))
        (defn ~wrapper-name [f#]
+         (if-not f#
+           (throw (ex-info "Nil func or serialize func wrapper")))
          (new ~new-class-sym
               (if (serfn? f#)
                 (binding [sfn/*serialize* kryo/serialize]
@@ -65,3 +75,6 @@
 (gen-function PairFunction pair-function)
 (gen-function DoubleFunction double-function)
 (gen-function DoubleFlatMapFunction double-flat-map-function)
+(gen-function MapFunction map-function)
+(gen-function ReduceFunction reduce-function)
+(gen-function FilterFunction filter-function)
