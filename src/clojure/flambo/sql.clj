@@ -18,7 +18,7 @@
            [org.apache.spark.sql.hive HiveContext]
            [org.apache.spark.sql.expressions Window]
            [org.apache.spark.sql.types DataTypes]
-           [org.apache.spark.sql Encoders]))
+           [org.apache.spark.sql Encoder Encoders]))
 
 ;; ## SQLContext
 
@@ -370,10 +370,12 @@ See [[query]] for **opts** details."
 (defn create-or-replace-temp-view [v-name]
   (.createOrReplaceTempView v-name))
 
-(defn encoder-for-type
-  "Create a Spark SQL Encoder for **type**.  The available options for
-  **type** are:
+(defn ^Encoder encoder-for-type
+  "Create a Spark SQL Encoder for **type-**.  The available options for
+  **type-** are:
 
+  * a class to be encoded
+  * an Encoder instance
   * :object
   * :string
   * :boolean
@@ -385,10 +387,11 @@ See [[query]] for **opts** details."
   * :integer
   * :long
   * :string-tuple"
-  [type]
-  (cond (instance? java.lang.Class type) (Encoders/javaSerialization type)
-        (keyword? type)
-        (case type
+  [type-]
+  (cond (instance? java.lang.Class type-) (Encoders/javaSerialization type-)
+        (instance? Encoder type-) type-
+        (keyword? type-)
+        (case type-
           :object (Encoders/javaSerialization java.io.Serializable)
           :string (Encoders/STRING)
           :boolean (Encoders/BOOLEAN)
@@ -400,29 +403,31 @@ See [[query]] for **opts** details."
           :integer (Encoders/INT)
           :long (Encoders/LONG)
           :string-tuple (Encoders/tuple (Encoders/STRING) (Encoders/STRING)))
-        true type))
+        :else (throw (ex-info "Invalid encoder option"))))
 
-(defn map
-  "Returns a new dataframe formed by passing each element of the source through the function `f`."
-  ([df f] (clojure.core/map df :object f))
-  ([df type f]
-   (->> (encoder-for-type type)
-        (.map df (map-function f)))))
+(defn ^Dataset map
+  "Returns a new dataframe formed by passing each element of the source through
+  the function `f`."
+  ([^Dataset df f] (map df :object f))
+  ([^Dataset df type- f]
+   (.map df (map-function f) (encoder-for-type type-))))
 
-(defn filter
-  "Returns a new dataframe containing only the elements of `df` that satisfy a predicate `f`."
-  [df f]
+(defn ^Dataset filter
+  "Returns a new dataframe containing only the elements of `df` that satisfy a
+  predicate `f`."
+  [^Dataset df f]
   (.filter df (filter-function f)))
 
-(defn reduce
-  "Returns a new dataframe containing only the elements of `df` that satisfy a predicate `f`."
-  [df f]
+(defn ^Dataset reduce
+  "Returns a new dataframe containing only the elements of `df` that satisfy a
+  predicate `f`."
+  [^Dataset df f]
   (.reduce df (reduce-function f)))
 
-(defn flat-map
-  "Similar to `map`, but each input item can be mapped to 0 or more output items (so the
-  function `f` should return a collection rather than a single item)"
-  ([df f] (flat-map df :object f))
-  ([df type f]
-   (->> (encoder-for-type type)
-        (.flatMap df (flat-map-function f)))))
+(defn ^Dataset flat-map
+  "Similar to `map`, but each input item can be mapped to 0 or more output
+  items (so the function `f` should return a collection rather than a single
+  item)"
+  ([^Dataset df f] (flat-map df :object f))
+  ([^Dataset df type- f]
+   (.flatMap df (flat-map-function f) (encoder-for-type type-))))

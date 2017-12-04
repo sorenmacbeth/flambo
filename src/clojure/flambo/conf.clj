@@ -43,7 +43,7 @@
 
 (defn set-if-missing
   [conf key val]
-  (.setIfMissing key val))
+  (.setIfMissing conf key val))
 
 (defn set-executor-env
   ([conf key val]
