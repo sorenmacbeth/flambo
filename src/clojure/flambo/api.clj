@@ -169,6 +169,10 @@
        k/OBJECT-CLASS-TAG)
       (JavaRDD/fromRDD k/OBJECT-CLASS-TAG)))
 
+(defmulti to-rdd "Coerce an object into an RDD." class)
+
+(defmethod to-rdd org.apache.spark.sql.Dataset [x] (.javaRDD x))
+
 ;; ## Transformations
 ;;
 ;; Function for transforming RDDs

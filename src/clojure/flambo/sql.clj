@@ -12,7 +12,9 @@
                                      flat-map-function]])
 
       (:import [org.apache.spark.api.java JavaSparkContext]
-           [org.apache.spark.sql SQLContext Row Dataset Column]
+           [org.apache.spark.sql.types StructType StructField DataType StringType]
+           [org.apache.spark.sql SparkSession SQLContext Row RowFactory Dataset Column]
+           [org.apache.spark.sql.catalyst.expressions GenericRowWithSchema]
            [org.apache.spark.sql.hive HiveContext]
            [org.apache.spark.sql.expressions Window]
            [org.apache.spark.sql.types DataTypes]
@@ -205,6 +207,159 @@
         (recur (inc i) (conj! v (.get row i)))
         (persistent! v)))))
 
+(defsparkfn
+  ^{:doc "Coerce `org.apache.spark.sql SparkSession.Row` objects into Clojure
+maps with each map created from its respective row."}
+  row->map [^org.apache.spark.sql.Row row]
+  (let [n (.length row)
+        fields (-> row .schema .fieldNames)]
+    (loop [i 0 m (transient {})]
+      (if (< i n)
+        (recur (inc i) (assoc! m (keyword (nth fields i)) (.get row i)))
+        (persistent! m)))))
+
+(defsparkfn
+  ^{:doc "Coerce an Scala interator into a Clojure sequence"}
+  iteratable-to-seq [i]
+  (-> (.iterator i)
+      scala.collection.JavaConversions/asJavaIterator
+      iterator-seq))
+
+(defsparkfn
+  ^{:doc "Coerce a Spark SQL StructField to a Clojure map."}
+  struct-to-map [^StructField struct]
+  {:name (.name struct)
+   :type (->> (.dataType struct) .toString (re-find #"^(.*)Type$") last)
+   :nullable (.nullable struct)})
+
+(defsparkfn ^{:doc "Coerce a Spark Dataset to a schema map with [[struct-to-map]]"}
+  schema [^org.apache.spark.sql.Dataset dataset]
+  (-> dataset
+      f/to-rdd
+      (f/map (f/fn [row]
+               (.schema row)))
+      f/first
+      iteratable-to-seq
+      (#(clojure.core/map struct-to-map %))))
+
+(defn setup-temp-view
+  "Create or replace a temporary view from a JSON file or Parquet at **url**.
+  The temporary name will be set to **table-name** (if provided) and the type
+  of data is expected is given in the `:type` key, which is one of the
+  following:
+
+* `:parquet` - parquet table format (default)
+* `:json` - a JSON formatted file
+* `:csv` - a comma delimited file"
+  [url table-name & {:keys [type csv-options schema infer-schema?]
+                     :or {infer-schema? true
+                          csv-options {:header true :separator "," :quote "'"}}}]
+  (let [type (or type :parquet)
+        options (java.util.HashMap.)
+        infer-schema? (and (nil? schema) infer-schema?)]
+    (.put options "path" url)
+    (if (and (= type :csv) csv-options)
+      (->> (zipmap (clojure.core/map name (keys csv-options))
+                   (clojure.core/map str (vals csv-options)))
+          (.putAll options)))
+    (if (and (nil? schema) infer-schema?)
+      (.put options "inferSchema" "true"))
+    (-> (sql-context)
+        .read
+        (.format (name type))
+        (.options options)
+        ((fn [df]
+           (if infer-schema?
+             (.schema df schema))
+           df))
+        .load
+        ((fn [df]
+           (if table-name
+             (.createOrReplaceTempView df table-name)
+             df))))))
+
+(defn query
+  "Query a parquet file at **url** with **sql** statement creating temporary
+  table key **table** (default to `tmp`).
+
+  See [[setup-temp-view]] for `:type` key."
+  [url sql & {:keys [table partitions] :as m
+              :or {table "tmp"}}]
+  (apply setup-temp-view url table (apply concat m))
+  (-> (.getOrCreate (SparkSession/builder))
+      (.sql sql)
+      ((fn [df]
+         (if partitions
+           (.repartition df partitions)
+           df)))))
+
+(defn schema-from-url
+  "Return a schema as a map from a parquet table at **url**.
+
+  See [[setup-temp-view]] for `:type` key."
+  [url & {:keys [type]}]
+  (-> (query url "select * from tmp" :type type)
+      (schema)))
+
+(defn struct-type
+  "Create a `org.apache.spark.sql.types.StructType` from an array of maps, each
+  having the following keys:
+
+* **:name** the name of the column
+* **:type** the (keyword) type of the column; defaults to `:string`
+* **:nullable** boolean of whether the column is nullable; defaults to `true`"
+  [defs]
+  (let [metadata (org.apache.spark.sql.types.Metadata/empty)]
+    (->> defs
+         (clojure.core/map
+          (fn [{:keys [name type nullable?]
+                :or {type :string
+                     nullable? true}}]
+            (->> type
+                 clojure.core/name
+                 (format "\"%s\"")
+                 DataType/fromJson
+                 (#(StructField. name % nullable? metadata)))))
+         (into-array StructField)
+         StructType.)))
+
+(defn create-row
+  "Create a `org.apache.spark.sql SparkSession.Row` instance from a Clojure
+  sequence.  If **schema** is given, add the row with a schema."
+  ([seq]
+   (RowFactory/create (into-array Object seq)))
+  ([seq schema]
+   (GenericRowWithSchema. (into-array Object seq) schema)))
+
+(defn query-vecs
+  "Query and return a sequence of vectors (each containing a row) from a
+  parquet table at **url** with **sql**.
+
+See [[query]] for **opts** details."
+  [url sql & opts]
+  (-> (apply query url sql opts)
+      f/to-rdd
+      (f/map row->vec)))
+
+(defn query-maps
+  "Query and return a sequence of maps (each containing a row) from a
+  parquet table at **url** with **sql**.
+
+See [[query]] for **opts** details."
+  [url sql & opts]
+  (-> (apply query url sql opts)
+      f/to-rdd
+      (f/map row->map)))
+
+(defn print-query
+  "Print a query as a tabulated text format.
+
+  See [[query-maps]] for information on parameters and keys **opts**."
+  [url sql & opts]
+  (->> (apply query-maps url sql opts)
+       f/collect
+       clojure.pprint/print-table))
+
 
 (def show (memfn show))
 
@@ -249,7 +404,7 @@
 
 (defn map
   "Returns a new dataframe formed by passing each element of the source through the function `f`."
-  ([df f] (map df :object f))
+  ([df f] (clojure.core/map df :object f))
   ([df type f]
    (->> (encoder-for-type type)
         (.map df (map-function f)))))
