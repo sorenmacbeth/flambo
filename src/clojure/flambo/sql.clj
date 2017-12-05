@@ -9,7 +9,8 @@
             [flambo.function :refer [map-function
                                      filter-function
                                      reduce-function
-                                     flat-map-function]])
+                                     flat-map-function
+                                     for-each-partition-function]])
 
       (:import [org.apache.spark.api.java JavaSparkContext]
            [org.apache.spark.sql.types StructType StructField DataType StringType]
@@ -431,3 +432,16 @@ See [[query]] for **opts** details."
   ([^Dataset df f] (flat-map df :object f))
   ([^Dataset df type- f]
    (.flatMap df (flat-map-function f) (encoder-for-type type-))))
+
+(defn ^Dataset flat-map
+  "Similar to `map`, but each input item can be mapped to 0 or more output
+  items (so the function `f` should return a collection rather than a single
+  item)"
+  ([^Dataset df f] (flat-map df :object f))
+  ([^Dataset df type- f]
+   (.flatMap df (flat-map-function f) (encoder-for-type type-))))
+
+(defn ^Dataset for-each-partition
+  "Run function **f** for each partition in a dataframe."
+  [^Dataset df f]
+  (.foreachPartition df (for-each-partition-function f)))

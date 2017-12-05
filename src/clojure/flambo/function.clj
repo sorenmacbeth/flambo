@@ -10,6 +10,7 @@
             VoidFunction2
             FlatMapFunction
             FlatMapFunction2
+            ForeachPartitionFunction
             PairFlatMapFunction
             PairFunction
             DoubleFunction
@@ -92,3 +93,4 @@
 (gen-function MapFunction map-function)
 (gen-function ReduceFunction reduce-function)
 (gen-function FilterFunction filter-function)
+(gen-function ForeachPartitionFunction for-each-partition-function)
