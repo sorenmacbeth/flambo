@@ -10,11 +10,13 @@
                                      filter-function
                                      reduce-function
                                      flat-map-function
-                                     for-each-partition-function]])
+                                     for-each-partition-function
+                                     map-partitions-function]])
 
       (:import [org.apache.spark.api.java JavaSparkContext]
            [org.apache.spark.sql.types StructType StructField DataType StringType]
            [org.apache.spark.sql SparkSession SQLContext Row RowFactory Dataset Column]
+           [org.apache.spark.sql.catalyst.encoders RowEncoder]
            [org.apache.spark.sql.catalyst.expressions GenericRowWithSchema]
            [org.apache.spark.sql.hive HiveContext]
            [org.apache.spark.sql.expressions Window]
@@ -324,6 +326,11 @@ maps with each map created from its respective row."}
          (into-array StructField)
          StructType.)))
 
+(defn row-encoder
+  "Return a row encoder with a `StructType` created with [[struct-type]]."
+  [^StructType struct]
+  (RowEncoder/apply struct))
+
 (defn create-row
   "Create a `org.apache.spark.sql SparkSession.Row` instance from a Clojure
   sequence.  If **schema** is given, add the row with a schema."
@@ -445,3 +452,9 @@ See [[query]] for **opts** details."
   "Run function **f** for each partition in a dataframe."
   [^Dataset df f]
   (.foreachPartition df (for-each-partition-function f)))
+
+(defn ^Dataset map-partitions
+  "Run function **f** for each partition in a dataframe and return results."
+  ([^Dataset df f] (map-partitions df :object f))
+  ([^Dataset df type- f]
+   (.mapPartitions df (map-partitions-function f) (encoder-for-type type-))))

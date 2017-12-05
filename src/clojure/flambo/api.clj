@@ -187,6 +187,11 @@
   [rdd f]
   (.mapToPair rdd (pair-function f)))
 
+(defn key-by
+  "Returns a new `JavaPairRDD` of (K, V) pairs by applying `f` to all elements of `rdd`."
+  [rdd f]
+  (.keyBy rdd (function f)))
+
 (defn map-values
   "Apply function `f` over the values of JavaPairRDD `rdd` returning a new JavaPairRDD."
   [rdd f]
