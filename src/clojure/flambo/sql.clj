@@ -11,11 +11,13 @@
                                      reduce-function
                                      flat-map-function
                                      for-each-partition-function
-                                     map-partitions-function]])
+                                     map-partitions-function
+                                     map-groups-function
+                                     flat-map-groups-function]])
 
       (:import [org.apache.spark.api.java JavaSparkContext]
            [org.apache.spark.sql.types StructType StructField DataType StringType]
-           [org.apache.spark.sql SparkSession SQLContext Row RowFactory Dataset Column]
+           [org.apache.spark.sql SparkSession SQLContext Row RowFactory Dataset Column KeyValueGroupedDataset]
            [org.apache.spark.sql.catalyst.encoders RowEncoder]
            [org.apache.spark.sql.catalyst.expressions GenericRowWithSchema]
            [org.apache.spark.sql.hive HiveContext]
@@ -215,10 +217,15 @@
 maps with each map created from its respective row."}
   row->map [^org.apache.spark.sql.Row row]
   (let [n (.length row)
-        fields (-> row .schema .fieldNames)]
+        schema (.schema row)
+        fields (if schema (.fieldNames schema))]
     (loop [i 0 m (transient {})]
       (if (< i n)
-        (recur (inc i) (assoc! m (keyword (nth fields i)) (.get row i)))
+        (recur (inc i)
+               (let [coln (if fields
+                            (nth fields i)
+                            (Integer/toString i))]
+                 (assoc! m (keyword coln) (.get row i))))
         (persistent! m)))))
 
 (defsparkfn
@@ -230,10 +237,17 @@ maps with each map created from its respective row."}
 
 (defsparkfn
   ^{:doc "Coerce a Spark SQL StructField to a Clojure map."}
-  struct-to-map [^StructField struct]
-  {:name (.name struct)
-   :type (->> (.dataType struct) .toString (re-find #"^(.*)Type$") last)
-   :nullable (.nullable struct)})
+  struct-field-to-map [^StructField field]
+  {:name (.name field)
+   :type (->> (.dataType field) .toString (re-find #"^(.*)Type$") last)
+   :nullable (.nullable field)})
+
+(defsparkfn
+  ^{:doc "Coerce an instance of `StructType` to a list of maps."}
+  struct-to-map [^StructType struct]
+  (->> struct
+       iteratable-to-seq
+       (clojure.core/map struct-field-to-map)))
 
 (defsparkfn ^{:doc "Coerce a Spark Dataset to a schema map with [[struct-to-map]]"}
   schema [^org.apache.spark.sql.Dataset dataset]
@@ -242,8 +256,7 @@ maps with each map created from its respective row."}
       (f/map (f/fn [row]
                (.schema row)))
       f/first
-      iteratable-to-seq
-      (#(clojure.core/map struct-to-map %))))
+      struct-to-map))
 
 (defn setup-temp-view
   "Create or replace a temporary view from a JSON file or Parquet at **url**.
@@ -411,7 +424,9 @@ See [[query]] for **opts** details."
           :integer (Encoders/INT)
           :long (Encoders/LONG)
           :string-tuple (Encoders/tuple (Encoders/STRING) (Encoders/STRING)))
-        :else (throw (ex-info "Invalid encoder option"))))
+        :else (-> (format "Invalid encoder option: %s" type-)
+                  (ex-info {:type type-})
+                  throw)))
 
 (defn ^Dataset map
   "Returns a new dataframe formed by passing each element of the source through
@@ -458,3 +473,21 @@ See [[query]] for **opts** details."
   ([^Dataset df f] (map-partitions df :object f))
   ([^Dataset df type- f]
    (.mapPartitions df (map-partitions-function f) (encoder-for-type type-))))
+
+(defn ^KeyValueGroupedDataset group-by-key
+  "Returns a `KeyValueGroupedDataset` where the data is grouped by the given key func."
+  ([^Dataset df f] (group-by-key df :object f))
+  ([^Dataset df type- f]
+   (.groupByKey df (map-function f) (encoder-for-type type-))))
+
+(defn ^Dataset map-groups
+  "Applies the given function to each group of data."
+  ([^Dataset df f] (map-groups df :object f))
+  ([^Dataset df type- f]
+   (.mapGroups df (map-groups-function f) (encoder-for-type type-))))
+
+(defn ^Dataset flat-map-groups
+  "Applies the given function to each group of data."
+  ([^Dataset df f] (flat-map-groups df :object f))
+  ([^Dataset df type- f]
+   (.flatMapGroups df (flat-map-groups-function f) (encoder-for-type type-))))

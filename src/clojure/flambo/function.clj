@@ -18,7 +18,9 @@
             MapFunction
             ReduceFunction
             FilterFunction
-            MapPartitionsFunction]))
+            MapPartitionsFunction
+            MapGroupsFunction
+            FlatMapGroupsFunction]))
 
 (defn- serfn? [f]
   (= (type f) :serializable.fn/serializable-fn))
@@ -96,3 +98,5 @@
 (gen-function FilterFunction filter-function)
 (gen-function ForeachPartitionFunction for-each-partition-function)
 (gen-function MapPartitionsFunction map-partitions-function)
+(gen-function MapGroupsFunction map-groups-function)
+(gen-function FlatMapGroupsFunction flat-map-groups-function)
