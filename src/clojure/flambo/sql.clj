@@ -391,6 +391,11 @@ See [[query]] for **opts** details."
 (defn create-or-replace-temp-view [v-name]
   (.createOrReplaceTempView v-name))
 
+(defn ^Dataset with-column
+  "Add a column named **name** to a data frame with value **value**."
+  [^Dataset df name value]
+  (.withColumn df name (org.apache.spark.sql.functions/lit value)))
+
 (defn ^Encoder encoder-for-type
   "Create a Spark SQL Encoder for **type-**.  The available options for
   **type-** are:
