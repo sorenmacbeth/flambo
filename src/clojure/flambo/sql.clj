@@ -89,9 +89,7 @@
     (.put options "quote" quote)
     (if schema
       (-> sql-context .read (.format "csv") (.options options) (.schema schema) .load)
-      (-> sql-context .read (.format "csv") (.options options) .load)
-      )))
-
+      (-> sql-context .read (.format "csv") (.options options) .load))))
 
 (defn register-data-frame-as-table
   "Registers the given DataFrame as a temporary table in the
@@ -213,8 +211,8 @@
         (persistent! v)))))
 
 (defsparkfn
-  ^{:doc "Coerce `org.apache.spark.sql SparkSession.Row` objects into Clojure
-maps with each map created from its respective row."}
+  ^{:doc "Coerce an `org.apache.spark.sql SparkSession.Row` objects into
+Clojure maps with each map created from its respective row."}
   row->map [^org.apache.spark.sql.Row row]
   (let [n (.length row)
         schema (.schema row)
@@ -258,7 +256,7 @@ maps with each map created from its respective row."}
       f/first
       struct-to-map))
 
-(defn setup-temp-view
+(defn setup-temporary-view
   "Create or replace a temporary view from a JSON file or Parquet at **url**.
   The temporary name will be set to **table-name** (if provided) and the type
   of data is expected is given in the `:type` key, which is one of the
@@ -267,11 +265,12 @@ maps with each map created from its respective row."}
 * `:parquet` - parquet table format (default)
 * `:json` - a JSON formatted file
 * `:csv` - a comma delimited file"
-  [url table-name & {:keys [type csv-options schema infer-schema?]
-                     :or {infer-schema? true
-                          csv-options {:header true :separator "," :quote "'"}}}]
-  (let [type (or type :parquet)
-        options (java.util.HashMap.)
+  [sql-context url table-name &
+   {:keys [type csv-options schema infer-schema?]
+    :or {type :parquet
+         infer-schema? true
+         csv-options {:header true :separator "," :quote "'"}}}]
+  (let [options (java.util.HashMap.)
         infer-schema? (and (nil? schema) infer-schema?)]
     (.put options "path" url)
     (if (and (= type :csv) csv-options)
@@ -280,28 +279,22 @@ maps with each map created from its respective row."}
           (.putAll options)))
     (if (and (nil? schema) infer-schema?)
       (.put options "inferSchema" "true"))
-    (-> (sql-context)
-        .read
-        (.format (name type))
-        (.options options)
-        ((fn [df]
-           (if infer-schema?
-             (.schema df schema))
-           df))
-        .load
-        ((fn [df]
-           (if table-name
-             (.createOrReplaceTempView df table-name)
-             df))))))
+    (cond-> (.read sql-context)
+      true (.format (name type))
+      true (.options options)
+      infer-schema? (.schema schema)
+      true .load
+      table-name (.createOrReplaceTempView table-name))
+    sql-context))
 
 (defn query
   "Query a parquet file at **url** with **sql** statement creating temporary
   table key **table** (default to `tmp`).
 
-  See [[setup-temp-view]] for `:type` key."
+  See [[setup-temporary-view]] for `:type` key."
   [url sql & {:keys [table partitions] :as m
               :or {table "tmp"}}]
-  (apply setup-temp-view url table (apply concat m))
+  (apply setup-temporary-view url table (apply concat m))
   (-> (.getOrCreate (SparkSession/builder))
       (.sql sql)
       ((fn [df]
@@ -312,7 +305,7 @@ maps with each map created from its respective row."}
 (defn schema-from-url
   "Return a schema as a map from a parquet table at **url**.
 
-  See [[setup-temp-view]] for `:type` key."
+  See [[setup-temporary-view]] for `:type` key."
   [url & {:keys [type]}]
   (-> (query url "select * from tmp" :type type)
       (schema)))
@@ -451,14 +444,6 @@ See [[query]] for **opts** details."
   predicate `f`."
   [^Dataset df f]
   (.reduce df (reduce-function f)))
-
-(defn ^Dataset flat-map
-  "Similar to `map`, but each input item can be mapped to 0 or more output
-  items (so the function `f` should return a collection rather than a single
-  item)"
-  ([^Dataset df f] (flat-map df :object f))
-  ([^Dataset df type- f]
-   (.flatMap df (flat-map-function f) (encoder-for-type type-))))
 
 (defn ^Dataset flat-map
   "Similar to `map`, but each input item can be mapped to 0 or more output
