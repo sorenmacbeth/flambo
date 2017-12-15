@@ -262,26 +262,24 @@ Clojure maps with each map created from its respective row."}
   of data is expected is given in the `:type` key, which is one of the
   following:
 
-* `:parquet` - parquet table format (default)
-* `:json` - a JSON formatted file
-* `:csv` - a comma delimited file"
+  * `:parquet` - parquet table format (default)
+  * `:json` - a JSON formatted file
+  * `:csv` - a comma delimited file"
   [sql-context url table-name &
    {:keys [type csv-options schema infer-schema?]
     :or {type :parquet
          infer-schema? true
          csv-options {:header true :separator "," :quote "'"}}}]
-  (let [options (java.util.HashMap.)
-        infer-schema? (and (nil? schema) infer-schema?)]
-    (.put options "path" url)
-    (if (and (= type :csv) csv-options)
-      (->> (zipmap (clojure.core/map name (keys csv-options))
-                   (clojure.core/map str (vals csv-options)))
-          (.putAll options)))
-    (if (and (nil? schema) infer-schema?)
-      (.put options "inferSchema" "true"))
+  (let [infer-schema? (and (nil? schema) infer-schema?)
+        opts (merge {"path" url}
+                    (if (and (nil? schema) infer-schema?)
+                      {"inferSchema" "true"})
+                    (if (and (= type :csv) csv-options)
+                      (zipmap (clojure.core/map name (keys csv-options))
+                              (clojure.core/map str (vals csv-options)))))]
     (cond-> (.read sql-context)
       true (.format (name type))
-      true (.options options)
+      true (.options opts)
       infer-schema? (.schema schema)
       true .load
       table-name (.createOrReplaceTempView table-name))
@@ -307,7 +305,7 @@ Clojure maps with each map created from its respective row."}
 
   See [[setup-temporary-view]] for `:type` key."
   [url & {:keys [type]}]
-  (-> (query url "select * from tmp" :type type)
+  (-> (query url "select * from schema-tmp" :type type)
       (schema)))
 
 (defn struct-type
