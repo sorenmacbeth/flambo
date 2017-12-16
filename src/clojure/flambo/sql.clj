@@ -287,18 +287,15 @@ Clojure maps with each map created from its respective row."}
 
 (defn query
   "Query a parquet file at **url** with **sql** statement creating temporary
-  table key **table** (default to `tmp`).
+  table key **table** (default to `schema-tmp`).
 
   See [[setup-temporary-view]] for `:type` key."
   [url sql & {:keys [table partitions] :as m
-              :or {table "tmp"}}]
+              :or {table "schema-tmp"}}]
   (apply setup-temporary-view url table (apply concat m))
-  (-> (.getOrCreate (SparkSession/builder))
-      (.sql sql)
-      ((fn [df]
-         (if partitions
-           (.repartition df partitions)
-           df)))))
+  (cond-> (.getOrCreate (SparkSession/builder))
+    true (.sql sql)
+    partitions (.repartition partitions)))
 
 (defn schema-from-url
   "Return a schema as a map from a parquet table at **url**.
