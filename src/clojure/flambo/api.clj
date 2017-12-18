@@ -169,6 +169,10 @@
        k/OBJECT-CLASS-TAG)
       (JavaRDD/fromRDD k/OBJECT-CLASS-TAG)))
 
+(defmulti to-rdd "Coerce an object into an RDD." class)
+
+(defmethod to-rdd org.apache.spark.sql.Dataset [x] (.javaRDD x))
+
 ;; ## Transformations
 ;;
 ;; Function for transforming RDDs
@@ -182,6 +186,11 @@
   "Returns a new `JavaPairRDD` of (K, V) pairs by applying `f` to all elements of `rdd`."
   [rdd f]
   (.mapToPair rdd (pair-function f)))
+
+(defn key-by
+  "Returns a new `JavaPairRDD` of (K, V) pairs by applying `f` to all elements of `rdd`."
+  [rdd f]
+  (.keyBy rdd (function f)))
 
 (defn map-values
   "Apply function `f` over the values of JavaPairRDD `rdd` returning a new JavaPairRDD."

@@ -10,13 +10,17 @@
             VoidFunction2
             FlatMapFunction
             FlatMapFunction2
+            ForeachPartitionFunction
             PairFlatMapFunction
             PairFunction
             DoubleFunction
             DoubleFlatMapFunction
             MapFunction
             ReduceFunction
-            FilterFunction]))
+            FilterFunction
+            MapPartitionsFunction
+            MapGroupsFunction
+            FlatMapGroupsFunction]))
 
 (defn- serfn? [f]
   (= (type f) :serializable.fn/serializable-fn))
@@ -92,3 +96,7 @@
 (gen-function MapFunction map-function)
 (gen-function ReduceFunction reduce-function)
 (gen-function FilterFunction filter-function)
+(gen-function ForeachPartitionFunction for-each-partition-function)
+(gen-function MapPartitionsFunction map-partitions-function)
+(gen-function MapGroupsFunction map-groups-function)
+(gen-function FlatMapGroupsFunction flat-map-groups-function)
