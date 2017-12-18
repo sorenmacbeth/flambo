@@ -287,11 +287,11 @@ Clojure maps with each map created from its respective row."}
 
 (defn query
   "Query a parquet file at **url** with **sql** statement creating temporary
-  table key **table** (default to `schema-tmp`).
+  table key **table** (default to `tmp`).
 
   See [[setup-temporary-view]] for `:type` key."
   [url sql & {:keys [table partitions] :as m
-              :or {table "schema-tmp"}}]
+              :or {table "tmp"}}]
   (apply setup-temporary-view url table (apply concat m))
   (cond-> (.getOrCreate (SparkSession/builder))
     true (.sql sql)
@@ -302,8 +302,7 @@ Clojure maps with each map created from its respective row."}
 
   See [[setup-temporary-view]] for `:type` key."
   [url & {:keys [type]}]
-  (-> (query url "select * from schema-tmp" :type type)
-      (schema)))
+  (schema (query url "select * from schema-tmp" :type type :table "schema-tmp")))
 
 (defn struct-type
   "Create a `org.apache.spark.sql.types.StructType` from an array of maps, each
@@ -417,9 +416,8 @@ See [[query]] for **opts** details."
           :integer (Encoders/INT)
           :long (Encoders/LONG)
           :string-tuple (Encoders/tuple (Encoders/STRING) (Encoders/STRING)))
-        :else (-> (format "Invalid encoder option: %s" type-)
-                  (ex-info {:type type-})
-                  throw)))
+        :else (throw (ex-info (format "Invalid encoder option: %s" type-)
+                              {:type type-}))))
 
 (defn ^Dataset map
   "Returns a new dataframe formed by passing each element of the source through
