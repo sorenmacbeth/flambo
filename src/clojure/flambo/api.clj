@@ -117,6 +117,72 @@
     (conj! v (into [] (._2 t)))
     (persistent! v)))
 
+(defn tuple
+  "Create a `scala.Tuple2` from **a** and **b** respectively."
+  [a b]
+  (scala.Tuple2. a b))
+
+(defn array?
+  "Return whether or not **a** is a Java array type."
+  [a]
+  (= \[ (-> a .getClass .getName (.charAt 0))))
+
+(defsparkfn
+  ^{:doc "Coerce an `org.apache.spark.sql SparkSession.Row` objects into
+Clojure maps with each map created from its respective row."}
+  row->map [^org.apache.spark.sql.Row row]
+  (let [n (.length row)
+        schema (.schema row)
+        fields (if schema (.fieldNames schema))]
+    (loop [i 0 m (transient {})]
+      (if (< i n)
+        (recur (inc i)
+               (let [coln (if fields
+                            (nth fields i)
+                            (Integer/toString i))]
+                 (assoc! m (keyword coln) (.get row i))))
+        (persistent! m)))))
+
+(defn unwrap
+  "Coerce a Scala datatype into a Clojure data structure.  The function
+  recusively coerces the data types until only Clojure and Java data types.
+  The function only recurses **depth-left** iterations deep.
+
+  See [Scala conversions](http://docs.scala-lang.org/overviews/collections/conversions-between-java-and-scala-collections.html)"
+  ([obj] (unwrap obj (Integer/MAX_VALUE)))
+  ([obj depth-left]
+   (let [np (dec depth-left)]
+     (cond (<= depth-left 0) obj
+
+           (nil? obj) nil
+
+           (or (array? obj) (sequential? obj) (instance? java.util.Collection obj))
+           (clojure.core/map #(unwrap % np) obj)
+
+           (instance? scala.Tuple2 obj) (unwrap (untuple obj) np)
+
+           (instance? org.apache.spark.sql.Row obj) (unwrap (row->map obj) np)
+
+           (map? obj) (zipmap (keys obj) (clojure.core/map #(unwrap % np) (vals obj)))
+
+           (instance? scala.collection.Map obj)
+           (unwrap (scala.collection.JavaConversions/mapAsJavaMap obj) np)
+
+           (instance? scala.collection.Set obj)
+           (unwrap (scala.collection.JavaConversions/setAsJavaSet obj) np)
+
+           (instance? scala.collection.Iterator obj)
+           (unwrap (scala.collection.JavaConversions/asJavaIterator obj) np)
+
+           (instance? scala.collection.SeqLike obj)
+           (unwrap (vec (scala.collection.JavaConversions/asJavaCollection obj)) np)
+
+           ;; useful for data frames
+           (= (.getClass obj) (Class/forName "[Ljava.io.Serializable;"))
+           (into [] obj)
+
+           true obj))))
+
 (defn- ftruthy?
   [f]
   (fn [x] (u/truthy? (f x))))
