@@ -310,19 +310,24 @@ Clojure maps with each map created from its respective row."}
 
 * **:name** the name of the column
 * **:type** the (keyword) type of the column; defaults to `:string`
-* **:nullable** boolean of whether the column is nullable; defaults to `true`"
+* **:nullable** boolean of whether the column is nullable; defaults to `true`
+* **:array-type** like **:name** but type array with all elements of the array
+  as this type"
   [defs]
   (let [metadata (org.apache.spark.sql.types.Metadata/empty)]
     (->> defs
-         (clojure.core/map
-          (fn [{:keys [name type nullable?]
-                :or {type :string
-                     nullable? true}}]
-            (->> type
-                 clojure.core/name
-                 (format "\"%s\"")
-                 DataType/fromJson
-                 (#(StructField. name % nullable? metadata)))))
+         (map (fn [{:keys [name type nullable? array-type]
+                    :or {type :string
+                         nullable? true}}]
+                (let [json (if array-type
+                             (-> "{\"type\":\"array\",\"elementType\":\"%s\",\"containsNull\":false}"
+                                 (format (clojure.core/name array-type))
+                                 DataType/fromJson)
+                             (->> type
+                                  clojure.core/name
+                                  (format "\"%s\"")
+                                  DataType/fromJson))]
+                  (StructField. name json nullable? metadata))))
          (into-array StructField)
          StructType.)))
 
