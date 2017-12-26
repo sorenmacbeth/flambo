@@ -20,7 +20,11 @@
             FilterFunction
             MapPartitionsFunction
             MapGroupsFunction
-            FlatMapGroupsFunction]))
+            FlatMapGroupsFunction]
+           [org.apache.spark.sql.api.java
+            UDF1
+            UDF2
+            UDF3]))
 
 (defn- serfn? [f]
   (= (type f) :serializable.fn/serializable-fn))
@@ -56,7 +60,7 @@
        (gen-class
         :name ~new-class-sym
         :extends flambo.function.AbstractFlamboFunction
-        :implements [~(mk-sym "org.apache.spark.api.java.function.%s" clazz)]
+        :implements [~(mk-sym (if (re-find #"^UDF" (name clazz)) "org.apache.spark.sql.api.java.%s" "org.apache.spark.api.java.function.%s") clazz)]
         :prefix ~prefix-sym
         :init ~'init
         :state ~'state
@@ -100,3 +104,6 @@
 (gen-function MapPartitionsFunction map-partitions-function)
 (gen-function MapGroupsFunction map-groups-function)
 (gen-function FlatMapGroupsFunction flat-map-groups-function)
+(gen-function UDF1 udf)
+(gen-function UDF2 udf2)
+(gen-function UDF3 udf3)
