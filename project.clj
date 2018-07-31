@@ -28,11 +28,11 @@
                     flambo.example.tfidf]}
              :provided
              {:dependencies
-              [[org.apache.spark/spark-core_2.11 "2.2.0"]
-               [org.apache.spark/spark-streaming_2.11 "2.2.0"]
-               [org.apache.spark/spark-streaming-kafka-0-8_2.11 "2.2.0"]
-               [org.apache.spark/spark-sql_2.11 "2.2.0"]
-               [org.apache.spark/spark-hive_2.11 "2.2.0"]]}
+              [[org.apache.spark/spark-core_2.11 "2.3.1"]
+               [org.apache.spark/spark-streaming_2.11 "2.3.1"]
+               [org.apache.spark/spark-streaming-kafka-0-10_2.11 "2.3.1"]
+               [org.apache.spark/spark-sql_2.11 "2.3.1"]
+               [org.apache.spark/spark-hive_2.11 "2.3.1"]]}
              :clojure-1.6
              {:dependencies [[org.clojure/clojure "1.6.0"]]}
              :clojure-1.7
@@ -61,3 +61,4 @@
   :jvm-opts ^:replace ["-server" "-Xmx2g"]
   :global-vars {*warn-on-reflection* false}
   :min-lein-version "2.5.0")
+eans
