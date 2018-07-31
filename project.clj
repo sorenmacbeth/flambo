@@ -61,4 +61,3 @@
   :jvm-opts ^:replace ["-server" "-Xmx2g"]
   :global-vars {*warn-on-reflection* false}
   :min-lein-version "2.5.0")
-eans
