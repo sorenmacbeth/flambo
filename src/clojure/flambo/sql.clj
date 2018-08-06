@@ -210,21 +210,7 @@
         (recur (inc i) (conj! v (.get row i)))
         (persistent! v)))))
 
-(defsparkfn
-  ^{:doc "Coerce an `org.apache.spark.sql SparkSession.Row` objects into
-Clojure maps with each map created from its respective row."}
-  row->map [^org.apache.spark.sql.Row row]
-  (let [n (.length row)
-        schema (.schema row)
-        fields (if schema (.fieldNames schema))]
-    (loop [i 0 m (transient {})]
-      (if (< i n)
-        (recur (inc i)
-               (let [coln (if fields
-                            (nth fields i)
-                            (Integer/toString i))]
-                 (assoc! m (keyword coln) (.get row i))))
-        (persistent! m)))))
+(def row->map f/row->map)
 
 (defsparkfn
   ^{:doc "Coerce an Scala interator into a Clojure sequence"}
@@ -310,19 +296,25 @@ Clojure maps with each map created from its respective row."}
 
 * **:name** the name of the column
 * **:type** the (keyword) type of the column; defaults to `:string`
-* **:nullable** boolean of whether the column is nullable; defaults to `true`"
+* **:nullable** boolean of whether the column is nullable; defaults to `true`
+* **:array-type** like **:name** but type array with all elements of the array
+  as this type"
   [defs]
   (let [metadata (org.apache.spark.sql.types.Metadata/empty)]
     (->> defs
          (clojure.core/map
-          (fn [{:keys [name type nullable?]
+          (fn [{:keys [name type nullable? array-type]
                 :or {type :string
                      nullable? true}}]
-            (->> type
-                 clojure.core/name
-                 (format "\"%s\"")
-                 DataType/fromJson
-                 (#(StructField. name % nullable? metadata)))))
+            (let [json (if array-type
+                         (-> "{\"type\":\"array\",\"elementType\":\"%s\",\"containsNull\":false}"
+                             (format (clojure.core/name array-type))
+                             DataType/fromJson)
+                         (->> type
+                              clojure.core/name
+                              (format "\"%s\"")
+                              DataType/fromJson))]
+              (StructField. name json nullable? metadata))))
          (into-array StructField)
          StructType.)))
 
@@ -367,6 +359,11 @@ See [[query]] for **opts** details."
   (->> (apply query-maps url sql opts)
        f/collect
        clojure.pprint/print-table))
+
+(defn field-value
+  "Return a column value for field **column-name** for **row**."
+  [^Row row column-name]
+  (.get row (.fieldIndex row column-name)))
 
 
 (def show (memfn show))
