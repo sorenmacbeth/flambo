@@ -2,11 +2,11 @@
   (:use midje.sweet)
   (:require [flambo.api   :as f]
             [flambo.conf  :as conf]
-            [flambo.sql   :as sql])
+            [flambo.sql   :as sql]
+            [flambo.function :as func])
   (:import [org.apache.spark.sql functions RelationalGroupedDataset Column]
            [org.apache.spark.sql.expressions WindowSpec]
-           [org.apache.spark.sql.types DataTypes IntegerType StringType]
-           
+           [org.apache.spark.sql.types DataTypes IntegerType StringType]        
            ))
 
 (facts
@@ -21,8 +21,8 @@
            test-data-2 ["{\"col1\":4,\"col2\":\"a\"}" "{\"col1\":4,\"col2\":\"a\"}" "{\"col1\":6,\"col2\":\"a\"}"]
            test-df-2 (sql/json-rdd c (f/parallelize sc test-data-2))
            _ (sql/register-data-frame-as-table c test-df "foo")
-           _ (sql/register-data-frame-as-table c test-df-2 "bar")]
-
+           _ (sql/register-data-frame-as-table c test-df-2 "bar")
+           _ (-> c .udf (.register "UC" (func/udf (f/fn [x] (.toUpperCase x))) DataTypes/StringType))]
        (fact
          "with-sql-context gives us a SQLContext"
          (class c) => org.apache.spark.sql.SQLContext)
@@ -37,7 +37,10 @@
            (sql/columns df) => ["year" "make" "model" "comment" "blank"]))
 
        (fact "SQL queries work"
-         (f/count (sql/sql c "SELECT * FROM foo WHERE col2 = 'a'")) => 2)
+           (f/count (sql/sql c "SELECT * FROM foo WHERE col2 = 'a'")) => 2)
+
+       (fact "SQL UDF queries work"
+          (f/count (sql/sql c "SELECT * FROM foo WHERE UC(col2) = 'A'")) => 2)
 
        (fact "table-names gets all tables"
          (sql/table-names c) => (just ["foo" "bar"] :in-any-order))
